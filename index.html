@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Milad Ghaemi, PhD — computational materials physics, data engineering, scientific ML, and HPC.">
+  <title>Milad Ghaemi, PhD | Scientific Computing Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="wordmark" href="#top">MG<span>·</span></a>
+    <nav aria-label="Primary navigation">
+      <a href="#work">Work</a><a href="#research">Research</a><a href="#publications">Publications</a><a href="#contact">Contact</a>
+    </nav>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle color theme">◐ <span>Theme</span></button>
+  </header>
+
+  <main id="top">
+    <section class="hero shell">
+      <div class="eyebrow">Computational materials physics · Data engineering · Scientific ML</div>
+      <h1>Building reliable systems<br><em>for complex science.</em></h1>
+      <p class="lede">I’m <strong>Milad Ghaemi, PhD</strong> — a computational materials physicist and data engineer based in Helsinki. I design reproducible data platforms, scientific machine-learning workflows, and verified simulation tools.</p>
+      <div class="hero-actions">
+        <a class="button primary" href="#work">Explore selected work ↓</a>
+        <a class="button secondary" href="https://github.com/miladgk">GitHub ↗</a>
+      </div>
+      <div class="hero-grid">
+        <div><span class="stat">7</span><span>peer-reviewed publications</span></div>
+        <div><span class="stat">6.3M</span><span>telemetry rows processed</span></div>
+        <div><span class="stat">0.854</span><span>macro F1 in phase ML</span></div>
+      </div>
+    </section>
+
+    <section class="section shell" id="work">
+      <div class="section-heading"><span class="eyebrow">01 / Selected work</span><h2>From raw data to<br><em>validated insight.</em></h2></div>
+      <div class="filters" role="group" aria-label="Filter projects">
+        <button class="filter active" data-filter="all">All</button>
+        <button class="filter" data-filter="data">Data Engineering</button>
+        <button class="filter" data-filter="ml">Scientific ML</button>
+        <button class="filter" data-filter="science">Materials & FEM</button>
+        <button class="filter" data-filter="product">Product / Full-Stack</button>
+      </div>
+      <div class="project-grid">
+        <article class="project-card featured" data-category="data">
+          <div class="card-top"><span class="project-number">01</span><span class="status public">PUBLIC</span></div>
+          <h3>Industrial Energy SQL Pipeline</h3><p>High-volume telemetry ingestion, PostgreSQL analytics, anomaly detection, data quality, and Metabase reporting.</p>
+          <div class="metric-row"><b>6.3M</b><span>sensor readings</span><b>5 min</b><span>temporal resolution</span></div>
+          <div class="tags"><span>Python</span><span>PostgreSQL</span><span>Docker</span><span>SQL</span></div>
+          <details><summary>Architecture</summary><div class="mermaid">flowchart LR
+            A[Telemetry] --> B[CSV lake] --> C[Ingestion] --> D[(PostgreSQL)]
+            D --> E[Quality checks]
+            D --> F[SQL analytics] --> G[Anomaly detection]
+            F --> H[Metabase]</div></details>
+          <a class="card-link" href="https://github.com/miladgk/industrial-energy-sql-pipeline">View repository ↗</a>
+        </article>
+        <article class="project-card featured" data-category="ml">
+          <div class="card-top"><span class="project-number">02</span><span class="status public">PUBLIC</span></div>
+          <h3>Amorphous Phase ML</h3><p>Atomistic trajectory processing and per-atom classification for polyamorphous metallic glasses.</p>
+          <div class="metric-row"><b>18</b><span>descriptors / atom</span><b>0.854</b><span>macro F1</span></div>
+          <div class="tags"><span>LAMMPS</span><span>scikit-learn</span><span>SHAP</span><span>Python</span></div>
+          <details><summary>Architecture</summary><div class="mermaid">flowchart LR
+            A[LAMMPS] --> B[Descriptors] --> C[Validation] --> D[Group split]
+            D --> E[Classifier] --> F[Phase predictions]
+            E --> G[Explainability]</div></details>
+          <a class="card-link" href="https://github.com/miladgk/amorphous-phase-ml">View repository ↗</a>
+        </article>
+        <article class="project-card featured" data-category="data">
+          <div class="card-top"><span class="project-number">03</span><span class="status public">PUBLIC</span></div>
+          <h3>Aether Climate Engine</h3><p>Global station telemetry, statistical monitoring, forecasting, dbt dimensional models, and a field dashboard.</p>
+          <div class="metric-row"><b>365d</b><span>YoY baseline</span><b>3</b><span>forecast models</span></div>
+          <div class="tags"><span>Airflow</span><span>dbt</span><span>PostgreSQL</span><span>Forecasting</span></div>
+          <details><summary>Architecture</summary><div class="mermaid">flowchart LR
+            A[Open-Meteo / S3] --> B[Ingestion] --> C[(PostgreSQL)] --> D[dbt marts]
+            D --> E[Anomaly detection]
+            D --> F[Forecasting] --> G[Dashboard]
+            H[Airflow] --> B</div></details>
+          <a class="card-link" href="https://github.com/miladgk/aether-climate-engine">View repository ↗</a>
+        </article>
+        <article class="project-card" data-category="product">
+          <div class="card-top"><span class="project-number">04</span><span class="status private">PRIVATE R&D</span></div>
+          <h3>Airflow Academy</h3><p>Browser-based DAG learning and execution platform with AST validation, isolated Docker sandboxes, and streamed logs.</p>
+          <div class="tags"><span>Next.js</span><span>FastAPI</span><span>Supabase</span><span>Docker</span></div>
+          <details><summary>Architecture</summary><div class="mermaid">flowchart LR
+            A[Monaco editor] --> B[FastAPI] --> C[AST validation] --> D[Docker sandbox]
+            D --> E[Airflow 2.8.1] --> F[SSE logs]</div></details>
+        </article>
+        <article class="project-card" data-category="product">
+          <div class="card-top"><span class="project-number">05</span><span class="status private">PRIVATE R&D</span></div>
+          <h3>Smileprint</h3><p>Compliance and sustainability platform with audit history, insight rules, ESG calculations, and PDF lineage.</p>
+          <div class="tags"><span>FastAPI</span><span>PostgreSQL</span><span>React</span><span>Docker</span></div>
+          <details><summary>Architecture</summary><div class="mermaid">flowchart LR
+            A[Clinic data] --> B[FastAPI] --> C[(PostgreSQL)]
+            C --> D[Audit ledger] & E[Insights] & F[ESG / PDF]
+            B --> G[React frontend]</div></details>
+        </article>
+        <article class="project-card" data-category="science">
+          <div class="card-top"><span class="project-number">06</span><span class="status private">PRIVATE R&D</span></div>
+          <h3>Verified FEM Workbench</h3><p>Solver-neutral finite-element workflow with review gates, analytical references, and cross-solver comparison.</p>
+          <div class="tags"><span>Gmsh</span><span>Code_Aster</span><span>CalculiX</span><span>Docker</span></div>
+          <details><summary>Architecture</summary><div class="mermaid">flowchart LR
+            A[Model] --> B[Review gate] --> C[Gmsh mesh]
+            C --> D[Code_Aster] & E[CalculiX] --> F[Physics checks]</div></details>
+        </article>
+        <article class="project-card" data-category="science">
+          <div class="card-top"><span class="project-number">07</span><span class="status private">PRIVATE R&D</span></div>
+          <h3>Parallel Anatomy FEA</h3><p>CAD/anatomy import, robust meshing, MPI simulation, and HDF5/XDMF result export.</p>
+          <div class="tags"><span>DOLFINx</span><span>UFL</span><span>PETSc</span><span>MPI</span></div>
+        </article>
+        <article class="project-card" data-category="science">
+          <div class="card-top"><span class="project-number">08</span><span class="status private">PRIVATE R&D</span></div>
+          <h3>Quantum ESPRESSO Advisor</h3><p>Evidence-backed input/log analysis and reproducible performance benchmarking for electronic-structure workflows.</p>
+          <div class="tags"><span>Fortran</span><span>Python</span><span>HPC</span><span>Docker</span></div>
+        </article>
+        <article class="project-card" data-category="product">
+          <div class="card-top"><span class="project-number">09</span><span class="status private">PRIVATE R&D</span></div>
+          <h3>Tessera</h3><p>Kotlin Android application combining Voronoi geometry gameplay, Firebase services, local persistence, and privacy controls.</p>
+          <div class="tags"><span>Kotlin</span><span>Firebase</span><span>Room</span><span>Voronoi</span></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section research-band" id="research">
+      <div class="shell split"><div><span class="eyebrow">02 / Research identity</span><h2>Physics-aware.<br><em>Evidence-first.</em></h2></div><p>My research spans atomistic modeling of metallic glasses and thin films, hydrogen irradiation, grain-boundary mechanics, and scientific software that makes computational results reproducible and testable.</p></div>
+    </section>
+
+    <section class="section shell" id="publications">
+      <div class="section-heading"><span class="eyebrow">03 / Publications</span><h2>Seven studies across<br><em>materials and mechanics.</em></h2></div>
+      <div class="pub-filters"><button class="pub-filter active" data-pub-filter="all">All</button><button class="pub-filter" data-pub-filter="atomistic">Atomistic & Thin Films</button><button class="pub-filter" data-pub-filter="mechanics">Mechanics & Glasses</button></div>
+      <div class="publication-grid">
+        <article class="publication" data-pub="atomistic"><span>2026 · Materials Today Communications</span><h3>Crystallization dynamics and interfacial structure during HiPIMS growth of thin Nb films on Cu</h3><p>Atomistic MD · HiPIMS deposition · Nb/Cu superconducting RF interfaces</p><a href="https://scholar.google.com/scholar?q=Crystallization+dynamics+and+interfacial+structure+during+HiPIMS+growth+of+thin+Nb+films+on+Cu">Search on Google Scholar ↗</a></article>
+        <article class="publication" data-pub="atomistic"><span>2024 · Acta Materialia</span><h3>Surface orientation effects on Cu blistering under high-fluence H ion irradiation</h3><p>Hydrogen blistering · Ion irradiation · Cu surfaces · Atomistic modeling</p><a href="https://scholar.google.com/scholar?q=Surface+orientation+effects+on+Cu+blistering+under+high-fluence+H+ion+irradiation">Search on Google Scholar ↗</a></article>
+        <article class="publication" data-pub="atomistic"><span>2024 · Surface and Coatings Technology</span><h3>Comparative study of Nb film growth on Cu substrates using DCMS and HiPIMS</h3><p>Thin-film growth · DCMS vs. HiPIMS · Energetic deposition</p><a href="https://scholar.google.com/scholar?q=Comparative+study+of+Nb+film+growth+on+Cu+substrates+using+DCMS+and+HiPIMS">Search on Google Scholar ↗</a></article>
+        <article class="publication" data-pub="mechanics"><span>2022 · Extreme Mechanics Letters</span><h3>Notch-tip brittle-ductile transitions in metallic glasses</h3><p>Metallic glasses · Fracture mechanics · Brittle-to-ductile transition</p><a href="https://scholar.google.com/scholar?q=Notch-tip+brittle-ductile+transitions+in+metallic+glasses">Search on Google Scholar ↗</a></article>
+        <article class="publication" data-pub="mechanics"><span>2021 · ECS Journal of Solid State Science and Technology</span><h3>Investigation of grain boundary mechanical failure under strain and stress control</h3><p>Grain boundary mechanics · Failure analysis · Atomistic deformation</p><a href="https://scholar.google.com/scholar?q=Investigation+of+grain+boundary+mechanical+failure+under+strain+and+stress+control">Search on Google Scholar ↗</a></article>
+        <article class="publication" data-pub="mechanics"><span>2020 · Journal of Non-Crystalline Solids</span><h3>Thermodynamic potentials and physical quantities of metallic glasses</h3><p>Amorphous alloys · Thermodynamics · Disordered systems</p><a href="https://scholar.google.com/scholar?q=Thermodynamic+potentials+and+physical+quantities+of+metallic+glasses">Search on Google Scholar ↗</a></article>
+        <article class="publication" data-pub="mechanics"><span>2018 · Journal of Non-Crystalline Solids</span><h3>Short- and medium-range ordering in Cu-Zr and Ni-Zr metallic glasses</h3><p>Cu-Zr / Ni-Zr glasses · Structural ordering · Polyamorphism</p><a href="https://scholar.google.com/scholar?q=Short-+and+medium-range+ordering+in+Cu-Zr+and+Ni-Zr+metallic+glasses">Search on Google Scholar ↗</a></article>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer shell" id="contact"><div><span class="eyebrow">Let’s connect</span><h2>Open to meaningful<br><em>technical problems.</em></h2></div><div class="footer-links"><a href="https://github.com/miladgk">GitHub ↗</a><a href="https://www.linkedin.com/in/milad-ghaemikermani/">LinkedIn ↗</a><a href="https://scholar.google.com/citations?hl=en&user=dzrQ6WsAAAAJ">Google Scholar ↗</a></div><small>© 2026 Milad Ghaemi · Helsinki, Finland</small></footer>
+</body>
+</html>
