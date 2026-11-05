@@ -23,3 +23,7 @@ body.crimson .mermaid{background:rgba(20,6,7,.55);border-color:rgba(255,92,92,.1
 body.crimson .timeline{border-color:#ff5c5c}body.crimson .timeline-item:before{border-color:#ff5c5c;box-shadow:0 0 14px #ff5c5c}
 body.crimson .theme-toggle,body.crimson .filter,body.crimson .pub-filter{border-color:rgba(255,92,92,.24);background:rgba(42,14,16,.62);color:#d6b7b3}
 body.crimson .theme-toggle:hover,body.crimson .filter.active,body.crimson .pub-filter.active{border-color:#ff5c5c;color:#ff8888;box-shadow:0 0 22px rgba(255,92,92,.16)}
+
+
+.back-to-top{display:inline-flex;align-items:center;justify-content:center;margin-top:18px;padding:9px 13px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font:500 .62rem var(--mono);text-decoration:none;transition:color .2s,border-color .2s,box-shadow .2s,transform .2s}.back-to-top:hover{color:var(--accent);border-color:var(--accent);box-shadow:0 0 18px rgba(101,225,189,.14);transform:translateY(-2px)}.section-head-actions{display:flex;flex-direction:column;align-items:flex-end;max-width:300px}.section-head-actions>p{margin:0}@media(max-width:650px){.section-head-actions{align-items:flex-start;margin-top:22px}}
+body.crimson .back-to-top:hover{box-shadow:0 0 18px rgba(255,92,92,.18)}
