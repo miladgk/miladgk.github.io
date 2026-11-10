@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://miladgk.github.io/sitemap.xml
