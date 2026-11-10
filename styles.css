@@ -66,13 +66,13 @@ body.imperial .back-to-top:hover{box-shadow:0 0 18px rgba(102,2,60,.24)}
 .visual-banner.anatomy svg path:first-child{stroke-dasharray:620;stroke-dashoffset:620;animation:anatomy-scan 5.8s ease-in-out infinite}.visual-banner.anatomy svg path:nth-child(2){animation:anatomy-guides 3.5s ease-in-out infinite}
 .visual-banner.qe svg path{stroke-dasharray:520;stroke-dashoffset:520;animation:qe-wave 5s ease-in-out infinite}.visual-banner.qe svg circle{transform-box:fill-box;transform-origin:center;animation:qe-probe 2.6s ease-in-out infinite}
 .visual-banner.tessera svg path{stroke-dasharray:520;stroke-dashoffset:520;animation:tessera-build 5s ease-in-out infinite}
-@keyframes energy-trace{0%,12%{stroke-dashoffset:720}68%,100%{stroke-dashoffset:0}}@keyframes energy-beacon{0%,100%{opacity:.45;transform:scale(.8)}50%{opacity:1;transform:scale(1.5)}}
+@keyframes energy-trace{0%,12%{stroke-dashoffset:720}68%,100%{stroke-dashoffset:0}}@keyframes energy-beacon{0%,100%{opacity:.5}50%{opacity:1}}
 @keyframes atom-pulse{0%,100%{opacity:.55;transform:scale(.88)}50%{opacity:1;transform:scale(1.08)}}@keyframes atom-connect{0%,14%{stroke-dashoffset:420;opacity:.25}65%,100%{stroke-dashoffset:0;opacity:.9}}
 @keyframes climate-flow{0%,12%{stroke-dashoffset:560}76%,100%{stroke-dashoffset:0}}
 @keyframes dag-flow{0%,14%{stroke-dashoffset:500;opacity:.25}68%,100%{stroke-dashoffset:0;opacity:.9}}@keyframes dag-node{0%,100%{opacity:.55;transform:scale(.9)}50%{opacity:1;transform:scale(1.18)}}
 @keyframes compliance-draw{0%,12%{stroke-dashoffset:390;opacity:.25}72%,100%{stroke-dashoffset:0;opacity:1}}@keyframes compliance-link{0%,28%{stroke-dashoffset:80;opacity:.2}70%,100%{stroke-dashoffset:0;opacity:1}}
 @keyframes fem-mesh{0%,12%{stroke-dashoffset:520;opacity:.25}72%,100%{stroke-dashoffset:0;opacity:1}}@keyframes fem-grid{0%,100%{opacity:.35}50%{opacity:.9}}
 @keyframes anatomy-scan{0%,12%{stroke-dashoffset:620;opacity:.25}72%,100%{stroke-dashoffset:0;opacity:1}}@keyframes anatomy-guides{0%,100%{opacity:.25}50%{opacity:.75}}
-@keyframes qe-wave{0%,12%{stroke-dashoffset:520;opacity:.25}72%,100%{stroke-dashoffset:0;opacity:1}}@keyframes qe-probe{0%,100%{opacity:.45;transform:scale(.75)}50%{opacity:1;transform:scale(1.45)}}
+@keyframes qe-wave{0%,12%{stroke-dashoffset:520;opacity:.25}72%,100%{stroke-dashoffset:0;opacity:1}}@keyframes qe-probe{0%,100%{opacity:.5}50%{opacity:1}}
 @keyframes tessera-build{0%,12%{stroke-dashoffset:520;opacity:.25}72%,100%{stroke-dashoffset:0;opacity:1}}
 @media(prefers-reduced-motion:reduce){.visual-banner svg path,.visual-banner svg circle,.visual-banner svg rect{animation:none!important;stroke-dashoffset:0!important}}
