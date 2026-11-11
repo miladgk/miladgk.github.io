@@ -129,3 +129,34 @@ body.imperial .kpi-meta{color:rgba(216,184,180,.72)}
 .project-card:hover .card-schematic.fem svg,.project-card:hover .card-schematic.anatomy svg{transform:translateY(-2px);filter:drop-shadow(0 0 7px currentColor)}
 body.imperial .card-schematic:after{border-color:rgba(210,145,202,.16)}
 @media(prefers-reduced-motion:reduce){.card-schematic svg{transition:none}.project-card:hover .card-schematic.atoms svg,.project-card:hover .card-schematic.qe svg,.project-card:hover .card-schematic.fem svg,.project-card:hover .card-schematic.anatomy svg{transform:none;filter:none}}
+
+.inspect-architecture{display:inline-flex;align-items:center;width:max-content;margin-top:15px;padding:8px 11px;border:1px solid rgba(101,225,189,.42);border-radius:999px;background:rgba(101,225,189,.08);color:var(--accent);cursor:pointer;font:500 .62rem var(--mono);transition:background .2s,border-color .2s,box-shadow .2s,transform .2s}
+.card-links .inspect-architecture{margin-top:0}
+.inspect-architecture:hover,.inspect-architecture:focus-visible{border-color:var(--accent);background:rgba(101,225,189,.16);box-shadow:0 0 22px rgba(101,225,189,.16);transform:translateY(-1px)}
+.architecture-dialog{width:min(760px,calc(100% - 30px));max-height:min(760px,calc(100dvh - 30px));padding:0;border:1px solid rgba(147,201,187,.3);border-radius:18px;background:rgba(8,20,18,.88);color:var(--ink);box-shadow:0 30px 100px rgba(0,0,0,.5);opacity:0;transform:translateY(14px) scale(.98);transition:opacity .2s ease,transform .2s ease}
+.architecture-dialog[open]{display:block}
+.architecture-dialog.is-open{opacity:1;transform:translateY(0) scale(1)}
+.architecture-dialog::backdrop{background:rgba(2,8,7,.64);backdrop-filter:blur(16px);opacity:0;transition:opacity .2s ease}
+.architecture-dialog.is-open::backdrop{opacity:1}
+.architecture-dialog-panel{position:relative;max-height:min(760px,calc(100dvh - 30px));overflow:auto;padding:32px}
+.architecture-dialog-close{position:absolute;top:18px;right:20px;width:34px;height:34px;border:1px solid var(--line);border-radius:50%;background:transparent;color:var(--muted);cursor:pointer;font-size:1.35rem;line-height:1;transition:color .2s,border-color .2s,background .2s}
+.architecture-dialog-close:hover,.architecture-dialog-close:focus-visible{border-color:var(--accent);background:rgba(101,225,189,.1);color:var(--accent)}
+.architecture-dialog h2{margin:12px 45px 10px 0;font-size:clamp(2rem,5vw,3.8rem);line-height:.98}
+.architecture-dialog-summary{max-width:620px;color:var(--muted);font-size:.86rem}
+.architecture-dialog-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;margin-top:26px}
+.architecture-dialog h3{margin:0 0 12px;color:var(--accent);font:500 .66rem var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.architecture-list{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.architecture-list li{position:relative;padding-left:17px;color:var(--muted);font-size:.78rem}
+.architecture-list li:before{content:"";position:absolute;top:.62em;left:0;width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.architecture-stack{display:flex;flex-wrap:wrap;gap:6px}
+.architecture-stack span{padding:5px 7px;border:1px solid rgba(145,170,162,.24);border-radius:4px;color:var(--muted);font:400 .57rem var(--mono)}
+.architecture-verification{margin:18px 0 0;color:var(--muted);font-size:.75rem;line-height:1.6}
+.architecture-dialog-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+.architecture-dialog-actions a{display:inline-flex;align-items:center;padding:11px 14px;border:1px solid var(--line);border-radius:6px;color:var(--muted);font:500 .64rem var(--mono);text-decoration:none;transition:color .2s,border-color .2s,background .2s}
+.architecture-dialog-actions a:hover,.architecture-dialog-actions a:focus-visible{border-color:var(--accent);background:rgba(101,225,189,.1);color:var(--accent)}
+body.imperial .inspect-architecture{border-color:rgba(255,92,92,.35);background:rgba(102,2,60,.13);color:#d98bc0}
+body.imperial .inspect-architecture:hover,body.imperial .inspect-architecture:focus-visible{border-color:#d98bc0;background:rgba(102,2,60,.24);box-shadow:0 0 22px rgba(102,2,60,.2)}
+body.imperial .architecture-dialog{background:rgba(24,7,18,.94);border-color:rgba(255,92,92,.28)}
+body.imperial .architecture-list li:before{background:#d98bc0;box-shadow:0 0 10px #d98bc0}
+@media(max-width:650px){.architecture-dialog-panel{padding:26px 20px}.architecture-dialog-grid{grid-template-columns:1fr;gap:22px}.architecture-dialog h2{font-size:clamp(1.8rem,10vw,2.7rem)}.architecture-dialog-actions a{flex:1;justify-content:center}}
+@media(prefers-reduced-motion:reduce){.architecture-dialog,.architecture-dialog::backdrop,.inspect-architecture,.architecture-dialog-close,.architecture-dialog-actions a{transition:none}}
