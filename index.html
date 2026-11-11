@@ -31,7 +31,7 @@
   <link rel="icon" type="image/png" href="assets/milad-ghaemi.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script defer src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
   <script defer src="script.js"></script>
@@ -69,14 +69,28 @@
 <body>
   <div class="page-grid"></div>
   <header class="site-header shell">
-    <a class="brand" href="#top">Milad Ghaemi</a>
-    <nav><a href="#work">Work</a><a href="#arsenal">Arsenal</a><a href="#trajectory">Trajectory</a><a href="#publications">Research</a></nav>
-    <button class="theme-toggle" id="theme-toggle" aria-label="Switch between Emerald and Crimson themes">◐ <span>Theme: Emerald / Imperial Purple</span></button>
+    <a class="brand" href="#top"><span class="brand-name">MILAD GK</span><span class="brand-sub">RESEARCH LAB</span></a>
+    <nav><a href="#work">Work</a><a href="#arsenal">Arsenal</a><a href="#trajectory">Trajectory</a><a href="#publications">Research</a><a href="#contact">Contact</a></nav>
+    <div class="theme-picker" role="group" aria-label="Select visual theme">
+      <button class="theme-picker-btn" type="button" data-theme-id="lab" aria-pressed="true" aria-label="Research Lab theme">
+        <span class="swatch" style="--swatch-accent:#B6F36A;--swatch-bg:#0B0C0E"></span>
+        <span class="theme-label">Lab</span>
+      </button>
+      <button class="theme-picker-btn" type="button" data-theme-id="midnight" aria-pressed="false" aria-label="Midnight theme">
+        <span class="swatch" style="--swatch-accent:#818cf8;--swatch-bg:#0a0e17"></span>
+        <span class="theme-label">Midnight</span>
+      </button>
+    </div>
   </header>
 
   <main id="top">
-    <section class="hero shell">
+    <section class="hero shell chapter-section" id="hero" data-chapter="0" data-chapter-label="Intro">
       <div class="hero-copy">
+        <div class="tech-spec-bar" aria-label="Technical environment metadata">
+          <span class="spec-item"><b class="spec-tag">[FOCUS]</b> Materials Modeling · Scientific ML · Data Platforms</span>
+          <span class="spec-item"><b class="spec-tag">[STACK]</b> Python · PostgreSQL · LAMMPS · HPC</span>
+          <span class="spec-item spec-status"><span class="status-pip"></span> Available for R&amp;D</span>
+        </div>
         <div class="eyebrow"><span class="pulse-dot"></span> Computational Materials Scientist &amp; Data Engineer · Helsinki, Finland</div>
         <h1>Where <span class="accent-gradient">physics</span><br>meets <span class="accent-gradient">scale</span>.</h1>
         <p class="hero-lede">I’m <strong>Milad Ghaemi, PhD</strong>, building reliable data platforms, scientific ML workflows, and verified simulation systems for complex technical problems.</p>
@@ -88,89 +102,277 @@
         </div>
         <p class="perspective-status" id="perspective-status" role="status">A complete view across data platforms, scientific ML, and computational systems.</p>
         <div class="kpi-grid spotlight-surface">
-          <div class="kpi kpi-featured" data-perspectives="physics"><strong>07</strong><span>Peer-reviewed<br>papers</span><small class="kpi-meta">2018–2026 · research record</small></div>
-          <div class="kpi kpi-wide" data-perspectives="engineering"><strong>6.3M</strong><span>Synthetic telemetry<br>rows</span><small class="kpi-meta">5-minute resolution</small></div>
-          <div class="kpi kpi-wide" data-perspectives="engineering physics"><strong>0.854</strong><span>Macro F1<br>3-phase Cu-Zr</span><small class="kpi-meta">18 descriptors / atom</small></div>
-          <div class="kpi kpi-compact" data-perspectives="engineering physics"><strong>9</strong><span>Data, ML &amp; HPC<br>systems</span><small class="kpi-meta">public + private R&amp;D</small></div>
+          <div class="kpi" data-perspectives="engineering physics">
+            <strong>08</strong>
+            <span>Verified Systems</span>
+            <small class="kpi-meta">3 open source · 5 private R&amp;D</small>
+          </div>
+          <div class="kpi" data-perspectives="physics">
+            <strong>07</strong>
+            <span>Peer-Reviewed Papers</span>
+            <small class="kpi-meta">2018–2026 · research record</small>
+          </div>
+          <div class="kpi" data-perspectives="physics">
+            <strong>18</strong>
+            <span>Physical Descriptors</span>
+            <small class="kpi-meta">Voronoi, RDF &amp; virial stress</small>
+          </div>
+          <div class="kpi" data-perspectives="engineering">
+            <strong>71</strong>
+            <span>Validation Rules</span>
+            <small class="kpi-meta">Automated physics checks</small>
+          </div>
         </div>
       </div>
-      <div class="hero-visual"><div class="visual-label">LIVE / ATOMISTIC DATA NETWORK <span>●</span></div><canvas id="network-canvas" aria-label="Interactive atomistic lattice and data pipeline visualization"></canvas><div class="visual-caption"><span>NODE FIELD 01</span><span>SIMULATION → INSIGHT</span></div></div><a href="#top" class="back-to-top section-top hero-top">Top ↑</a>
+      <div class="hero-visual"><div class="visual-label">LIVE / ATOMISTIC DATA NETWORK <span>●</span></div><canvas id="network-canvas" aria-label="Interactive atomistic lattice and data pipeline visualization"></canvas><div class="visual-caption"><span>SIMULATION → INSIGHT</span></div></div>
+      <div class="authority-strip" aria-label="Core technical capabilities and verified domains">
+        <span>High-Throughput SQL &amp; Telemetry</span>
+        <span>Scientific Machine Learning</span>
+        <span>Atomistic MD &amp; LAMMPS</span>
+        <span>Quantum ESPRESSO &amp; DFT</span>
+        <span>Multi-Solver FEM Verification</span>
+        <span>Apache Airflow Orchestration</span>
+      </div>
+      <a href="#top" class="back-to-top section-top hero-top">Top ↑</a>
     </section>
 
-    <div class="authority-strip shell" aria-label="Verified ecosystem and authority anchors">
-      <span>University of Helsinki</span>
-      <span>Acta Materialia</span>
-      <span>Surface &amp; Coatings Technology</span>
-      <span>CSC HPC · Puhti / Mahti</span>
-      <span>PostgreSQL · dbt · Airflow</span>
-      <span>LAMMPS · DFT · MACE</span>
-    </div>
-
-    <section class="section shell" id="work">
+    <section class="section shell chapter-section" id="work" data-chapter="1" data-chapter-label="Systems">
       <div class="section-head"><div><div class="eyebrow">01 / Selected systems</div><h2>Built to move from<br>raw signal to truth.</h2></div><div class="section-head-actions"><p>Public engineering work and private R&D, presented at architecture level.</p></div></div>
       <div class="filter-row"><button class="filter active" data-filter="all">All systems</button><button class="filter" data-filter="data">Data engineering</button><button class="filter" data-filter="ml">Scientific ML</button><button class="filter" data-filter="science">Materials & FEM</button><button class="filter" data-filter="product">Product / full-stack</button></div>
-      <div class="project-grid">
-        <article class="project-card" data-category="data"><div class="card-schematic visual-banner energy" aria-label="Synthetic telemetry ingestion and PostgreSQL analytics flow"><svg viewBox="0 0 500 110" aria-hidden="true"><path d="M0 75C35 70 40 28 75 55s35 25 65 0 35 18 70-12 44 31 73 4 41-13 68 3 43-34 74-8 39 15 75-20" fill="none" stroke="currentColor" stroke-width="2"/><path d="M0 92h500" stroke="currentColor" opacity=".22"/><circle cx="0" cy="0" r="4" fill="currentColor"><animateMotion dur="6.8s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0.16;0.31;0.47;0.63;0.79;0.91;1" keyTimes="0;0.18;0.34;0.52;0.67;0.81;0.92;1" path="M0 75C35 70 40 28 75 55s35 25 65 0 35 18 70-12 44 31 73 4 41-13 68 3 43-34 74-8 39 15 75-20"/></circle></svg></div><div class="card-meta"><span>01</span><b class="status public">PUBLIC REPO</b></div><h3>Industrial Energy SQL Pipeline</h3>        <p>End-to-end engineering project using synthetic facility telemetry for ingestion, PostgreSQL analytics, anomaly detection, and Metabase reporting.</p><div class="metrics"><b>6.3M <small>rows</small></b><b>5 min <small>resolution</small></b></div>        <div class="tags"><span>Python 3.11</span><span>PostgreSQL 15</span><span>Docker</span><span>FastAPI</span><span>pytest</span></div><details><summary>Architecture <span>＋</span></summary><div class="mermaid">flowchart LR
-A[Telemetry] --> B[CSV lake] --> C[Ingestion] --> D[(PostgreSQL)]
-D --> E[Quality] & F[SQL analytics] --> G[Anomaly detection]
-F --> H[Metabase]</div></details><div class="card-links"><a class="card-link" href="https://github.com/miladgk/industrial-energy-sql-pipeline">View repository ↗</a><a class="card-link live-dashboard-link" href="https://miladgk.github.io/industrial-energy-sql-pipeline/" aria-label="Open Industrial Energy SQL Pipeline live dashboard">Live dashboard ↗</a></div></article>
-        <article class="project-card" data-category="ml"><div class="card-schematic visual-banner atoms" aria-label="Atomistic trajectory descriptors and phase classification flow"><svg viewBox="0 0 500 110" aria-hidden="true"><circle cx="120" cy="48" r="24"/><circle cx="180" cy="30" r="16"/><circle cx="210" cy="73" r="22"/><circle cx="270" cy="40" r="19"/><circle cx="330" cy="70" r="24"/><path d="M120 48l60-18 30 43 60-33 60 30" fill="none"/></svg></div><div class="card-meta"><span>02</span><b class="status public">PUBLIC REPO</b></div><h3>Amorphous Phase ML</h3><p>Atomistic trajectory processing and classification of <strong>3 amorphous Cu-Zr phases</strong> at the per-atom level.</p><div class="metrics"><b>18 <small>descriptors / atom</small></b>        <b>0.854 <small>holdout score</small></b></div>        <div class="tags"><span>LAMMPS</span><span>Python 3.10</span><span>HistGradientBoosting</span><span>RDF / Voronoi</span><span>SHAP</span></div><details><summary>Architecture <span>＋</span></summary><div class="mermaid">flowchart LR
-A[LAMMPS] --> B[Descriptors] --> C[Validation] --> D[Group split]
-D --> E[Classifier] --> F[3 phase predictions]
-E --> G[Explainability]</div></details><div class="card-links"><a class="card-link" href="https://github.com/miladgk/amorphous-phase-ml">View repository ↗</a><a class="card-link live-dashboard-link" href="https://miladgk.github.io/amorphous-phase-ml/" aria-label="Open Amorphous Phase ML live dashboard">Live dashboard ↗</a></div></article>
-        <article class="project-card" data-category="data"><div class="card-schematic visual-banner climate" aria-label="Meteorological telemetry and forecasting flow"><svg viewBox="0 0 500 110" aria-hidden="true"><path d="M0 75C55 20 85 100 140 52s90 35 140-13 75 28 110-5 72-20 110-5" fill="none"/><path d="M0 82C60 45 95 73 145 65s85 8 135-3 80 13 115-8 75 0 105-10" fill="none" opacity=".4"/></svg></div><div class="card-meta"><span>03</span><b class="status public">PUBLIC REPO</b></div><h3>Aether Climate Engine</h3><p>Global station telemetry, statistical monitoring, forecasting, dbt dimensional models, and a field dashboard.</p><div class="metrics"><b>365d <small>YoY baseline</small></b><b>03 <small>forecast models</small></b></div>        <div class="tags"><span>Airflow 2.8.1</span><span>dbt Core</span><span>PostgreSQL 15</span><span>AWS S3</span><span>Terraform</span></div><details><summary>Architecture <span>＋</span></summary><div class="mermaid">flowchart LR
-A[Open-Meteo / S3] --> B[Ingestion] --> C[(PostgreSQL)] --> D[dbt marts]
-D --> E[Anomaly] & F[Forecasting] --> G[Dashboard]
-H[Airflow] --> B</div></details><div class="card-links"><a class="card-link" href="https://github.com/miladgk/aether-climate-engine">View repository ↗</a><a class="card-link live-dashboard-link" href="https://miladgk.github.io/aether-climate-engine/" aria-label="Open Aether Climate Engine live dashboard">Live dashboard ↗</a></div></article>
-        <article class="project-card" data-category="product"><div class="card-schematic visual-banner dag" aria-label="Airflow learning platform execution DAG"><svg viewBox="0 0 500 110" aria-hidden="true"><path d="M70 55h80m45 0h80m45 0h80M150 55l45-32m0 32l45 32m80-32l45-32m-45 32l45 32" fill="none"/><g fill="currentColor"><circle cx="70" cy="55" r="9"/><circle cx="150" cy="55" r="9"/><circle cx="240" cy="55" r="9"/><circle cx="320" cy="55" r="9"/><circle cx="400" cy="55" r="9"/></g></svg></div><div class="card-meta"><span>04</span><b class="status private">PRIVATE R&D</b></div><h3>Airflow Academy</h3><p>Browser DAG learning platform with AST validation, isolated Docker sandboxes, and streamed execution logs.</p><div class="metrics">        <b>48 <small>lessons</small></b><b>07 <small>chapters</small></b></div>        <div class="tags"><span>Next.js</span><span>FastAPI</span><span>Docker</span><span>Airflow 2.8.1</span><span>AST validation</span></div><details><summary>Architecture <span>＋</span></summary><div class="mermaid">flowchart LR
-A[Monaco] --> B[FastAPI] --> C[AST validation] --> D[Docker sandbox]
-D --> E[Airflow 2.8.1] --> F[SSE logs]</div></details></article>
-        <article class="project-card" data-category="product"><div class="card-schematic visual-banner compliance" aria-label="Compliance data service and reporting modules"><svg viewBox="0 0 500 110" aria-hidden="true"><rect x="70" y="20" width="125" height="70" rx="8"/><rect x="230" y="35" width="75" height="45" rx="5"/><rect x="350" y="20" width="80" height="70" rx="8"/><path d="M195 55h35m75 0h45" fill="none"/></svg></div><div class="card-meta"><span>05</span><b class="status private">PRIVATE R&D</b></div><h3>Smileprint</h3>        <p>Compliance and sustainability platform with audit history, insight rules, ESG calculations, and PDF reports.</p><div class="metrics">        <b>36 <small>migrations</small></b><b>02 <small>app layers</small></b></div>        <div class="tags"><span>FastAPI</span><span>PostgreSQL</span><span>React</span><span>Docker</span><span>Audit ledger</span></div><details><summary>Architecture <span>＋</span></summary><div class="mermaid">flowchart LR
-A[Clinic data] --> B[FastAPI] --> C[(PostgreSQL)]
-C --> D[Audit ledger] & E[Insights] & F[ESG / PDF]
-B --> G[React frontend]</div></details></article>
-        <article class="project-card" data-category="science"><div class="card-schematic visual-banner fem" aria-label="Finite-element mesh and solver verification flow"><svg viewBox="0 0 500 110" aria-hidden="true"><path d="M70 80L150 25l95 20 95-30 90 55z" fill="none"/><path d="M70 80l80-55 95 75 95-85 90 65M150 25l95 20m0 0l95 30" fill="none"/></svg></div><div class="card-meta"><span>06</span><b class="status private">PRIVATE R&D</b></div><h3>Verified FEM Workbench</h3><p>Solver-neutral finite-element workflow with review gates, analytical references, and cross-solver comparison.</p><div class="metrics">        <b>08 <small>benchmark cases</small></b><b>03 <small>solvers</small></b></div><div class="tags">                <span>Gmsh</span><span>Code_Aster</span><span>CalculiX</span><span>FEniCSx</span><span>Physics checks</span></div><details><summary>Architecture <span>＋</span></summary><div class="mermaid">flowchart LR
-A[Model] --> B[Review gate] --> C[Gmsh mesh]
-C --> D[Code_Aster] & E[CalculiX] --> F[Physics checks]</div></details></article>
-        <article class="project-card" data-category="science"><div class="card-schematic visual-banner anatomy" aria-label="Anatomy geometry meshing and parallel simulation flow"><svg viewBox="0 0 500 110" aria-hidden="true"><path d="M55 85c30-55 70-40 95-5s65 40 100 0 65-70 110-35 70 30 85 0" fill="none"/><path d="M70 90h360M110 35l25 55m85-50l25 50m85-45l25 45" opacity=".4"/></svg></div><div class="card-meta"><span>07</span><b class="status private">PRIVATE R&D</b></div><h3>Parallel Anatomy FEA</h3><p>CAD/anatomy import, robust meshing, MPI simulation, and HDF5/XDMF scientific result export.</p><div class="metrics"><b>MPI <small>parallel cases</small></b><b>02 <small>result formats</small></b></div>        <div class="tags"><span>Gmsh</span><span>DOLFINx</span><span>PETSc</span><span>MPI</span><span>HDF5 / XDMF</span></div><details><summary>Architecture <span>＋</span></summary><div class="mermaid">flowchart LR
-A[STEP / STL] --> B[Healing] --> C[Gmsh mesh]
-C --> D[DOLFINx / UFL] --> E[MPI simulation]
-E --> F[HDF5 / XDMF]</div></details></article>
-        <article class="project-card" data-category="science"><div class="card-schematic visual-banner qe" aria-label="Quantum ESPRESSO input, benchmark, and evidence flow"><svg viewBox="0 0 500 110" aria-hidden="true"><path d="M45 75h410M70 55c30-40 55 40 85 0s55 40 85 0 55 40 85 0 55 40 85 0" fill="none"/><circle cx="0" cy="0" r="4"><animateMotion dur="6.2s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0.18;0.34;0.5;0.66;0.82;1" keyTimes="0;0.17;0.35;0.53;0.69;0.84;1" path="M70 55c30-40 55 40 85 0s55 40 85 0 55 40 85 0 55 40 85 0"/></circle></svg></div><div class="card-meta"><span>08</span><b class="status private">PRIVATE R&D</b></div><h3>Quantum ESPRESSO Advisor</h3><p>Evidence-backed input/log analysis and reproducible performance benchmarking for electronic-structure workflows.</p><div class="metrics"><b>04 <small>benchmark families</small></b><b>01 <small>evidence ledger</small></b></div>        <div class="tags"><span>Fortran</span><span>Python</span><span>Quantum ESPRESSO</span><span>HPC</span><span>Docker</span></div><details><summary>Architecture <span>＋</span></summary><div class="mermaid">flowchart LR
-A[QE input / log] --> B[Parser] --> C[Ledger rules]
-C --> D[Advisor report]
-E[Benchmark sweeps] --> C</div></details></article>
-        <article class="project-card" data-category="product"><div class="card-schematic visual-banner tessera" aria-label="Voronoi geometry and mobile service modules"><svg viewBox="0 0 500 110" aria-hidden="true"><path d="M70 20h100l-50 70zm100 0h100l-50 70zm100 0h100l-50 70zm100 0h60l-30 70z" fill="none"/></svg></div><div class="card-meta"><span>09</span><b class="status private">PRIVATE R&D</b></div><h3>Tessera</h3><p>Kotlin Android application combining Voronoi geometry gameplay, Firebase services, local persistence, and privacy controls.</p><div class="metrics"><b>04 <small>cloud services</small></b><b>02 <small>persistence layers</small></b></div>        <div class="tags"><span>Kotlin</span><span>Firebase</span><span>Room</span><span>Voronoi</span><span>Privacy controls</span></div><details><summary>Architecture <span>＋</span></summary><div class="mermaid">flowchart LR
-A[Android UI] --> B[Voronoi engine] --> C[Room]
-B --> D[Firestore] --> E[Firebase services]
-F[Auth / consent] --> A</div></details></article>
+      <!-- Split-Screen Scrollytelling Showcase -->
+      <div class="showcase-scrolly">
+        <div class="project-grid" id="project-list" role="region" aria-label="Project showcase list">
+          <article class="project-card is-active" data-category="data" data-project="Industrial Energy SQL Pipeline" data-index="01">
+            <div class="card-header" role="button" tabindex="0" aria-expanded="true">
+              <div class="card-meta"><span class="project-num">01</span><b class="status public">PUBLIC REPO</b></div>
+              <h3>Industrial Energy SQL Pipeline</h3>
+              <span class="card-chevron" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+            </div>
+            <div class="card-expandable">
+              <div class="card-expandable-content">
+                <div class="card-schematic visual-banner energy" aria-label="Synthetic telemetry ingestion and PostgreSQL analytics flow"><svg viewBox="0 0 500 110" aria-hidden="true"><path d="M0 75C35 70 40 28 75 55s35 25 65 0 35 18 70-12 44 31 73 4 41-13 68 3 43-34 74-8 39 15 75-20" fill="none" stroke="currentColor" stroke-width="2"/><path d="M0 92h500" stroke="currentColor" opacity=".22"/><circle cx="0" cy="0" r="4" fill="currentColor"><animateMotion dur="6.8s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0.16;0.31;0.47;0.63;0.79;0.91;1" keyTimes="0;0.18;0.34;0.52;0.67;0.81;0.92;1" path="M0 75C35 70 40 28 75 55s35 25 65 0 35 18 70-12 44 31 73 4 41-13 68 3 43-34 74-8 39 15 75-20"/></circle></svg></div>
+                <p>End-to-end engineering project using synthetic facility telemetry for ingestion, PostgreSQL analytics, anomaly detection, and Metabase reporting.</p>
+                <div class="metrics"><b>518K <small>rows</small></b><b>5 min <small>resolution</small></b></div>
+                <div class="tags"><span>Python 3.11</span><span>PostgreSQL 15</span><span>Docker</span><span>FastAPI</span><span>pytest</span></div>
+                <div class="card-links">
+                  <a class="card-link" href="https://github.com/miladgk/industrial-energy-sql-pipeline" target="_blank" rel="noopener noreferrer">View repository ↗</a>
+                  <a class="card-link live-dashboard-link" href="https://miladgk.github.io/industrial-energy-sql-pipeline/" target="_blank" rel="noopener noreferrer" aria-label="Open Industrial Energy SQL Pipeline live dashboard">Live dashboard ↗</a>
+                  <button class="inspect-architecture" type="button" data-project="Industrial Energy SQL Pipeline" aria-haspopup="dialog">Inspect Architecture &amp; Specs →</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="project-card" data-category="ml" data-project="Amorphous Phase ML" data-index="02">
+            <div class="card-header" role="button" tabindex="0" aria-expanded="false">
+              <div class="card-meta"><span class="project-num">02</span><b class="status public">PUBLIC REPO</b></div>
+              <h3>Amorphous Phase ML</h3>
+              <span class="card-chevron" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+            </div>
+            <div class="card-expandable">
+              <div class="card-expandable-content">
+                <div class="card-schematic visual-banner atoms" aria-label="Atomistic trajectory descriptors and phase classification flow"><svg viewBox="0 0 500 110" aria-hidden="true"><circle cx="120" cy="48" r="24"/><circle cx="180" cy="30" r="16"/><circle cx="210" cy="73" r="22"/><circle cx="270" cy="40" r="19"/><circle cx="330" cy="70" r="24"/><path d="M120 48l60-18 30 43 60-33 60 30" fill="none"/></svg></div>
+                <p>Atomistic trajectory processing and classification of <strong>3 amorphous Cu-Zr phases</strong> at the per-atom level.</p>
+                <div class="metrics"><b>18 <small>descriptors / atom</small></b><b>0.854 <small>holdout score</small></b></div>
+                <div class="tags"><span>LAMMPS</span><span>Python 3.10</span><span>HistGradientBoosting</span><span>RDF / Voronoi</span><span>SHAP</span></div>
+                <div class="card-links">
+                  <a class="card-link" href="https://github.com/miladgk/amorphous-phase-ml" target="_blank" rel="noopener noreferrer">View repository ↗</a>
+                  <a class="card-link live-dashboard-link" href="https://miladgk.github.io/amorphous-phase-ml/" target="_blank" rel="noopener noreferrer" aria-label="Open Amorphous Phase ML live dashboard">Live dashboard ↗</a>
+                  <button class="inspect-architecture" type="button" data-project="Amorphous Phase ML" aria-haspopup="dialog">Inspect Architecture &amp; Specs →</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="project-card" data-category="data" data-project="Aether Climate Engine" data-index="03">
+            <div class="card-header" role="button" tabindex="0" aria-expanded="false">
+              <div class="card-meta"><span class="project-num">03</span><b class="status public">PUBLIC REPO</b></div>
+              <h3>Aether Climate Engine</h3>
+              <span class="card-chevron" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+            </div>
+            <div class="card-expandable">
+              <div class="card-expandable-content">
+                <div class="card-schematic visual-banner climate" aria-label="Meteorological telemetry and forecasting flow"><svg viewBox="0 0 500 110" aria-hidden="true"><path d="M0 75C55 20 85 100 140 52s90 35 140-13 75 28 110-5 72-20 110-5" fill="none"/><path d="M0 82C60 45 95 73 145 65s85 8 135-3 80 13 115-8 75 0 105-10" fill="none" opacity=".4"/></svg></div>
+                <p>Global station telemetry, statistical monitoring, forecasting, dbt dimensional models, and a field dashboard.</p>
+                <div class="metrics"><b>5 <small>global stations</small></b><b>03 <small>forecast models</small></b></div>
+                <div class="tags"><span>Airflow 2.8.1</span><span>dbt Core</span><span>PostgreSQL 15</span><span>AWS S3</span><span>Terraform</span></div>
+                <div class="card-links">
+                  <a class="card-link" href="https://github.com/miladgk/aether-climate-engine" target="_blank" rel="noopener noreferrer">View repository ↗</a>
+                  <a class="card-link live-dashboard-link" href="https://miladgk.github.io/aether-climate-engine/" target="_blank" rel="noopener noreferrer" aria-label="Open Aether Climate Engine live dashboard">Live dashboard ↗</a>
+                  <button class="inspect-architecture" type="button" data-project="Aether Climate Engine" aria-haspopup="dialog">Inspect Architecture &amp; Specs →</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="project-card" data-category="product" data-project="Airflow Academy" data-index="04">
+            <div class="card-header" role="button" tabindex="0" aria-expanded="false">
+              <div class="card-meta"><span class="project-num">04</span><b class="status private">PRIVATE R&D</b></div>
+              <h3>Airflow Academy</h3>
+              <span class="card-chevron" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+            </div>
+            <div class="card-expandable">
+              <div class="card-expandable-content">
+                <div class="card-schematic visual-banner dag" aria-label="Airflow learning platform execution DAG"><svg viewBox="0 0 500 110" aria-hidden="true"><path d="M70 55h80m45 0h80m45 0h80M150 55l45-32m0 32l45 32m80-32l45-32m-45 32l45 32" fill="none"/><g fill="currentColor"><circle cx="70" cy="55" r="9"/><circle cx="150" cy="55" r="9"/><circle cx="240" cy="55" r="9"/><circle cx="320" cy="55" r="9"/><circle cx="400" cy="55" r="9"/></g></svg></div>
+                <p>Browser DAG learning platform with AST validation, isolated Docker sandboxes, and streamed execution logs.</p>
+                <div class="metrics"><b>189 <small>lessons</small></b><b>16 <small>chapters</small></b></div>
+                <div class="tags"><span>Next.js</span><span>FastAPI</span><span>Docker</span><span>Airflow 2.8.1</span><span>AST validation</span></div>
+                <div class="card-links">
+                  <button class="inspect-architecture" type="button" data-project="Airflow Academy" aria-haspopup="dialog">Inspect Architecture &amp; Specs →</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="project-card" data-category="product" data-project="Smileprint" data-index="05">
+            <div class="card-header" role="button" tabindex="0" aria-expanded="false">
+              <div class="card-meta"><span class="project-num">05</span><b class="status private">PRIVATE R&D</b></div>
+              <h3>Smileprint</h3>
+              <span class="card-chevron" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+            </div>
+            <div class="card-expandable">
+              <div class="card-expandable-content">
+                <div class="card-schematic visual-banner compliance" aria-label="Compliance data service and reporting modules"><svg viewBox="0 0 500 110" aria-hidden="true"><rect x="70" y="20" width="125" height="70" rx="8"/><rect x="230" y="35" width="75" height="45" rx="5"/><rect x="350" y="20" width="80" height="70" rx="8"/><path d="M195 55h35m75 0h45" fill="none"/></svg></div>
+                <p>Compliance and sustainability platform with audit history, insight rules, ESG calculations, and PDF reports.</p>
+                <div class="metrics"><b>38 <small>migrations</small></b><b>Jätelaki <small>646/2011</small></b></div>
+                <div class="tags"><span>FastAPI</span><span>PostgreSQL</span><span>React</span><span>Docker</span><span>Audit ledger</span></div>
+                <div class="card-links">
+                  <button class="inspect-architecture" type="button" data-project="Smileprint" aria-haspopup="dialog">Inspect Architecture &amp; Specs →</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="project-card" data-category="science" data-project="Verified FEM Workbench" data-index="06">
+            <div class="card-header" role="button" tabindex="0" aria-expanded="false">
+              <div class="card-meta"><span class="project-num">06</span><b class="status private">PRIVATE R&D</b></div>
+              <h3>Verified FEM Workbench</h3>
+              <span class="card-chevron" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+            </div>
+            <div class="card-expandable">
+              <div class="card-expandable-content">
+                <div class="card-schematic visual-banner fem" aria-label="Finite-element mesh and solver verification flow"><svg viewBox="0 0 500 110" aria-hidden="true"><path d="M70 80L150 25l95 20 95-30 90 55z" fill="none"/><path d="M70 80l80-55 95 75 95-85 90 65M150 25l95 20m0 0l95 30" fill="none"/></svg></div>
+                <p>Solver-neutral finite-element workflow with review gates, analytical references, and cross-solver comparison.</p>
+                <div class="metrics"><b>71 <small>validation rules</small></b><b>03 <small>solvers</small></b></div>
+                <div class="tags"><span>Gmsh</span><span>Code_Aster</span><span>CalculiX</span><span>FEniCSx</span><span>Physics checks</span></div>
+                <div class="card-links">
+                  <button class="inspect-architecture" type="button" data-project="Verified FEM Workbench" aria-haspopup="dialog">Inspect Architecture &amp; Specs →</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="project-card" data-category="science" data-project="Quantum ESPRESSO Advisor" data-index="07">
+            <div class="card-header" role="button" tabindex="0" aria-expanded="false">
+              <div class="card-meta"><span class="project-num">07</span><b class="status private">PRIVATE R&D</b></div>
+              <h3>Quantum ESPRESSO Advisor</h3>
+              <span class="card-chevron" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+            </div>
+            <div class="card-expandable">
+              <div class="card-expandable-content">
+                <div class="card-schematic visual-banner qe" aria-label="Quantum ESPRESSO input, benchmark, and evidence flow"><svg viewBox="0 0 500 110" aria-hidden="true"><path d="M45 75h410M70 55c30-40 55 40 85 0s55 40 85 0 55 40 85 0 55 40 85 0" fill="none"/><circle cx="0" cy="0" r="4"><animateMotion dur="6.2s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0.18;0.34;0.5;0.66;0.82;1" keyTimes="0;0.17;0.35;0.53;0.69;0.84;1" path="M70 55c30-40 55 40 85 0s55 40 85 0 55 40 85 0 55 40 85 0"/></circle></svg></div>
+                <p>Evidence-backed input/log analysis and reproducible performance benchmarking for electronic-structure workflows.</p>
+                <div class="metrics"><b>47 <small>verified claims</small></b><b>05 <small>benchmark families</small></b></div>
+                <div class="tags"><span>Fortran</span><span>Python</span><span>Quantum ESPRESSO</span><span>HPC</span><span>Docker</span></div>
+                <div class="card-links">
+                  <button class="inspect-architecture" type="button" data-project="Quantum ESPRESSO Advisor" aria-haspopup="dialog">Inspect Architecture &amp; Specs →</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="project-card" data-category="product" data-project="Tessera" data-index="08">
+            <div class="card-header" role="button" tabindex="0" aria-expanded="false">
+              <div class="card-meta"><span class="project-num">08</span><b class="status private">PRIVATE R&D</b></div>
+              <h3>Tessera</h3>
+              <span class="card-chevron" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></span>
+            </div>
+            <div class="card-expandable">
+              <div class="card-expandable-content">
+                <div class="card-schematic visual-banner tessera" aria-label="Voronoi geometry and mobile service modules"><svg viewBox="0 0 500 110" aria-hidden="true"><path d="M70 20h100l-50 70zm100 0h100l-50 70zm100 0h100l-50 70zm100 0h60l-30 70z" fill="none"/></svg></div>
+                <p>Kotlin Android application combining Voronoi geometry gameplay, Firebase services, local persistence, and privacy controls.</p>
+                <div class="metrics"><b>400 <small>levels</small></b><b>02 <small>distance metrics</small></b></div>
+                <div class="tags"><span>Kotlin</span><span>Firebase</span><span>Room</span><span>Voronoi</span><span>Privacy controls</span></div>
+                <div class="card-links">
+                  <button class="inspect-architecture" type="button" data-project="Tessera" aria-haspopup="dialog">Inspect Architecture &amp; Specs →</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <aside class="project-stage" id="project-stage" aria-label="Pinned interactive visual stage">
+          <div class="stage-sticky">
+            <div class="stage-topbar">
+              <div class="stage-meta">
+                <span class="stage-index" id="stage-index">01</span>
+                <span class="stage-badge status public" id="stage-badge">PUBLIC REPO</span>
+                <span class="stage-category" id="stage-category">Data engineering</span>
+              </div>
+              <div class="stage-tabs" role="tablist" aria-label="Project visual display modes">
+                <button class="stage-tab active" type="button" data-mode="schematic" role="tab" aria-selected="true" aria-controls="stage-schematic-view">Schematic</button>
+                <button class="stage-tab" type="button" data-mode="flowchart" role="tab" aria-selected="false" aria-controls="stage-flowchart-view">Flowchart</button>
+              </div>
+            </div>
+
+            <div class="stage-screen" id="stage-screen">
+              <div class="stage-view stage-view-schematic active" id="stage-schematic-view" role="tabpanel">
+                <div class="stage-schematic-mount" id="stage-schematic-mount">
+                  <div class="card-schematic visual-banner energy" aria-label="Synthetic telemetry ingestion and PostgreSQL analytics flow"><svg viewBox="0 0 500 110" aria-hidden="true"><path d="M0 75C35 70 40 28 75 55s35 25 65 0 35 18 70-12 44 31 73 4 41-13 68 3 43-34 74-8 39 15 75-20" fill="none" stroke="currentColor" stroke-width="2"/><path d="M0 92h500" stroke="currentColor" opacity=".22"/><circle cx="0" cy="0" r="4" fill="currentColor"><animateMotion dur="6.8s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0.16;0.31;0.47;0.63;0.79;0.91;1" keyTimes="0;0.18;0.34;0.52;0.67;0.81;0.92;1" path="M0 75C35 70 40 28 75 55s35 25 65 0 35 18 70-12 44 31 73 4 41-13 68 3 43-34 74-8 39 15 75-20"/></circle></svg></div>
+                </div>
+              </div>
+              <div class="stage-view stage-view-flowchart" id="stage-flowchart-view" role="tabpanel">
+                <div class="mermaid stage-mermaid" id="stage-mermaid"></div>
+              </div>
+            </div>
+
+            <div class="stage-bottom">
+              <div class="stage-summary">
+                <h3 class="stage-title" id="stage-title">Industrial Energy SQL Pipeline</h3>
+                <div class="stage-metrics" id="stage-metrics">
+                  <b>518K <small>rows</small></b><b>5 min <small>resolution</small></b>
+                </div>
+              </div>
+              <div class="stage-actions" id="stage-actions">
+                <a href="https://github.com/miladgk/industrial-energy-sql-pipeline" target="_blank" rel="noopener noreferrer">View repository ↗</a>
+                <a href="https://miladgk.github.io/industrial-energy-sql-pipeline/" target="_blank" rel="noopener noreferrer">Live dashboard ↗</a>
+                <button class="inspect-architecture" type="button" data-project="Industrial Energy SQL Pipeline" aria-haspopup="dialog">Inspect Architecture &amp; Specs →</button>
+              </div>
+            </div>
+          </div>
+        </aside>
       </div>
       <div class="section-top-row"><a href="#top" class="back-to-top section-top">Top ↑</a></div>
     </section>
 
-    <section class="section tinted" id="arsenal"><div class="shell"><div class="section-head"><div><div class="eyebrow">02 / Technical arsenal</div><h2>A toolkit for<br>deep systems.</h2></div><p>From warehouse primitives to cluster-scale simulation.</p></div><div class="arsenal-grid">
+    <section class="section tinted chapter-section" id="arsenal" data-chapter="2" data-chapter-label="Arsenal"><div class="shell"><div class="section-head"><div><div class="eyebrow">02 / Technical arsenal</div><h2>A toolkit for<br>deep systems.</h2></div><p>From warehouse primitives to cluster-scale simulation.</p></div><div class="arsenal-grid">
       <div class="arsenal-card"><span class="arsenal-icon">⌬</span><h3>Data Engineering & Orchestration</h3><div class="pill-list"><span>Python</span><span>PostgreSQL</span><span>Advanced SQL</span><span>dbt</span><span>Apache Airflow</span><span>FastAPI</span><span>Docker</span><span>AWS S3</span><span>Metabase</span></div></div>
       <div class="arsenal-card"><span class="arsenal-icon">◈</span><h3>Scientific ML & AI</h3><div class="pill-list"><span>scikit-learn</span><span>HistGradientBoosting</span><span>SHAP</span><span>Model calibration</span><span>MACE / MLIPs R&amp;D</span><span>Time-series forecasting</span></div></div>
       <div class="arsenal-card"><span class="arsenal-icon">⚛</span><h3>Computational Materials & Mechanics</h3><div class="pill-list"><span>LAMMPS</span><span>Quantum ESPRESSO</span><span>VASP</span><span>kMC</span><span>Gmsh</span><span>DOLFINx</span><span>UFL</span><span>PETSc</span><span>Code_Aster</span><span>CalculiX</span></div></div>
       <div class="arsenal-card"><span class="arsenal-icon">⌘</span><h3>HPC & Software Engineering</h3><div class="pill-list"><span>Puhti</span><span>Mahti</span><span>Ukko</span><span>Kale</span><span>Slurm</span><span>MPI</span><span>React</span><span>Next.js</span><span>TypeScript</span><span>Kotlin</span><span>GitHub Actions</span><span>pytest</span></div></div>
     </div><a href="#top" class="back-to-top section-top">Top ↑</a></div></section>
 
-    <section class="section shell" id="trajectory"><div class="section-head"><div><div class="eyebrow">03 / Experience & trajectory</div><h2>A research path<br>with range.</h2></div><p>Years spent moving between physical models, computational experiments, and production software.</p></div><div class="timeline">
+    <section class="section shell chapter-section" id="trajectory" data-chapter="3" data-chapter-label="Trajectory"><div class="section-head"><div><div class="eyebrow">03 / Experience & trajectory</div><h2>A research path<br>with range.</h2></div><p>Years spent moving between physical models, computational experiments, and production software.</p></div><div class="timeline">
+      <div class="timeline-progress-bar" id="timeline-progress-bar"></div>
       <div class="timeline-item"><span class="timeline-year">2021 to 2026</span><div><h3>Doctoral Researcher</h3><p>PhD in Materials Research & Nanosciences<br><strong>University of Helsinki, Finland</strong></p></div></div>
       <div class="timeline-item"><span class="timeline-year">2019 to 2021</span><div><h3>Computational Research</h3><p><strong>A*STAR, Singapore</strong></p></div></div>
       <div class="timeline-item"><span class="timeline-year">2016 to 2019</span><div><h3>Independent Computational Researcher</h3><p>Metallic glasses & atomistic modeling</p></div></div>
       <div class="timeline-item"><span class="timeline-year">2012 to 2015</span><div><h3>Engineering Role</h3><p><strong>IOOC</strong></p></div></div>
     <a href="#top" class="back-to-top section-top">Top ↑</a></div></section>
 
-    <section class="section tinted" id="publications"><div class="shell"><div class="section-head"><div><div class="eyebrow">04 / Publications</div><h2>Seven studies in<br>materials & mechanics.</h2></div><p>Peer-reviewed work spanning thin films, irradiation, glasses, and atomistic failure.</p></div><div class="pub-filters"><button class="pub-filter active" data-pub-filter="all">All research</button><button class="pub-filter" data-pub-filter="atomistic">Atomistic & thin films</button><button class="pub-filter" data-pub-filter="mechanics">Mechanics & glasses</button></div><div class="publication-grid">
+    <section class="section tinted chapter-section" id="publications" data-chapter="4" data-chapter-label="Research"><div class="shell"><div class="section-head"><div><div class="eyebrow">04 / Publications</div><h2>Seven studies in<br>materials & mechanics.</h2></div><p>Peer-reviewed work spanning thin films, irradiation, glasses, and atomistic failure.</p></div><div class="pub-filters"><button class="pub-filter active" data-pub-filter="all">All research</button><button class="pub-filter" data-pub-filter="atomistic">Atomistic & thin films</button><button class="pub-filter" data-pub-filter="mechanics">Mechanics & glasses</button></div><div class="publication-grid">
       <article class="publication" data-pub="atomistic"><span class="year">2026</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/pii/S2352492826007622?via%3Dihub" target="_blank" rel="noopener noreferrer">Materials Today Communications ↗</a><h3>Crystallization dynamics and interfacial structure during HiPIMS growth of thin Nb films on Cu</h3><p>Atomistic MD · HiPIMS deposition · Nb/Cu superconducting RF interfaces</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:Tyk-4Ss8FVUC" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
       <article class="publication" data-pub="atomistic"><span class="year">2024</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/pii/S1359645424000521" target="_blank" rel="noopener noreferrer">Acta Materialia ↗</a><h3>Surface orientation effects on Cu blistering under high-fluence H ion irradiation</h3><p>Hydrogen blistering · Ion irradiation · Cu surfaces · Atomistic modeling</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:UeHWp8X0CEIC" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
       <article class="publication" data-pub="atomistic"><span class="year">2024</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/pii/S025789722300974X" target="_blank" rel="noopener noreferrer">Surface and Coatings Technology ↗</a><h3>Comparative study of Nb film growth on Cu substrates using DCMS and HiPIMS</h3><p>Thin-film growth mechanisms · DCMS vs. HiPIMS · Energetic deposition</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:u-x6o8ySG0sC" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
       <article class="publication" data-pub="mechanics"><span class="year">2022</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/abs/pii/S2352431622000281" target="_blank" rel="noopener noreferrer">Extreme Mechanics Letters ↗</a><h3>Notch-tip brittle-ductile transitions in metallic glasses</h3><p>Metallic glasses · Fracture mechanics · Brittle-to-ductile transition</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:2osOgNQ5qMEC" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
-      <article class="publication" data-pub="mechanics"><span class="year">2021</span><div><a class="journal" href="https://iopscience.iop.org/article/10.1149/2162-8777/abe590/meta" target="_blank" rel="noopener noreferrer">ECS J. Solid State Sci. Technol. ↗</a><h3>Investigation of grain boundary mechanical failure under strain and stress control</h3><p>Grain boundary mechanics · Failure analysis · Atomistic deformation</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:qjMakFHDy7sC" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
-      <article class="publication" data-pub="mechanics"><span class="year">2020</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/abs/pii/S0022309320301162" target="_blank" rel="noopener noreferrer">J. Non-Cryst. Solids ↗</a><h3>Thermodynamic potentials and physical quantities of metallic glasses</h3><p>Amorphous alloys · Thermodynamics · Disordered systems</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:IjCSPb-OGe4C" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
-      <article class="publication" data-pub="mechanics"><span class="year">2018</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/abs/pii/S0022309318304368" target="_blank" rel="noopener noreferrer">J. Non-Cryst. Solids ↗</a><h3>Short- and medium-range ordering in Cu-Zr and Ni-Zr metallic glasses</h3><p>Cu-Zr / Ni-Zr glasses · Structural ordering · Polyamorphism</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:d1gkVwhDpl0C" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
-    </div><a href="#top" class="back-to-top section-top">Top ↑</a></div></div></section>
+      <article class="publication pub-collapsed" data-pub="mechanics"><span class="year">2021</span><div><a class="journal" href="https://iopscience.iop.org/article/10.1149/2162-8777/abe590/meta" target="_blank" rel="noopener noreferrer">ECS J. Solid State Sci. Technol. ↗</a><h3>Investigation of grain boundary mechanical failure under strain and stress control</h3><p>Grain boundary mechanics · Failure analysis · Atomistic deformation</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:qjMakFHDy7sC" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
+      <article class="publication pub-collapsed" data-pub="mechanics"><span class="year">2020</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/abs/pii/S0022309320301162" target="_blank" rel="noopener noreferrer">J. Non-Cryst. Solids ↗</a><h3>Thermodynamic potentials and physical quantities of metallic glasses</h3><p>Amorphous alloys · Thermodynamics · Disordered systems</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:IjCSPb-OGe4C" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
+      <article class="publication pub-collapsed" data-pub="mechanics"><span class="year">2018</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/abs/pii/S0022309318304368" target="_blank" rel="noopener noreferrer">J. Non-Cryst. Solids ↗</a><h3>Short- and medium-range ordering in Cu-Zr and Ni-Zr metallic glasses</h3><p>Cu-Zr / Ni-Zr glasses · Structural ordering · Polyamorphism</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:d1gkVwhDpl0C" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
+    </div>
+    <div class="pub-expand-wrap">
+      <button class="pub-expand-btn" type="button" id="pub-expand-btn" aria-expanded="false">Flip to all 7 publications (＋3)</button>
+    </div>
+    <a href="#top" class="back-to-top section-top">Top ↑</a></div></section>
     <dialog class="architecture-dialog" id="architecture-dialog" aria-labelledby="architecture-dialog-title" aria-describedby="architecture-dialog-summary" aria-modal="true">
       <div class="architecture-dialog-panel">
         <button class="architecture-dialog-close" type="button" aria-label="Close architecture and evidence dialog">×</button>
@@ -191,7 +393,34 @@ F[Auth / consent] --> A</div></details></article>
         <div class="architecture-dialog-actions" id="architecture-dialog-actions"></div>
       </div>
     </dialog>
+
+    <nav class="chapter-dock" id="chapter-dock" aria-label="Chapter pager" role="navigation">
+      <button class="chapter-flipper-btn" type="button" id="chapter-prev" aria-label="Previous chapter (PageUp)">↑</button>
+      <div class="chapter-dots" role="tablist" aria-label="Chapter list">
+        <button class="chapter-dot active" type="button" data-chapter="hero" role="tab" aria-selected="true" aria-label="Chapter 00: Intro">
+          <span class="chapter-dot-pip"></span>
+          <span class="chapter-dot-label">00 Intro</span>
+        </button>
+        <button class="chapter-dot" type="button" data-chapter="work" role="tab" aria-selected="false" aria-label="Chapter 01: Systems">
+          <span class="chapter-dot-pip"></span>
+          <span class="chapter-dot-label">01 Systems</span>
+        </button>
+        <button class="chapter-dot" type="button" data-chapter="arsenal" role="tab" aria-selected="false" aria-label="Chapter 02: Arsenal">
+          <span class="chapter-dot-pip"></span>
+          <span class="chapter-dot-label">02 Arsenal</span>
+        </button>
+        <button class="chapter-dot" type="button" data-chapter="trajectory" role="tab" aria-selected="false" aria-label="Chapter 03: Trajectory">
+          <span class="chapter-dot-pip"></span>
+          <span class="chapter-dot-label">03 Trajectory</span>
+        </button>
+        <button class="chapter-dot" type="button" data-chapter="publications" role="tab" aria-selected="false" aria-label="Chapter 04: Research">
+          <span class="chapter-dot-pip"></span>
+          <span class="chapter-dot-label">04 Research</span>
+        </button>
+      </div>
+      <button class="chapter-flipper-btn" type="button" id="chapter-next" aria-label="Next chapter (PageDown)">↓</button>
+    </nav>
   </main>
-  <footer class="site-footer shell"><div><div class="eyebrow">Let’s connect</div><p class="quote-attribution">Nelson Mandela</p><h2>It always seems impossible until it is done.</h2></div><div class="footer-links"><a href="https://github.com/miladgk">GitHub ↗</a><a href="https://www.linkedin.com/in/milad-ghaemikermani/">LinkedIn ↗</a><a href="https://scholar.google.com/citations?hl=en&user=dzrQ6WsAAAAJ">Google Scholar ↗</a><a href="https://miladgk.github.io">miladgk.github.io ↗</a></div><small>© 2026 Milad Ghaemi · Helsinki, Finland</small></footer>
+  <footer class="site-footer shell" id="contact"><div><div class="eyebrow">Let’s connect</div><p class="quote-attribution">Nelson Mandela</p><h2>It always seems impossible until it is done.</h2></div><div class="footer-links"><a href="https://github.com/miladgk">GitHub ↗</a><a href="https://www.linkedin.com/in/milad-ghaemikermani/">LinkedIn ↗</a><a href="https://scholar.google.com/citations?hl=en&user=dzrQ6WsAAAAJ">Google Scholar ↗</a><a href="https://miladgk.github.io">miladgk.github.io ↗</a></div><small>© 2026 Milad Ghaemi · Helsinki, Finland</small></footer>
 </body>
 </html>
