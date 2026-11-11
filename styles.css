@@ -121,3 +121,11 @@ body.imperial .kpi-meta{color:rgba(216,184,180,.72)}
 @media(max-width:650px){.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:auto}.kpi-featured,.kpi-wide,.kpi-compact{grid-column:span 1;grid-row:auto}.kpi-featured{grid-row:span 2}.kpi-meta{font-size:.48rem}}
 @media (hover:none),(pointer:coarse){.kpi-grid:before,.kpi:before,.kpi:after,.project-card:before{background:none;filter:none}.project-card:after{background:linear-gradient(135deg,rgba(101,225,189,.3),transparent 45%,rgba(169,148,255,.25))}}
 @media(prefers-reduced-motion:reduce){.kpi-grid:before,.kpi:before,.kpi:after,.project-card:before{background:none;filter:none}.project-card:after{background:linear-gradient(135deg,rgba(101,225,189,.3),transparent 45%,rgba(169,148,255,.25))}}
+
+.card-schematic{position:relative;display:grid;place-items:center;isolation:isolate}
+.card-schematic:after{content:"";position:absolute;inset:14px;border:1px solid rgba(145,170,162,.12);border-radius:7px;pointer-events:none}
+.card-schematic svg{position:relative;z-index:1;transition:transform .35s ease,filter .35s ease}
+.project-card:hover .card-schematic.atoms svg,.project-card:hover .card-schematic.qe svg{transform:scale(1.035);filter:drop-shadow(0 0 8px currentColor)}
+.project-card:hover .card-schematic.fem svg,.project-card:hover .card-schematic.anatomy svg{transform:translateY(-2px);filter:drop-shadow(0 0 7px currentColor)}
+body.imperial .card-schematic:after{border-color:rgba(210,145,202,.16)}
+@media(prefers-reduced-motion:reduce){.card-schematic svg{transition:none}.project-card:hover .card-schematic.atoms svg,.project-card:hover .card-schematic.qe svg,.project-card:hover .card-schematic.fem svg,.project-card:hover .card-schematic.anatomy svg{transform:none;filter:none}}
