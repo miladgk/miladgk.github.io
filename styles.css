@@ -76,3 +76,24 @@ body.imperial .back-to-top:hover{box-shadow:0 0 18px rgba(102,2,60,.24)}
 @keyframes qe-wave{0%,12%{stroke-dashoffset:520;opacity:.25}72%,100%{stroke-dashoffset:0;opacity:1}}@keyframes qe-probe{0%,100%{opacity:.5}50%{opacity:1}}
 @keyframes tessera-build{0%,12%{stroke-dashoffset:520;opacity:.25}72%,100%{stroke-dashoffset:0;opacity:1}}
 @media(prefers-reduced-motion:reduce){.visual-banner svg path,.visual-banner svg circle,.visual-banner svg rect{animation:none!important;stroke-dashoffset:0!important}}
+
+/* Hero perspective controls and verified authority anchors. */
+h1,body.imperial h1{background:none;color:#f8fafc;-webkit-text-fill-color:#f8fafc}
+.accent-gradient{background:linear-gradient(100deg,var(--accent),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:0 0 24px rgba(101,225,189,.16)}
+body.imperial .accent-gradient{text-shadow:0 0 24px rgba(196,155,255,.2)}
+.perspective-switcher{display:flex;flex-wrap:wrap;gap:4px;width:max-content;max-width:100%;padding:4px;border:1px solid var(--line);border-radius:999px;background:rgba(17,34,31,.46);backdrop-filter:blur(16px);box-shadow:0 12px 30px rgba(0,0,0,.12)}
+.perspective-button{border:0;border-radius:999px;background:transparent;color:var(--muted);padding:9px 12px;cursor:pointer;font:400 .6rem var(--mono);transition:color .2s,background .2s,box-shadow .2s}
+.perspective-button:hover,.perspective-button.active{background:rgba(101,225,189,.12);color:var(--accent);box-shadow:0 0 18px rgba(101,225,189,.1)}
+.perspective-status{min-height:1.5em;margin:12px 0 24px;color:var(--muted);font:400 .62rem var(--mono);letter-spacing:.02em}
+.kpi{transition:opacity .25s,transform .25s,border-color .25s,box-shadow .25s}
+.kpi.is-dim{opacity:.42;transform:scale(.97)}
+.kpi.is-focus{border-color:rgba(101,225,189,.5);box-shadow:0 0 24px rgba(101,225,189,.1)}
+.authority-strip{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 24px;padding:22px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);color:rgba(145,170,162,.68);font:400 .62rem var(--mono);letter-spacing:.04em}
+.authority-strip span{transition:color .2s,text-shadow .2s}
+.authority-strip span:hover{color:var(--ink);text-shadow:0 0 14px rgba(101,225,189,.2)}
+body.imperial .perspective-switcher{background:rgba(42,12,34,.7)}
+body.imperial .perspective-button:hover,body.imperial .perspective-button.active{background:rgba(102,2,60,.2);color:#d98bc0;box-shadow:0 0 18px rgba(102,2,60,.16)}
+body.imperial .kpi.is-focus{border-color:rgba(196,155,255,.5);box-shadow:0 0 24px rgba(102,2,60,.16)}
+body.imperial .authority-strip span:hover{color:var(--ink);text-shadow:0 0 14px rgba(196,155,255,.22)}
+@media(max-width:650px){.perspective-switcher{width:100%;border-radius:12px}.perspective-button{flex:1;padding:9px 7px;font-size:.54rem}.perspective-status{margin-bottom:20px}.authority-strip{justify-content:flex-start;gap:9px 15px;padding:18px 0}.authority-strip span{font-size:.55rem}}
+@media(prefers-reduced-motion:reduce){.perspective-button,.kpi,.authority-strip span{transition:none}}

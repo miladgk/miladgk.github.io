@@ -78,18 +78,33 @@
     <section class="hero shell">
       <div class="hero-copy">
         <div class="eyebrow"><span class="pulse-dot"></span> Computational Materials Scientist &amp; Data Engineer · Helsinki, Finland</div>
-        <h1>Where physics<br>meets scale.</h1>
+        <h1>Where <span class="accent-gradient">physics</span><br>meets <span class="accent-gradient">scale</span>.</h1>
         <p class="hero-lede">I’m <strong>Milad Ghaemi, PhD</strong>, building reliable data platforms, scientific ML workflows, and verified simulation systems for complex technical problems.</p>
         <div class="hero-actions"><a class="button primary" href="#work">Explore work <b>↓</b></a><a class="button ghost" href="https://github.com/miladgk">GitHub ↗</a><a class="button ghost" href="https://www.linkedin.com/in/milad-ghaemikermani/">LinkedIn ↗</a><a class="button ghost" href="https://scholar.google.com/citations?hl=en&user=dzrQ6WsAAAAJ">Scholar ↗</a></div>
+        <div class="perspective-switcher" role="group" aria-label="Choose a portfolio perspective">
+          <button class="perspective-button active" type="button" data-perspective="all">All Perspectives</button>
+          <button class="perspective-button" type="button" data-perspective="engineering">Data &amp; ML Engineering</button>
+          <button class="perspective-button" type="button" data-perspective="physics">Computational Physics &amp; HPC</button>
+        </div>
+        <p class="perspective-status" id="perspective-status" role="status">A complete view across data platforms, scientific ML, and computational systems.</p>
         <div class="kpi-grid">
-          <div class="kpi"><strong>07</strong><span>Peer-reviewed<br>papers</span></div>
-          <div class="kpi"><strong>6.3M</strong><span>Synthetic telemetry<br>rows</span></div>
-          <div class="kpi"><strong>0.854</strong><span>Macro F1<br>3-phase Cu-Zr</span></div>
-          <div class="kpi"><strong>9</strong><span>Data, ML & HPC<br>systems</span></div>
+          <div class="kpi" data-perspectives="physics"><strong>07</strong><span>Peer-reviewed<br>papers</span></div>
+          <div class="kpi" data-perspectives="engineering"><strong>6.3M</strong><span>Synthetic telemetry<br>rows</span></div>
+          <div class="kpi" data-perspectives="engineering physics"><strong>0.854</strong><span>Macro F1<br>3-phase Cu-Zr</span></div>
+          <div class="kpi" data-perspectives="engineering physics"><strong>9</strong><span>Data, ML &amp; HPC<br>systems</span></div>
         </div>
       </div>
       <div class="hero-visual"><div class="visual-label">LIVE / ATOMISTIC DATA NETWORK <span>●</span></div><canvas id="network-canvas" aria-label="Interactive atomistic lattice and data pipeline visualization"></canvas><div class="visual-caption"><span>NODE FIELD 01</span><span>SIMULATION → INSIGHT</span></div></div><a href="#top" class="back-to-top section-top hero-top">Top ↑</a>
     </section>
+
+    <div class="authority-strip shell" aria-label="Verified ecosystem and authority anchors">
+      <span>University of Helsinki</span>
+      <span>Acta Materialia</span>
+      <span>Surface &amp; Coatings Technology</span>
+      <span>CSC HPC · Puhti / Mahti</span>
+      <span>PostgreSQL · dbt · Airflow</span>
+      <span>LAMMPS · DFT · MACE</span>
+    </div>
 
     <section class="section shell" id="work">
       <div class="section-head"><div><div class="eyebrow">01 / Selected systems</div><h2>Built to move from<br>raw signal to truth.</h2></div><div class="section-head-actions"><p>Public engineering work and private R&D, presented at architecture level.</p></div></div>
