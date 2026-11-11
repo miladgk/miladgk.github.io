@@ -2194,3 +2194,1560 @@ summary span {
     transition: none !important;
   }
 }
+
+
+/* ==========================================================================
+   Publication Card Action Button
+   ========================================================================== */
+.pub-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.open-paper-folio {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--accent);
+  background: rgba(100, 255, 120, 0.08);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all var(--motion-speed) cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 10px rgba(100, 255, 120, 0.12);
+}
+
+.open-paper-folio:hover {
+  background: var(--accent);
+  color: #0b0f0e;
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 0 18px rgba(100, 255, 120, 0.38);
+}
+
+.pub-scholar-link {
+  font: 500 0.68rem var(--font-mono);
+  color: var(--muted);
+  text-decoration: none;
+  transition: color var(--motion-speed) ease;
+}
+
+.pub-scholar-link:hover {
+  color: var(--accent);
+}
+
+/* ==========================================================================
+/* ==========================================================================
+/* ==========================================================================
+   3D Hardcover Two-Page Book Folio Dialog
+   ========================================================================== */
+
+/* Outer Dialog Container - transparent backdrop frame holding utility bar & 3D book */
+.paper-folio-dialog {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: #18181B;
+  box-shadow: none;
+  opacity: 0;
+  transform: scale(0.985);
+  transition: opacity var(--motion-speed) ease, transform var(--motion-speed) ease;
+  overflow: hidden;
+}
+
+.paper-folio-dialog[open] {
+  display: block;
+}
+
+.paper-folio-dialog.is-open {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.paper-folio-dialog::backdrop {
+  background: rgba(12, 10, 8, 0.9);
+  backdrop-filter: blur(16px);
+  opacity: 0;
+  transition: opacity var(--motion-speed) ease;
+}
+
+.paper-folio-dialog.is-open::backdrop {
+  opacity: 1;
+}
+
+.paper-folio-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  padding: 16px 24px 14px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* Floating Top Actions Outside Book */
+.paper-folio-top-actions {
+  position: fixed;
+  top: 18px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 100;
+}
+
+.paper-folio-pdf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 999px;
+  border: 1px solid rgba(139, 115, 85, 0.4);
+  background: rgba(24, 22, 20, 0.85);
+  backdrop-filter: blur(12px);
+  color: #FAF7F0;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.paper-folio-pdf-btn:hover {
+  background: rgba(40, 36, 32, 0.95);
+  border-color: #8B7355;
+  transform: translateY(-1px);
+}
+
+.paper-folio-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(24, 22, 20, 0.85);
+  backdrop-filter: blur(12px);
+  color: #FAF7F0;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.paper-folio-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: rotate(90deg) scale(1.08);
+}
+
+/* 3D Stage & Viewport */
+.paper-folio-stage {
+  perspective: 2600px;
+  perspective-origin: 50% 50%;
+  position: relative;
+  flex: 1 1 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  overflow: visible;
+}
+
+.book-viewport {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 2600px;
+  perspective-origin: 50% 50%;
+}
+
+/* ==========================================================================
+   Outer Rigid Hardcover Case (White Linen/Buckram Board)
+   ========================================================================== */
+.book-hardcover-case {
+  position: relative;
+  width: min(1200px, calc(100vw - 220px));
+  height: min(840px, calc(94vh - 74px));
+  border-radius: 6px;
+  padding: 10px;
+  box-sizing: border-box;
+  background-color: #F8F7F4;
+  background-image: 
+    radial-gradient(#E8E5DD 0.75px, transparent 0.75px),
+    radial-gradient(#E8E5DD 0.75px, #F8F7F4 0.75px);
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 4px;
+  /* Multi-sheet paper stack fore-edge depth + 3D drop shadow */
+  box-shadow: 
+    0 0 0 1px rgba(0, 0, 0, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.8),
+    2px 3px 0 #FAF7F0,
+    5px 6px 0 #EFECE4,
+    8px 9px 0 #E4E0D5,
+    11px 12px 0 #D6D1C4,
+    0 28px 70px rgba(0, 0, 0, 0.65);
+  display: flex;
+  transform-style: preserve-3d;
+  transition: width 0.38s cubic-bezier(0.22, 1, 0.36, 1), transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* State semantic hooks - uniform spread layout maintained throughout */
+.book-hardcover-case.state-front-cover,
+.book-hardcover-case.state-back-cover {
+  width: min(1200px, calc(100vw - 220px));
+}
+
+/* ==========================================================================
+   Central Spine Gutter with Curvature Shading & Thread Crease
+   ========================================================================== */
+.book-spine-gutter {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  bottom: 10px;
+  width: 28px;
+  transform: translateX(-50%);
+  z-index: 15;
+  pointer-events: none;
+  background: linear-gradient(90deg, 
+    rgba(0,0,0,0.22) 0%, 
+    rgba(0,0,0,0.05) 25%, 
+    rgba(0,0,0,0.12) 50%, 
+    rgba(0,0,0,0.05) 75%, 
+    rgba(0,0,0,0.22) 100%
+  );
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.12);
+}
+
+.spine-thread {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  transform: translateX(-50%);
+  background: repeating-linear-gradient(180deg, 
+    rgba(139, 115, 85, 0.6) 0px, 
+    rgba(139, 115, 85, 0.6) 8px, 
+    transparent 8px, 
+    transparent 14px
+  );
+}
+
+/* ==========================================================================
+   Book Pages (Left & Right Spreads)
+   ========================================================================== */
+.book-page {
+  width: 50%;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  background-color: #FAF7F0;
+  background-image: 
+    radial-gradient(#E8E3D5 0.75px, transparent 0.75px),
+    radial-gradient(#E8E3D5 0.75px, #FAF7F0 0.75px);
+  background-size: 24px 24px;
+  background-position: 0 0, 12px 12px;
+  color: #18181B;
+  position: relative;
+  overflow: hidden; /* Zero scrollbars */
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.book-page-left {
+  border-radius: 3px 0 0 3px;
+  box-shadow: inset -14px 0 16px -8px rgba(0, 0, 0, 0.08);
+}
+
+.book-page-right {
+  border-radius: 0 3px 3px 0;
+  box-shadow: inset 14px 0 16px -8px rgba(0, 0, 0, 0.08);
+}
+
+/* Full-bleed padding resets for covers and endpapers */
+.book-page:has(.hardcover-surface),
+.book-page:has(.page-endpaper),
+.leaf-face:has(.hardcover-surface),
+.leaf-face:has(.page-endpaper) {
+  padding: 0;
+}
+
+/* ==========================================================================
+   Dynamic Deformable Corner-Fold Flipping Leaf
+   ========================================================================== */
+.book-flipping-leaf {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: calc(50% - 10px);
+  height: calc(100% - 20px);
+  z-index: 30;
+  pointer-events: none;
+  display: none;
+  overflow: visible;
+}
+
+.leaf-face {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  background-color: #FAF7F0;
+  background-image: 
+    radial-gradient(#E8E3D5 0.75px, transparent 0.75px),
+    radial-gradient(#E8E3D5 0.75px, #FAF7F0 0.75px);
+  background-size: 24px 24px;
+  background-position: 0 0, 12px 12px;
+  color: #18181B;
+  overflow: hidden;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.leaf-front {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0 3px 3px 0;
+  box-shadow: inset 14px 0 16px -8px rgba(0, 0, 0, 0.08);
+  will-change: clip-path;
+}
+
+.leaf-back {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 0;
+  border-radius: 3px 0 0 3px;
+  filter: drop-shadow(-4px 6px 14px rgba(0, 0, 0, 0.28));
+  will-change: transform, clip-path;
+}
+
+.leaf-shadow-overlay {
+  display: none !important;
+}
+
+/* Hardcover Inside Lining / Endpaper */
+.page-endpaper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 28px;
+  background-color: #F8F7F4;
+  background-image: 
+    radial-gradient(#E8E5DD 0.75px, transparent 0.75px),
+    radial-gradient(#E8E5DD 0.75px, #F8F7F4 0.75px);
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 4px;
+  box-sizing: border-box;
+}
+
+.endpaper-frame {
+  border: 1.5px solid rgba(139, 115, 85, 0.35);
+  border-radius: 4px;
+  padding: 28px 20px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.endpaper-crest {
+  font-size: 1.6rem;
+  color: #8B7355;
+  opacity: 0.85;
+}
+
+.endpaper-title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #2D2A26;
+  text-transform: uppercase;
+}
+
+.endpaper-sub {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: #8B7355;
+  text-transform: uppercase;
+}
+
+.endpaper-colophon {
+  font-family: "Lora", Georgia, serif;
+  font-style: italic;
+  font-size: 0.8rem;
+  color: #6B665E;
+  margin-top: 10px;
+}
+
+/* ==========================================================================
+   Interactive Hand Drag Indicators & Corner Handles
+   ========================================================================== */
+.book-corner-handle {
+  position: absolute;
+  bottom: 10px;
+  width: 95px;
+  height: 95px;
+  z-index: 40;
+  cursor: grab;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  outline: none;
+}
+
+.book-corner-handle.handle-next {
+  right: 10px;
+}
+
+.book-corner-handle.handle-prev {
+  left: 10px;
+  justify-content: flex-start;
+}
+
+.corner-dogear-right {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(315deg, transparent 48%, rgba(0, 0, 0, 0.22) 50%, #ECE6D8 52%, #FAF7F0 76%);
+  box-shadow: -4px -4px 10px rgba(0, 0, 0, 0.24);
+  border-radius: 0 0 3px 0;
+  pointer-events: none;
+  transition: width 0.26s cubic-bezier(0.22, 1, 0.36, 1), height 0.26s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.26s ease;
+}
+
+.corner-dogear-left {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(45deg, transparent 48%, rgba(0, 0, 0, 0.22) 50%, #ECE6D8 52%, #FAF7F0 76%);
+  box-shadow: 4px -4px 10px rgba(0, 0, 0, 0.24);
+  border-radius: 0 0 0 3px;
+  pointer-events: none;
+  transition: width 0.26s cubic-bezier(0.22, 1, 0.36, 1), height 0.26s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.26s ease;
+}
+
+.book-corner-handle.handle-next:hover .corner-dogear-right {
+  width: 68px;
+  height: 68px;
+  box-shadow: -8px -8px 18px rgba(0, 0, 0, 0.3);
+}
+
+.book-corner-handle.handle-prev:hover .corner-dogear-left {
+  width: 68px;
+  height: 68px;
+  box-shadow: 8px -8px 18px rgba(0, 0, 0, 0.3);
+}
+
+/* Hand Drag Indicator Pill */
+.hand-drag-indicator {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(250, 247, 240, 0.94);
+  color: #635342;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(139, 115, 85, 0.32);
+  pointer-events: none;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), background 0.15s ease, color 0.15s ease;
+  z-index: 2;
+  will-change: transform;
+}
+
+.book-corner-handle.handle-prev .hand-drag-indicator {
+  right: auto;
+  left: 12px;
+}
+
+.book-corner-handle:hover .hand-drag-indicator {
+  transform: scale(1.1) translate(-2px, -2px);
+  color: #18181B;
+  background: #FAF7F0;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
+}
+
+.book-corner-handle.handle-prev:hover .hand-drag-indicator {
+  transform: scale(1.1) translate(2px, -2px);
+}
+
+.book-corner-handle:active,
+.book-corner-handle.is-grabbing {
+  cursor: grabbing !important;
+}
+
+.hand-drag-indicator .hand-svg.hand-closed {
+  display: none;
+}
+
+.hand-drag-indicator.hand-clenched .hand-svg.hand-open {
+  display: none;
+}
+
+.hand-drag-indicator.hand-clenched .hand-svg.hand-closed {
+  display: block;
+}
+
+.handle-hint {
+  position: absolute;
+  bottom: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #8C8275;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.hint-next {
+  right: 56px;
+  transform: translateX(6px);
+}
+
+.hint-prev {
+  left: 56px;
+  transform: translateX(-6px);
+}
+
+.book-corner-handle:hover .handle-hint {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ==========================================================================
+   Page Typographic & Content Components
+   ========================================================================== */
+.page-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.page-running-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(139, 115, 85, 0.2);
+  margin-bottom: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #8B7355;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.rh-doi {
+  color: #8B7355;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.rh-doi:hover {
+  color: #18181B;
+  text-decoration: underline;
+}
+
+.page-footer-num {
+  position: absolute;
+  bottom: 0;
+  font-family: "Lora", Georgia, serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6E685E;
+}
+
+.num-left {
+  left: 0;
+}
+
+.num-right {
+  right: 0;
+}
+
+/* Hardcover Surface (Front Cover & Back Cover) */
+.hardcover-surface {
+  background-color: #F8F7F4;
+  background-image: 
+    radial-gradient(#E8E5DD 0.75px, transparent 0.75px),
+    radial-gradient(#E8E5DD 0.75px, #F8F7F4 0.75px);
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 4px;
+  border-radius: 4px;
+  box-shadow: 
+    inset 0 0 0 1px rgba(0, 0, 0, 0.08),
+    inset 0 0 24px rgba(0, 0, 0, 0.04);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.hardcover-surface.cover-front {
+  cursor: pointer;
+}
+
+.cover-inner-frame {
+  margin: 18px;
+  padding: 28px 24px;
+  border: 1.5px solid rgba(139, 115, 85, 0.28);
+  box-shadow: 
+    inset 1px 1px 3px rgba(0, 0, 0, 0.06),
+    inset -1px -1px 3px rgba(255, 255, 255, 0.8),
+    0 1px 0 rgba(255, 255, 255, 0.7);
+  border-radius: 2px;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+  position: relative;
+}
+
+.cover-spine-groove {
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(90deg, rgba(0,0,0,0.14) 0%, rgba(255,255,255,0.4) 50%, rgba(0,0,0,0.18) 100%);
+  box-shadow: 1px 0 2px rgba(0,0,0,0.08);
+}
+
+.cover-spine-groove.groove-right {
+  left: auto;
+  right: 12px;
+}
+
+.cover-header-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cover-journal-name {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8B7355;
+}
+
+.cover-edition-tag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #A8A298;
+  letter-spacing: 0.05em;
+}
+
+.cover-title-block {
+  margin: 18px 0;
+}
+
+.cover-title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.34;
+  color: #18181B;
+  margin: 0 0 10px;
+  letter-spacing: -0.01em;
+}
+
+.cover-subtitle {
+  font-family: "Lora", Georgia, serif;
+  font-size: 0.88rem;
+  font-style: italic;
+  color: #635342;
+  margin: 0;
+}
+
+.cover-authors-block {
+  margin: 10px 0;
+}
+
+.cover-authors {
+  font-family: "Lora", Georgia, serif;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #4A4843;
+  margin: 0 0 8px;
+}
+
+.cover-divider {
+  width: 48px;
+  height: 1px;
+  background: rgba(139, 115, 85, 0.4);
+  margin: 0 auto 8px;
+}
+
+.cover-affiliation {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: #8B7355;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.cover-crest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #8B7355;
+}
+
+.cover-crest-label {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  color: #8C8275;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Page 1 (Front Matter) */
+.book-paper-title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.32;
+  color: #18181B;
+  margin: 0 0 8px;
+}
+
+.book-paper-authors {
+  font-family: "Lora", Georgia, serif;
+  font-size: 0.8rem;
+  color: #4A4843;
+  font-style: italic;
+  line-height: 1.45;
+  margin: 0 0 12px;
+}
+
+.book-section-label {
+  font-family: "Lora", Georgia, serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #18181B;
+  margin: 0 0 6px;
+}
+
+.book-highlights-section {
+  padding: 10px 14px;
+  background: rgba(240, 236, 226, 0.55);
+  border: 1px solid rgba(139, 115, 85, 0.2);
+  border-left: 3px solid #8B7355;
+  border-radius: 3px;
+  margin-bottom: 12px;
+}
+
+.book-highlights-bullets {
+  margin: 0;
+  padding-left: 18px;
+  font-family: "Lora", Georgia, serif;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: #242220;
+}
+
+.book-highlights-bullets li {
+  margin-bottom: 4px;
+}
+
+.book-keywords-section {
+  padding: 8px 12px;
+  background: rgba(240, 236, 226, 0.4);
+  border: 1px solid rgba(139, 115, 85, 0.18);
+  border-radius: 3px;
+}
+
+.book-keywords-text {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: #4A4843;
+  margin: 0;
+}
+
+/* Page 2 (Abstract & Graphical Abstract) */
+.page-abstract {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  height: 100%;
+  min-height: 0;
+  gap: 6px;
+}
+
+.book-abstract-heading {
+  font-family: "Lora", Georgia, serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #18181B;
+  margin: 0;
+}
+
+.book-abstract-p {
+  font-family: "Lora", Georgia, serif;
+  font-size: 0.77rem;
+  line-height: 1.5;
+  color: #242220;
+  margin: 0;
+  text-align: justify;
+}
+
+.book-ga-box {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.book-ga-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(139, 115, 85, 0.25);
+  background: transparent;
+  cursor: zoom-in;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.book-ga-img {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  display: block;
+  mix-blend-mode: multiply;
+  filter: contrast(1.04);
+  transition: transform 0.25s ease;
+}
+
+.book-ga-img-wrap:hover .book-ga-img {
+  transform: scale(1.02);
+}
+
+.ga-zoom-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 3px 8px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  border-radius: 999px;
+  background: rgba(250, 247, 240, 0.9);
+  border: 1px solid rgba(139, 115, 85, 0.3);
+  color: #4A4843;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* Plate Media (Left Page of Spreads 2..13) */
+.page-plate-media {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100%;
+  min-height: 0;
+  gap: 8px;
+}
+
+.plate-media-container {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.book-plate-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-in;
+}
+
+.book-plate-img {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  display: block;
+  mix-blend-mode: multiply;
+  filter: contrast(1.04) brightness(0.98);
+  transition: transform 0.25s ease;
+}
+
+.book-plate-img-wrap:hover .book-plate-img {
+  transform: scale(1.015);
+}
+
+.plate-zoom-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  border-radius: 999px;
+  background: rgba(250, 247, 240, 0.92);
+  border: 1px solid rgba(139, 115, 85, 0.35);
+  color: #4A4843;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.book-plate-video {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  background: #18181B;
+  border-radius: 4px;
+  border: 1.5px solid rgba(139, 115, 85, 0.35);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+/* Plate Caption (Right Page of Spreads 2..13) */
+.caption-card-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1), transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.page-plate-caption.caption-pending .caption-card-inner {
+  opacity: 0 !important;
+  transform: translateY(12px) !important;
+  pointer-events: none;
+}
+
+.page-plate-caption.caption-revealed .caption-card-inner {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+.plate-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.plate-badge {
+  font-family: "Lora", Georgia, serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: #E8E2D5;
+  color: #18181B;
+  border: 1px solid rgba(139, 115, 85, 0.35);
+}
+
+.plate-tag {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: #8B7355;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.plate-title {
+  font-family: "Lora", Georgia, serif;
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.34;
+  color: #18181B;
+  margin: 0 0 10px;
+}
+
+.plate-rule {
+  width: 100%;
+  height: 1.5px;
+  background: rgba(139, 115, 85, 0.25);
+  margin-bottom: 12px;
+}
+
+.plate-caption-text {
+  font-family: "Lora", Georgia, serif;
+  font-size: 0.84rem;
+  line-height: 1.68;
+  color: #242220;
+  text-align: justify;
+}
+
+/* Mathematical typography inside captions */
+.folio-math-term {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.92em;
+  color: #2C2419;
+  font-weight: 600;
+}
+
+.folio-math {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin: 0 3px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.92em;
+  color: #2C2419;
+  font-weight: 600;
+}
+
+.math-frac {
+  display: inline-flex;
+  flex-direction: column;
+  vertical-align: middle;
+  text-align: center;
+  padding: 0 4px;
+  font-size: 0.85em;
+  line-height: 1.1;
+}
+
+.math-num {
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+}
+
+.math-denom {
+  padding-top: 1px;
+}
+
+/* Conclusion Spread (Pages 27 & 28) */
+.book-conclusion-title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #18181B;
+  margin: 0 0 10px;
+}
+
+.conclusion-body {
+  font-family: "Lora", Georgia, serif;
+  font-size: 0.82rem;
+  line-height: 1.66;
+  color: #242220;
+  text-align: justify;
+}
+
+.conclusion-body p {
+  margin: 0 0 10px;
+  text-indent: 1.2em;
+}
+
+.conclusion-body p:first-of-type {
+  text-indent: 0;
+}
+
+.conclusion-seal {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(139, 115, 85, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.seal-mark {
+  color: #8B7355;
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+}
+
+.seal-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: #8C8275;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Back Cover (State 15) */
+.backcover-colophon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 16px;
+}
+
+.colophon-crest {
+  color: #8B7355;
+}
+
+.backcover-title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #18181B;
+  margin: 0;
+}
+
+.backcover-cite {
+  font-family: "Lora", Georgia, serif;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: #4A4843;
+  max-width: 420px;
+  margin: 0;
+}
+
+.backcover-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 280px;
+  margin-top: 8px;
+}
+
+.backcover-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--motion-speed) ease;
+}
+
+.btn-reopen {
+  background: #2C2419;
+  color: #FAF7F0;
+  border: 1px solid #2C2419;
+}
+
+.btn-reopen:hover {
+  background: #18181B;
+}
+
+.btn-pdf {
+  background: rgba(139, 115, 85, 0.12);
+  color: #18181B;
+  border: 1px solid rgba(139, 115, 85, 0.35);
+}
+
+.btn-pdf:hover {
+  background: rgba(139, 115, 85, 0.22);
+}
+
+.btn-close {
+  background: transparent;
+  color: #635342;
+  border: 1px solid rgba(139, 115, 85, 0.2);
+}
+
+.btn-close:hover {
+  color: #18181B;
+  border-color: #8B7355;
+}
+
+/* ==========================================================================
+   Side Navigation Buttons (Left & Right of Book Spread)
+   ========================================================================== */
+.book-side-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(22, 20, 18, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(139, 115, 85, 0.35);
+  border-radius: 999px;
+  padding: 12px 20px;
+  color: #FAF7F0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 60;
+  user-select: none;
+  -webkit-user-select: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.folio-btn-prev {
+  left: 20px;
+}
+
+.folio-btn-next {
+  right: 20px;
+}
+
+.book-side-nav-btn:hover:not(:disabled) {
+  background: rgba(38, 34, 30, 0.95);
+  border-color: #8B7355;
+  color: #FAF7F0;
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 16px rgba(139, 115, 85, 0.35);
+}
+
+.book-side-nav-btn:disabled {
+  opacity: 0.18;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.side-nav-arrow {
+  font-size: 1.35rem;
+  line-height: 1;
+  color: #D4AF37;
+  transition: transform 0.2s ease;
+}
+
+.folio-btn-prev:hover:not(:disabled) .side-nav-arrow {
+  transform: translateX(-3px);
+}
+
+.folio-btn-next:hover:not(:disabled) .side-nav-arrow {
+  transform: translateX(3px);
+}
+
+/* ==========================================================================
+   Bottom Pagination Dots Bar with Hover Tooltips
+   ========================================================================== */
+.book-pagination-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 18px;
+  background: rgba(18, 16, 14, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(139, 115, 85, 0.3);
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  margin-top: 14px;
+  z-index: 50;
+  max-width: 90vw;
+}
+
+.folio-dot-item {
+  position: relative;
+  background: transparent;
+  border: none;
+  padding: 8px 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  transition: transform 0.2s ease;
+}
+
+.dot-pip {
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(250, 247, 240, 0.35);
+  border: 1px solid rgba(139, 115, 85, 0.4);
+  transition: all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.folio-dot-item:hover .dot-pip {
+  background: rgba(250, 247, 240, 0.85);
+  transform: scale(1.35);
+  border-color: #8B7355;
+  box-shadow: 0 0 8px rgba(250, 247, 240, 0.6);
+}
+
+.folio-dot-item.active .dot-pip {
+  background: #8B7355;
+  border-color: #FAF7F0;
+  transform: scale(1.45);
+  box-shadow: 0 0 12px rgba(139, 115, 85, 0.9), 0 0 4px #FAF7F0;
+}
+
+/* Tooltip on Dot Hover */
+.dot-tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  background: rgba(20, 18, 16, 0.95);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(139, 115, 85, 0.45);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: #FAF7F0;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 100;
+}
+
+.dot-tooltip strong {
+  color: #D4AF37;
+  font-weight: 600;
+}
+
+.dot-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(20, 18, 16, 0.95);
+}
+
+.folio-dot-item:hover .dot-tooltip,
+.folio-dot-item:focus-visible .dot-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Lightbox Zoom Overlay */
+.paper-folio-zoom-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(10, 8, 6, 0.94);
+  backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.paper-folio-zoom-overlay.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.paper-folio-zoom-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 95vw;
+  max-height: 92vh;
+}
+
+.paper-folio-zoom-img {
+  max-width: 92vw;
+  max-height: 82vh;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  background: #FAF7F0;
+  padding: 12px;
+}
+
+.paper-folio-zoom-caption {
+  font-family: "Lora", Georgia, serif;
+  font-size: 0.84rem;
+  color: #E8E2D5;
+  margin-top: 14px;
+  text-align: center;
+  max-width: 800px;
+}
+
+.paper-folio-zoom-close {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  color: #FAF7F0;
+  font-size: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.paper-folio-zoom-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ==========================================================================
+   Mobile & Tablet Responsiveness
+   ========================================================================== */
+@media (max-width: 860px) {
+  .book-hardcover-case {
+    width: calc(100vw - 20px) !important;
+    height: min(640px, calc(100dvh - 140px));
+    flex-direction: column;
+    padding: 6px;
+  }
+
+  .book-page {
+    width: 100% !important;
+    height: 50%;
+    padding: 14px 18px;
+  }
+
+  .book-spine-gutter {
+    left: 10px;
+    right: 10px;
+    top: 50%;
+    width: auto;
+    height: 14px;
+    transform: translateY(-50%);
+    background: linear-gradient(180deg, rgba(0,0,0,0.18) 0%, transparent 50%, rgba(0,0,0,0.18) 100%);
+  }
+
+  .book-corner-handle {
+    width: 65px;
+    height: 65px;
+  }
+
+  .corner-dogear-right,
+  .corner-dogear-left {
+    width: 32px;
+    height: 32px;
+  }
+
+  .hand-drag-indicator {
+    width: 30px;
+    height: 30px;
+  }
+
+  .handle-hint {
+    display: none;
+  }
+}
+
+/* Reduced Motion Fallback */
+@media (prefers-reduced-motion: reduce) {
+  .book-flipping-leaf {
+    transition: none !important;
+  }
+  .book-hardcover-case {
+    transition: none !important;
+  }
+  .caption-card-inner {
+    transition: opacity 0.15s ease !important;
+    transform: none !important;
+  }
+}
+

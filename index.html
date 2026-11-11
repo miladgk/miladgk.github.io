@@ -31,7 +31,7 @@
   <link rel="icon" type="image/png" href="assets/milad-ghaemi.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script defer src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
   <script defer src="script.js"></script>
@@ -361,7 +361,7 @@
     <a href="#top" class="back-to-top section-top">Top ↑</a></div></section>
 
     <section class="section tinted chapter-section" id="publications" data-chapter="4" data-chapter-label="Research"><div class="shell"><div class="section-head"><div><div class="eyebrow">04 / Publications</div><h2>Seven studies in<br>materials & mechanics.</h2></div><p>Peer-reviewed work spanning thin films, irradiation, glasses, and atomistic failure.</p></div><div class="pub-filters"><button class="pub-filter active" data-pub-filter="all">All research</button><button class="pub-filter" data-pub-filter="atomistic">Atomistic & thin films</button><button class="pub-filter" data-pub-filter="mechanics">Mechanics & glasses</button></div><div class="publication-grid">
-      <article class="publication" data-pub="atomistic"><span class="year">2026</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/pii/S2352492826007622?via%3Dihub" target="_blank" rel="noopener noreferrer">Materials Today Communications ↗</a><h3>Crystallization dynamics and interfacial structure during HiPIMS growth of thin Nb films on Cu</h3><p>Atomistic MD · HiPIMS deposition · Nb/Cu superconducting RF interfaces</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:Tyk-4Ss8FVUC" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
+      <article class="publication" data-pub="atomistic"><span class="year">2026</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/pii/S2352492826007622?via%3Dihub" target="_blank" rel="noopener noreferrer">Materials Today Communications ↗</a><h3>Crystallization dynamics and interfacial structure during HiPIMS growth of thin Nb films on Cu</h3><p>Atomistic MD · HiPIMS deposition · Nb/Cu superconducting RF interfaces</p><div class="pub-actions"><button class="open-paper-folio" type="button" data-paper-id="nb-cu-2026" aria-haspopup="dialog">Illustrated Paper · Figures &amp; PDF →</button><a class="pub-scholar-link" href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:Tyk-4Ss8FVUC" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></div></article>
       <article class="publication" data-pub="atomistic"><span class="year">2024</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/pii/S1359645424000521" target="_blank" rel="noopener noreferrer">Acta Materialia ↗</a><h3>Surface orientation effects on Cu blistering under high-fluence H ion irradiation</h3><p>Hydrogen blistering · Ion irradiation · Cu surfaces · Atomistic modeling</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:UeHWp8X0CEIC" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
       <article class="publication" data-pub="atomistic"><span class="year">2024</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/pii/S025789722300974X" target="_blank" rel="noopener noreferrer">Surface and Coatings Technology ↗</a><h3>Comparative study of Nb film growth on Cu substrates using DCMS and HiPIMS</h3><p>Thin-film growth mechanisms · DCMS vs. HiPIMS · Energetic deposition</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:u-x6o8ySG0sC" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
       <article class="publication" data-pub="mechanics"><span class="year">2022</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/abs/pii/S2352431622000281" target="_blank" rel="noopener noreferrer">Extreme Mechanics Letters ↗</a><h3>Notch-tip brittle-ductile transitions in metallic glasses</h3><p>Metallic glasses · Fracture mechanics · Brittle-to-ductile transition</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:2osOgNQ5qMEC" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
@@ -391,6 +391,118 @@
           </section>
         </div>
         <div class="architecture-dialog-actions" id="architecture-dialog-actions"></div>
+      </div>
+    </dialog>
+
+    <dialog class="paper-folio-dialog" id="paper-folio-dialog" aria-label="Interactive Scientific Publication Offprint" aria-modal="true">
+      <div class="paper-folio-panel">
+        
+        <!-- Floating Close & PDF Action (Outside Book Pages) -->
+        <div class="paper-folio-top-actions">
+          <a class="paper-folio-pdf-btn" id="paper-folio-pdf-btn" href="#" target="_blank" rel="noopener noreferrer" download title="Download Full Paper PDF">
+            <span class="pdf-icon" aria-hidden="true">📄</span> PDF ↗
+          </a>
+          <button class="paper-folio-close" id="paper-folio-close" type="button" aria-label="Close paper folio dialog">×</button>
+        </div>
+
+        <div class="paper-folio-stage" id="paper-folio-stage">
+          
+          <!-- Side Navigation Buttons (Left and Right of the Book) -->
+          <button class="book-side-nav-btn folio-btn-prev" id="folio-btn-prev" type="button" aria-label="Previous page">
+            <span class="side-nav-arrow" aria-hidden="true">‹</span>
+            <span class="side-nav-text">Prev Page</span>
+          </button>
+
+          <!-- 3D Hardcover Book Container -->
+          <div class="book-viewport" id="book-viewport">
+            <div class="book-hardcover-case state-front-cover" id="book-hardcover-case">
+              
+              <!-- Static Left Page of Current Spread -->
+              <div class="book-page book-page-left" id="book-page-left">
+                <!-- Injected dynamically by script.js -->
+              </div>
+
+              <!-- Central Book Spine & Binding Gutter with realistic shadow & stitch crease -->
+              <div class="book-spine-gutter" id="book-spine-gutter" aria-hidden="true">
+                <div class="spine-thread"></div>
+              </div>
+
+              <!-- Static Right Page of Current Spread -->
+              <div class="book-page book-page-right" id="book-page-right">
+                <!-- Injected dynamically by script.js -->
+              </div>
+
+              <!-- Dynamic 3D Flipping Leaf (transforms around central spine during drag/flip) -->
+              <div class="book-flipping-leaf" id="book-flipping-leaf" aria-hidden="true">
+                <div class="leaf-face leaf-front" id="leaf-face-front"></div>
+                <div class="leaf-face leaf-back" id="leaf-face-back"></div>
+              </div>
+
+              <!-- Interactive Hand Indicator & Corner Drag Zones -->
+              <!-- Bottom-Left Handle for Backward Flipping -->
+              <div class="book-corner-handle handle-prev" id="handle-prev" role="button" tabindex="0" aria-label="Drag or click to turn previous page">
+                <div class="corner-dogear corner-dogear-left" aria-hidden="true"></div>
+                <div class="hand-drag-indicator" id="hand-indicator-prev" aria-hidden="true">
+                  <svg class="hand-svg hand-open" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+                    <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/>
+                    <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/>
+                    <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
+                  </svg>
+                  <svg class="hand-svg hand-closed" viewBox="0 0 24 24" width="22" height="22" fill="rgba(139,115,85,0.25)" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 11.5V9a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v1.5"/>
+                    <path d="M14 9V7.5a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2V10"/>
+                    <path d="M10 9.5V8a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5.5"/>
+                    <path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-1.5-1.5a2 2 0 0 1 2.83-2.82L9 15.5"/>
+                    <path d="M6 13.5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                </div>
+                <span class="handle-hint hint-prev">Drag to turn back</span>
+              </div>
+
+              <!-- Bottom-Right Handle for Forward Flipping -->
+              <div class="book-corner-handle handle-next" id="handle-next" role="button" tabindex="0" aria-label="Drag or click to turn page">
+                <div class="corner-dogear corner-dogear-right" aria-hidden="true"></div>
+                <div class="hand-drag-indicator" id="hand-indicator-next" aria-hidden="true">
+                  <svg class="hand-svg hand-open" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+                    <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/>
+                    <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/>
+                    <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
+                  </svg>
+                  <svg class="hand-svg hand-closed" viewBox="0 0 24 24" width="22" height="22" fill="rgba(139,115,85,0.25)" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 11.5V9a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v1.5"/>
+                    <path d="M14 9V7.5a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2V10"/>
+                    <path d="M10 9.5V8a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5.5"/>
+                    <path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-1.5-1.5a2 2 0 0 1 2.83-2.82L9 15.5"/>
+                    <path d="M6 13.5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                </div>
+                <span class="handle-hint hint-next">Drag to turn page</span>
+              </div>
+
+            </div>
+          </div>
+
+          <button class="book-side-nav-btn folio-btn-next" id="folio-btn-next" type="button" aria-label="Next page">
+            <span class="side-nav-text">Next Page</span>
+            <span class="side-nav-arrow" aria-hidden="true">›</span>
+          </button>
+        </div>
+
+        <!-- Sleek Pagination Dots Bar with Hover Tooltips -->
+        <nav class="book-pagination-dots" id="paper-folio-strip" role="tablist" aria-label="Book pages navigation">
+          <!-- Dynamically populated dots with tooltips -->
+        </nav>
+      </div>
+
+      <!-- Lightbox Zoom Modal for High-Resolution Figures -->
+      <div class="paper-folio-zoom-overlay" id="paper-folio-zoom" aria-hidden="true">
+        <button class="paper-folio-zoom-close" id="paper-folio-zoom-close" type="button" aria-label="Close zoomed image">×</button>
+        <div class="paper-folio-zoom-content">
+          <img class="paper-folio-zoom-img" id="paper-folio-zoom-img" src="" alt="Zoomed scientific plate">
+          <div class="paper-folio-zoom-caption" id="paper-folio-zoom-caption"></div>
+        </div>
       </div>
     </dialog>
 
