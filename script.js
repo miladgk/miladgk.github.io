@@ -118,6 +118,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
   setPerspective("all");
 
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  if (!reduceMotion && finePointer) {
+    const spotlightTargets = document.querySelectorAll(".kpi-grid, .kpi, .project-card");
+    const pendingPointers = new Map();
+    let spotlightFrame = 0;
+
+    function updateSpotlights() {
+      pendingPointers.forEach((point, target) => {
+        const rect = target.getBoundingClientRect();
+        target.style.setProperty("--mouse-x", `${point.x - rect.left}px`);
+        target.style.setProperty("--mouse-y", `${point.y - rect.top}px`);
+      });
+      spotlightFrame = 0;
+    }
+
+    spotlightTargets.forEach(target => {
+      target.addEventListener("mousemove", event => {
+        pendingPointers.set(target, { x: event.clientX, y: event.clientY });
+        if (!spotlightFrame) spotlightFrame = requestAnimationFrame(updateSpotlights);
+      });
+      target.addEventListener("mouseleave", () => {
+        pendingPointers.delete(target);
+        target.style.removeProperty("--mouse-x");
+        target.style.removeProperty("--mouse-y");
+      });
+    });
+  }
+
   if (window.mermaid) {
     mermaid.initialize({ startOnLoad: true, theme: "dark", securityLevel: "loose" });
   }
