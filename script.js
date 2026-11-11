@@ -1339,6 +1339,37 @@ document.addEventListener("DOMContentLoaded", () => {
         p = 0;
       }
 
+      if (section.id === "work") {
+        section.style.transform = "none";
+        section.style.opacity = "1";
+        section.style.removeProperty("--chapter-rot-x");
+        section.style.removeProperty("--chapter-scale");
+        section.style.removeProperty("--chapter-y");
+        section.style.removeProperty("--chapter-opacity");
+
+        // Keep #work container untransformed so .project-stage remains smoothly pinned,
+        // while applying 3D chapter transition to section-head & filter-row
+        const head = section.querySelector(".section-head");
+        const filters = section.querySelector(".filter-row");
+        if (Math.abs(p) < 0.001) {
+          if (head) { head.style.transform = "none"; head.style.opacity = "1"; }
+          if (filters) { filters.style.transform = "none"; filters.style.opacity = "1"; }
+        } else {
+          const rotX = (p * 4.5).toFixed(2);
+          const translateY = (p * 14).toFixed(1);
+          const opacity = (1 - Math.abs(p) * 0.25).toFixed(2);
+          if (head) {
+            head.style.transform = `perspective(1200px) translate3d(0, ${translateY}px, 0) rotateX(${rotX}deg)`;
+            head.style.opacity = opacity;
+          }
+          if (filters) {
+            filters.style.transform = `perspective(1200px) translate3d(0, ${(translateY * 0.7).toFixed(1)}px, 0) rotateX(${(rotX * 0.7).toFixed(2)}deg)`;
+            filters.style.opacity = opacity;
+          }
+        }
+        return;
+      }
+
       if (Math.abs(p) < 0.001) {
         // At rest: completely flat and untransformed
         section.style.transform = "none";

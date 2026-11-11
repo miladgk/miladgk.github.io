@@ -1260,22 +1260,6 @@ button {
   border: 1px solid var(--accent-alt);
 }
 
-.project-card h3 {
-  font-family: var(--font-heading);
-  font-weight: var(--heading-weight);
-  font-size: 1.18rem;
-  letter-spacing: var(--heading-letter-spacing);
-  margin: 16px 0 8px;
-  color: var(--ink);
-}
-
-.project-card p {
-  color: var(--muted);
-  font-size: 0.8rem;
-  line-height: 1.6;
-  min-height: 4.8em;
-}
-
 .metrics {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1883,6 +1867,19 @@ summary span {
   will-change: transform, opacity;
   transform: perspective(1200px) translate3d(0, var(--chapter-y, 0px), 0) scale(var(--chapter-scale, 1)) rotateX(var(--chapter-rot-x, 0deg));
   opacity: var(--chapter-opacity, 1);
+}
+
+/* Keep #work container untransformed so .project-stage remains smoothly pinned */
+#work.chapter-section {
+  transform: none !important;
+  opacity: 1 !important;
+}
+
+#work .section-head,
+#work .filter-row {
+  transform-origin: 50% 25%;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
 }
 
 /* Floating Chapter Pager Dock */
