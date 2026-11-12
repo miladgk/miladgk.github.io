@@ -782,38 +782,57 @@ document.addEventListener("DOMContentLoaded", () => {
     function initEntities() {
       if (!width || !height) return;
 
-      // Lab: 3D Crystal Lattice Simulation (FCC / Octahedral cluster)
+      // Lab: 3D Icosahedral Atomistic Cluster (<0, 0, 12, 0> ISRO in Cu-Zr Metallic Glass)
       labLatticeNodes = [];
-      const coords = [-1, 0, 1];
-      for (let x of coords) {
-        for (let y of coords) {
-          for (let z of coords) {
-            // Cut corner to form FCC-like coordination polyhedron
-            if (Math.abs(x) + Math.abs(y) + Math.abs(z) <= 2) {
-              // Binary alloy sites: Cu (smaller, atomic radius 128 pm) vs Zr (larger, atomic radius 160 pm)
-              const isCu = ((x + y + z + 10) % 2 === 0);
-              labLatticeNodes.push({
-                ox: x,
-                oy: y,
-                oz: z,
-                phase: Math.random() * Math.PI * 2,
-                element: isCu ? "Cu" : "Zr"
-              });
-            }
-          }
-        }
-      }
+      const phi = (1 + Math.sqrt(5)) / 2; // Golden ratio
+      const rawIco = [
+        [0, 1, phi], [0, 1, -phi], [0, -1, phi], [0, -1, -phi],
+        [1, phi, 0], [1, -phi, 0], [-1, phi, 0], [-1, -phi, 0],
+        [phi, 0, 1], [phi, 0, -1], [-phi, 0, 1], [-phi, 0, -1]
+      ];
+      const icoR = Math.hypot(0, 1, phi);
+      const clusterScale = 1.38;
 
+      // Central core atom: Copper (Cu) at origin
+      labLatticeNodes.push({
+        ox: 0,
+        oy: 0,
+        oz: 0,
+        phase: Math.random() * Math.PI * 2,
+        element: "Cu"
+      });
+
+      // 12 icosahedral shell vertices: binary alloy mix of Cu and Zr
+      // 8 Cu (amber metallic) and 4 Zr (signature lab lime accent)
+      const zrIndices = new Set([0, 3, 5, 10]);
+      rawIco.forEach((v, idx) => {
+        const isZr = zrIndices.has(idx);
+        labLatticeNodes.push({
+          ox: (v[0] / icoR) * clusterScale,
+          oy: (v[1] / icoR) * clusterScale,
+          oz: (v[2] / icoR) * clusterScale,
+          phase: Math.random() * Math.PI * 2,
+          element: isZr ? "Zr" : "Cu"
+        });
+      });
+
+      // 30 icosahedral shell edges (connecting adjacent vertices)
       labLatticeEdges = [];
-      for (let i = 0; i < labLatticeNodes.length; i++) {
+      const edgeThreshold = (2 / icoR) * clusterScale * 1.15;
+      for (let i = 1; i < labLatticeNodes.length; i++) {
         for (let j = i + 1; j < labLatticeNodes.length; j++) {
           const a = labLatticeNodes[i];
           const b = labLatticeNodes[j];
           const d = Math.hypot(a.ox - b.ox, a.oy - b.oy, a.oz - b.oz);
-          if (d <= 1.5) {
+          if (d <= edgeThreshold) {
             labLatticeEdges.push([i, j]);
           }
         }
+      }
+
+      // 12 radial coordination bonds from central atom to all shell vertices
+      for (let i = 1; i < labLatticeNodes.length; i++) {
+        labLatticeEdges.push([0, i]);
       }
       labPackets = [];
 
@@ -866,7 +885,7 @@ document.addEventListener("DOMContentLoaded", () => {
         dragInertiaY *= 0.92;
 
         // Smooth mouse parallax damping when idle
-        const targetMouseX = mouse.x > 0 ? (mouse.x - cx) * 0.0006 : 0;
+        const targetMouseX = mouse.x > 0 ? -(mouse.x - cx) * 0.0006 : 0;
         const targetMouseY = mouse.y > 0 ? (mouse.y - cy) * 0.0005 : 0;
         labMouseOffsetX += (targetMouseX - labMouseOffsetX) * Math.min(1, dt * 4);
       } else {
@@ -959,7 +978,7 @@ document.addEventListener("DOMContentLoaded", () => {
       labPackets = labPackets.filter(p => p.t < 1);
 
       // Draw Binary Atoms: Cu vs Zr with different sizes and colors (sorted back to front)
-      const sorted = projected.slice().sort((a, b) => a.depth - b.depth);
+      const sorted = projected.slice().sort((a, b) => b.depth - a.depth);
       sorted.forEach(node => {
         const isCu = node.element === "Cu";
         // Realistic atomic radii: Cu is 128 pm (smaller ~3.6px), Zr is 160 pm (larger ~6.2px)
@@ -1217,10 +1236,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (isCanvasDragging) {
         const dx = event.clientX - dragStartX;
         const dy = event.clientY - dragStartY;
-        labRotY = startRotY + dx * 0.01;
+        labRotY = startRotY - dx * 0.01;
         labRotX = Math.max(-Math.PI * 0.45, Math.min(Math.PI * 0.45, startRotX + dy * 0.01));
 
-        dragInertiaX = (event.clientX - lastDragX) * 0.008;
+        dragInertiaX = -(event.clientX - lastDragX) * 0.008;
         dragInertiaY = (event.clientY - lastDragY) * 0.008;
         lastDragX = event.clientX;
         lastDragY = event.clientY;

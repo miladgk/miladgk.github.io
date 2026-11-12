@@ -13,6 +13,7 @@ html[data-theme="lab"],
   --bg: #0B0C0E;
   --surface: #121417;
   --surface2: #181B20;
+  --surface-tinted: rgba(24, 27, 32, 0.78);
   --surface-glass: rgba(18, 20, 23, 0.94);
   --ink: #F0F0EC;
   --muted: #92969C;
@@ -50,6 +51,7 @@ html[data-theme="midnight"] {
   --bg: #0a0e17;
   --surface: #111827;
   --surface2: #1e293b;
+  --surface-tinted: rgba(30, 41, 59, 0.72);
   --surface-glass: rgba(17, 24, 39, 0.82);
   --ink: #f1f5f9;
   --muted: #94a3b8;
@@ -154,7 +156,7 @@ body::before {
    Header & Theme Picker
    -------------------------------------------------------------------------- */
 .site-header {
-  height: 72px;
+  height: 54px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -171,7 +173,8 @@ body::before {
 
 .brand {
   display: inline-flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 8px;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -182,13 +185,21 @@ body::before {
   font-weight: var(--heading-weight);
   font-size: 1.05rem;
   letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.brand-sep {
+  color: var(--muted);
+  opacity: 0.55;
+  font-size: 0.85rem;
+  line-height: 1;
 }
 
 .brand-sub {
-  font: 500 0.52rem var(--font-mono);
-  letter-spacing: 0.16em;
+  font: 500 0.54rem var(--font-mono);
+  letter-spacing: 0.14em;
   color: var(--accent);
-  margin-top: 1px;
+  line-height: 1;
 }
 
 nav {
@@ -434,12 +445,18 @@ button {
 /* --------------------------------------------------------------------------
    Hero Section
    -------------------------------------------------------------------------- */
+.section.hero-section {
+  padding: 44px 0 28px;
+  position: relative;
+  border-top: none;
+}
+
 .hero {
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
   gap: 20px 55px;
   align-items: center;
-  padding: 50px 0 14px;
+  padding: 0;
   min-height: auto;
 }
 
@@ -693,9 +710,12 @@ button {
 }
 
 .section.tinted {
-  background: var(--surface2);
+  background: var(--surface-tinted, rgba(24, 27, 32, 0.78));
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   border-top: var(--border-width) var(--border-style) var(--line);
   border-bottom: var(--border-width) var(--border-style) var(--line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), inset 0 -1px 0 rgba(0, 0, 0, 0.25);
 }
 
 .section-head {
@@ -1999,10 +2019,13 @@ summary span {
    Responsive & Accessibility
    -------------------------------------------------------------------------- */
 @media (max-width: 950px) {
+  .section.hero-section {
+    padding: 36px 0 20px;
+  }
   .hero {
     grid-template-columns: 1fr;
     gap: 28px;
-    padding: 40px 0 14px;
+    padding: 0;
   }
   .hero-visual {
     height: 380px;
@@ -2091,8 +2114,11 @@ summary span {
     padding: 4px 9px;
     font-size: 0.62rem;
   }
+  .section.hero-section {
+    padding: 28px 0 16px;
+  }
   .hero {
-    padding: 30px 0 12px;
+    padding: 0;
     min-height: 0;
     gap: 20px;
   }
@@ -2396,11 +2422,6 @@ summary span {
   padding: 10px;
   box-sizing: border-box;
   background-color: #F8F7F4;
-  background-image: 
-    radial-gradient(#E8E5DD 0.75px, transparent 0.75px),
-    radial-gradient(#E8E5DD 0.75px, #F8F7F4 0.75px);
-  background-size: 8px 8px;
-  background-position: 0 0, 4px 4px;
   /* Multi-sheet paper stack fore-edge depth + 3D drop shadow */
   box-shadow: 
     0 0 0 1px rgba(0, 0, 0, 0.12),
@@ -2469,11 +2490,6 @@ summary span {
   min-height: 0;
   box-sizing: border-box;
   background-color: #FAF7F0;
-  background-image: 
-    radial-gradient(#E8E3D5 0.75px, transparent 0.75px),
-    radial-gradient(#E8E3D5 0.75px, #FAF7F0 0.75px);
-  background-size: 24px 24px;
-  background-position: 0 0, 12px 12px;
   color: #18181B;
   position: relative;
   overflow: hidden; /* Zero scrollbars */
@@ -2520,11 +2536,6 @@ summary span {
   inset: 0;
   box-sizing: border-box;
   background-color: #FAF7F0;
-  background-image: 
-    radial-gradient(#E8E3D5 0.75px, transparent 0.75px),
-    radial-gradient(#E8E3D5 0.75px, #FAF7F0 0.75px);
-  background-size: 24px 24px;
-  background-position: 0 0, 12px 12px;
   color: #18181B;
   overflow: hidden;
   padding: 18px 24px;
@@ -2569,11 +2580,6 @@ summary span {
   justify-content: center;
   padding: 32px 28px;
   background-color: #F8F7F4;
-  background-image: 
-    radial-gradient(#E8E5DD 0.75px, transparent 0.75px),
-    radial-gradient(#E8E5DD 0.75px, #F8F7F4 0.75px);
-  background-size: 8px 8px;
-  background-position: 0 0, 4px 4px;
   box-sizing: border-box;
 }
 
@@ -2832,11 +2838,6 @@ summary span {
 /* Hardcover Surface (Front Cover & Back Cover) */
 .hardcover-surface {
   background-color: #F8F7F4;
-  background-image: 
-    radial-gradient(#E8E5DD 0.75px, transparent 0.75px),
-    radial-gradient(#E8E5DD 0.75px, #F8F7F4 0.75px);
-  background-size: 8px 8px;
-  background-position: 0 0, 4px 4px;
   border-radius: 4px;
   box-shadow: 
     inset 0 0 0 1px rgba(0, 0, 0, 0.08),
@@ -3679,6 +3680,45 @@ summary span {
   font-weight: 600;
 }
 
+.dot-tooltip .folio-math-term,
+.dot-tooltip .folio-math {
+  color: #FAF7F0;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.dot-tooltip .folio-math-term i,
+.dot-tooltip .folio-math i,
+.dot-tooltip i,
+.dot-tooltip .math-var {
+  color: #FAF7F0;
+  font-style: italic;
+}
+
+.dot-tooltip .folio-math-term sub,
+.dot-tooltip .folio-math sub,
+.dot-tooltip sub {
+  color: #FAF7F0;
+  font-size: 0.8em;
+  vertical-align: sub;
+}
+
+.dot-tooltip .folio-math-term sup,
+.dot-tooltip .folio-math sup,
+.dot-tooltip sup {
+  color: #FAF7F0;
+  font-size: 0.8em;
+  vertical-align: super;
+}
+
+.dot-tooltip .math-frac,
+.dot-tooltip .math-num,
+.dot-tooltip .math-denom {
+  color: #FAF7F0;
+  border-color: currentColor;
+}
+
 .dot-tooltip::after {
   content: "";
   position: absolute;
@@ -3852,9 +3892,6 @@ summary span {
   inset: 0;
   border-radius: 6px;
   background-color: #F8F7F4;
-  background-image: radial-gradient(#E8E5DD 0.75px, transparent 0.75px), radial-gradient(#E8E5DD 0.75px, #F8F7F4 0.75px);
-  background-size: 8px 8px;
-  background-position: 0 0, 4px 4px;
   box-shadow: 0 0 0 1px rgba(0,0,0,.12), inset 0 0 0 1px rgba(255,255,255,.8), 2px 3px 0 #FAF7F0, 5px 6px 0 #EFECE4, 8px 9px 0 #E4E0D5, 11px 12px 0 #D6D1C4, 0 28px 70px rgba(0,0,0,.65);
   transition: opacity .7s ease;
   pointer-events: none;
