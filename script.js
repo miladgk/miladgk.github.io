@@ -1516,6 +1516,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "title": "Crystallization dynamics and interfacial structure during growth of thin Nb films on Cu by high-power impulse magnetron sputtering: A molecular dynamics study",
     "authors": "Milad Ghaemi, Kostas Sarakinos, Flyura Djurabekova, Alvaro Lopez-Cazalilla, Guillaume Jonathan Rosaz, Sergio Calatroni",
     "pdfUrl": "assets/papers/nb-cu-hipims-2026/Crystallization dynamics and interfacial structure during growth of thin Nb films on Cu by high-power impulse magnetron sputtering A molecular dynamics study.pdf",
+    "coverImage": "assets/papers/nb-cu-hipims-2026/cover_image.png",
     "graphicalAbstract": "assets/papers/nb-cu-hipims-2026/Graphical Abstract.jpg",
     "highlights": [
       "Optimal HiPIMS conditions are found at intermediate ion energy (70\u2013100 eV).",
@@ -1609,7 +1610,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "sheetIndex": 9,
         "type": "video",
         "badge": "VIDEO 01",
-        "title": "Time-resolved visualization of BCC formation (fi=33%, Ei=200 eV)",
+        "title": "Time-resolved visualization of BCC formation ($f_i = 33\\%$, $E_i = 200\\text{ eV}$)",
         "src": "assets/papers/nb-cu-hipims-2026/Video 1.mp4",
         "caption": "Video 1. Time-resolved visualization of BCC formation during deposition at $f_i = 33\\%$ and $E_i = 200\\text{ eV}$. The animation shows an anisotropic amorphous-to-BCC transformation initiated at the critical thickness $\\Theta \\approx 8\\text{ ML}$. Crystallization propagates along the growth direction while lateral spreading remains limited, producing columnar BCC domains and pronounced out-of-plane displacement."
       },
@@ -1618,7 +1619,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "sheetIndex": 10,
         "type": "video",
         "badge": "VIDEO 02",
-        "title": "Time-resolved visualization of BCC formation (fi=33%, Ei=50 eV)",
+        "title": "Time-resolved visualization of BCC formation ($f_i = 33\\%$, $E_i = 50\\text{ eV}$)",
         "src": "assets/papers/nb-cu-hipims-2026/Video 2.mp4",
         "caption": "Video 2. Time-resolved visualization of BCC formation during deposition at $f_i = 33\\%$ and $E_i = 50\\text{ eV}$. Early BCC nuclei appear at $\\Theta \\approx 2\\text{--}3\\text{ ML}$ and grow steadily throughout deposition, in contrast to the delayed, anisotropic crystallization observed at $E_i = 200\\text{ eV}$."
       },
@@ -1627,7 +1628,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "sheetIndex": 11,
         "type": "video",
         "badge": "VIDEO 03",
-        "title": "Time-resolved evolution of surface roughening (fi=33%, Ei=200 eV)",
+        "title": "Time-resolved evolution of surface roughening ($f_i = 33\\%$, $E_i = 200\\text{ eV}$)",
         "src": "assets/papers/nb-cu-hipims-2026/Video 3.mp4",
         "caption": "Video 3. Time-resolved evolution of surface roughening during deposition at $f_i = 33\\%$ and $E_i = 200\\text{ eV}$. The surface remains smooth ($\\sigma \\approx 1\\text{ \\AA}$) up to $\\Theta \\approx 8\\text{ ML}$ due to atomic peening which suppresses BCC nucleation and maintains a dense amorphous layer. Once the critical thickness is reached, a rapid amorphous-to-BCC transformation produces a sharp roughness increase ($\\Theta \\approx 9\\text{--}14\\text{ ML}$) and localized height variations up to $11\\text{--}12\\text{ \\AA}$ by $\\Theta \\approx 22\\text{ ML}$, consistent with stress-relief-driven hillock formation."
       },
@@ -1636,7 +1637,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "sheetIndex": 12,
         "type": "video",
         "badge": "VIDEO 04",
-        "title": "Time-resolved evolution of surface roughening (fi=33%, Ei=50 eV)",
+        "title": "Time-resolved evolution of surface roughening ($f_i = 33\\%$, $E_i = 50\\text{ eV}$)",
         "src": "assets/papers/nb-cu-hipims-2026/Video 4.mp4",
         "caption": "Video 4. Time-resolved evolution of surface roughening during deposition at $f_i = 33\\%$ and $E_i = 50\\text{ eV}$. Gradual surface-feature development and continuous roughness accumulation occur throughout growth. Early BCC nucleation ($\\Theta \\approx 1\\text{ ML}$) and steady statistical roughening indicate morphology evolution governed by adatom mobility under moderate ion energies."
       }
@@ -1683,24 +1684,63 @@ document.addEventListener("DOMContentLoaded", () => {
     let startY = 0;
     let targetSpreadIndex = 0;
 
-function formatScientificText(text) {
+    function replaceFrac(str) {
+      let idx = 0;
+      while ((idx = str.indexOf("\\frac{", idx)) !== -1) {
+        let numStart = idx + 6;
+        let depth = 1;
+        let numEnd = -1;
+        for (let i = numStart; i < str.length; i++) {
+          if (str[i] === "{") depth++;
+          else if (str[i] === "}") {
+            depth--;
+            if (depth === 0) { numEnd = i; break; }
+          }
+        }
+        if (numEnd === -1 || str[numEnd + 1] !== "{") {
+          idx += 6;
+          continue;
+        }
+        let denStart = numEnd + 2;
+        depth = 1;
+        let denEnd = -1;
+        for (let i = denStart; i < str.length; i++) {
+          if (str[i] === "{") depth++;
+          else if (str[i] === "}") {
+            depth--;
+            if (depth === 0) { denEnd = i; break; }
+          }
+        }
+        if (denEnd === -1) {
+          idx += 6;
+          continue;
+        }
+        const num = str.slice(numStart, numEnd);
+        const den = str.slice(denStart, denEnd);
+
+        function fmtTerm(t) {
+          t = t.replace(/\\text\{([^}]+)\}/g, "$1");
+          t = t.replace(/N_(?:\{Nb\}|Nb)/g, "<i>N</i><sub>Nb</sub>");
+          t = t.replace(/N_(?:\{Cu\}|Cu)/g, "<i>N</i><sub>Cu</sub>");
+          t = t.replace(/N_(?:\{all\}|all)/g, "<i>N</i><sub>all</sub>");
+          t = t.replace(/[‘'\u2018\u2019]Other['’\u2018\u2019]/g, "'Other'");
+          return t;
+        }
+        const html = `<span class="folio-math"><span class="math-frac"><span class="math-num">${fmtTerm(num)}</span><span class="math-denom">${fmtTerm(den)}</span></span></span>`;
+        str = str.slice(0, idx) + html + str.slice(denEnd + 1);
+        idx += html.length;
+      }
+      return str;
+    }
+
+    function formatScientificText(text) {
       if (!text) return "";
-      return text.replace(/\$([^$]+)\$/g, (match, expr) => {
+      let out = text.replace(/\$([^$]+)\$/g, (match, expr) => {
         let s = expr;
-        // Fractions
-        s = s.replace(/f_(?:\\text\{BCC\}|BCC)\s*=\s*\\frac\{([^}]+)\}\{([^}]+)\}/g, (m, n, d) => {
-          const num = n.replace(/N_(?:\\text\{Nb\}|Nb)\(BCC\)/g, "<i>N</i><sub>Nb</sub>(BCC)").replace(/\\text\{([^}]+)\}/g, "$1");
-          const denom = d.replace(/N_(?:\\text\{Nb\}|Nb)/g, "<i>N</i><sub>Nb</sub>").replace(/\\text\{([^}]+)\}/g, "$1");
-          return `<span class="folio-math"><i class="math-var">f</i><sub>BCC</sub> = <span class="math-frac"><span class="math-num">${num}</span><span class="math-denom">${denom}</span></span></span>`;
-        });
-        s = s.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, (m, n, d) => {
-          const num = n.replace(/N_(?:\\text\{Cu\}|Cu)/g, "<i>N</i><sub>Cu</sub>").replace(/[‘']Other['’]/g, "'Other'").replace(/\\text\{([^}]+)\}/g, "$1");
-          const denom = d.replace(/N_(?:\\text\{all\}|all)/g, "<i>N</i><sub>all</sub>").replace(/[‘']Other['’]/g, "'Other'").replace(/\\text\{([^}]+)\}/g, "$1");
-          return `<span class="folio-math"><span class="math-frac"><span class="math-num">${num}</span><span class="math-denom">${denom}</span></span></span>`;
-        });
+        s = replaceFrac(s);
         s = s.replace(/\\text\{([^}]+)\}/g, "$1");
-        s = s.replace(/Nb\^(\+|\+\+)/g, "Nb<sup>$1</sup>");
-        s = s.replace(/Ar\^\+/g, "Ar<sup>+</sup>");
+        s = s.replace(/f_(?:\{?\\text\{BCC\}|\{?BCC\}?)/g, `<i class="math-var">f</i><sub>BCC</sub>`);
+        s = s.replace(/([A-Za-z]+)\^\{?(\+{1,2}|\-{1,2}|\d+\+?)\}?/g, "$1<sup>$2</sup>");
         s = s.replace(/Cu_\{?(\d+)\}?Nb_\{?(\d+)\}?/g, "Cu<sub>$1</sub>Nb<sub>$2</sub>");
         s = s.replace(/nm\^3/g, "nm<sup>3</sup>");
         s = s.replace(/\\AA|&#8491;|Å/g, "&#8491;");
@@ -1716,9 +1756,14 @@ function formatScientificText(text) {
         s = s.replace(/\\%/g, "%");
         s = s.replace(/\bf_i\b/g, "<i>f<sub>i</sub></i>");
         s = s.replace(/\bE_i\b/g, "<i>E<sub>i</sub></i>");
+        s = s.replace(/\bfi\b/g, "<i>f<sub>i</sub></i>");
+        s = s.replace(/\bEi\b/g, "<i>E<sub>i</sub></i>");
         s = s.replace(/\bZ\b/g, "<i>Z</i>");
         return `<span class="folio-math-term">${s}</span>`;
       });
+      out = out.replace(/\bfi\s*=\s*(\d+)%/g, "<i>f<sub>i</sub></i> = $1%");
+      out = out.replace(/\bEi\s*=\s*(\d+)\s*(?:eV)?/g, "<i>E<sub>i</sub></i> = $1 eV");
+      return out;
     }
 
     function getPageHtml(spreadIndex, side) {
@@ -1727,43 +1772,11 @@ function formatScientificText(text) {
       // State 0: Closed Front Hardcover
       if (spreadIndex === 0) {
         if (side === 'left') {
-          return `
-            <div class="page-content page-endpaper">
-              <div class="endpaper-frame">
-                <div class="endpaper-crest">❦</div>
-                <div class="endpaper-title">${currentPaper.journal}</div>
-                <div class="endpaper-sub">Special Offprint Edition · 2026</div>
-                <div class="endpaper-colophon">Computational Materials Physics · University of Helsinki</div>
-              </div>
-            </div>
-          `;
+          return `<div class="page-content page-blank"></div>`;
         }
         return `
-          <div class="hardcover-surface cover-front">
+          <div class="hardcover-surface cover-front" role="button" tabindex="0" aria-label="Open paper folio">
             <div class="cover-spine-groove"></div>
-            <div class="cover-inner-frame">
-              <div class="cover-header-meta">
-                <span class="cover-journal-name">${currentPaper.journal}</span>
-                <span class="cover-edition-tag">Special Offprint Edition · 2026</span>
-              </div>
-              <div class="cover-title-block">
-                <h1 class="cover-title">${currentPaper.title}</h1>
-                <p class="cover-subtitle">A Molecular Dynamics Study</p>
-              </div>
-              <div class="cover-authors-block">
-                <p class="cover-authors">${currentPaper.authors}</p>
-                <div class="cover-divider"></div>
-                <p class="cover-affiliation">Superconducting Radio Frequency (SRF) Cavity Research</p>
-              </div>
-              <div class="cover-crest">
-                <svg class="crest-svg" viewBox="0 0 48 48" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <circle cx="24" cy="24" r="20" stroke-dasharray="3 3"/>
-                  <path d="M24 10v28M10 24h28M15 15l18 18M33 15L15 33"/>
-                  <circle cx="24" cy="24" r="5" fill="currentColor"/>
-                </svg>
-                <span class="cover-crest-label">Computational Physics &amp; Materials Science</span>
-              </div>
-            </div>
           </div>
         `;
       }
@@ -1859,7 +1872,7 @@ function formatScientificText(text) {
                   <span class="plate-badge">${plate.badge}</span>
                   <span class="plate-tag">${isVideo ? "Molecular Dynamics Animation" : "High-Resolution Simulation"}</span>
                 </div>
-                <h3 class="plate-title">${plate.title}</h3>
+                <h3 class="plate-title">${formatScientificText(plate.title)}</h3>
                 <div class="plate-rule"></div>
                 <div class="plate-caption-text">
                   ${formatScientificText(plate.caption)}
@@ -1910,43 +1923,22 @@ function formatScientificText(text) {
       // State 15: Closed Back Hardcover
       if (spreadIndex === 15) {
         if (side === 'left') {
-          return `
-            <div class="page-content page-endpaper">
-              <div class="endpaper-frame">
-                <div class="endpaper-crest">❦</div>
-                <div class="endpaper-title">${currentPaper.journal}</div>
-                <div class="endpaper-sub">Computational Research Library</div>
-                <div class="endpaper-colophon">End of Scientific Offprint · 2026</div>
-              </div>
-            </div>
-          `;
+          return `<div class="page-content page-blank"></div>`;
         }
         return `
           <div class="hardcover-surface cover-back">
             <div class="cover-spine-groove"></div>
-            <div class="cover-inner-frame">
-              <div class="backcover-colophon">
-                <div class="colophon-crest">
-                  <svg class="crest-svg" viewBox="0 0 48 48" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="24" cy="24" r="20" stroke-dasharray="3 3"/>
-                    <path d="M16 24h16M24 16v16"/>
-                    <circle cx="24" cy="24" r="4" fill="currentColor"/>
-                  </svg>
-                </div>
-                <h3 class="backcover-title">Research Publication Offprint</h3>
-                <p class="backcover-cite">Ghaemi, M., Sarakinos, K., Djurabekova, F., Lopez-Cazalilla, A., Rosaz, G.J., Calatroni, S. (2026). Crystallization dynamics and interfacial structure during growth of thin Nb films on Cu by high-power impulse magnetron sputtering: A molecular dynamics study. <em>Materials Today Communications</em>, 54, 115373.</p>
-                
-                <div class="backcover-actions">
-                  <button class="backcover-btn btn-reopen" id="backcover-reopen" type="button">
-                    ← Reopen Book (First Page)
-                  </button>
-                  <a class="backcover-btn btn-pdf" href="${encodeURI(currentPaper.pdfUrl)}" target="_blank" rel="noopener noreferrer" download>
-                    📄 Download Full PDF ↗
-                  </a>
-                  <button class="backcover-btn btn-close" id="backcover-close" type="button">
-                    × Return to Portfolio
-                  </button>
-                </div>
+            <div class="backcover-overlay-content">
+              <div class="backcover-actions">
+                <button class="backcover-btn btn-reopen" id="backcover-reopen" type="button">
+                  ← Reopen Book (First Page)
+                </button>
+                <a class="backcover-btn btn-pdf" href="${encodeURI(currentPaper.pdfUrl)}" target="_blank" rel="noopener noreferrer" download>
+                  📄 Download Full PDF ↗
+                </a>
+                <button class="backcover-btn btn-close" id="backcover-close" type="button">
+                  × Return to Portfolio
+                </button>
               </div>
             </div>
           </div>
@@ -1987,8 +1979,14 @@ function formatScientificText(text) {
       }
     }
 
+    // Book pose: closed (front or back cover, centered) or open (two-page spread, shifted right)
+    function setBookPose(spreadIndex) {
+      bookHardcoverCase.dataset.pose = (spreadIndex === 0 || spreadIndex === 15) ? "closed" : "open";
+    }
+
     function renderSpread(spreadIndex, isAfterTurn = false) {
       if (!currentPaper) return;
+      setBookPose(spreadIndex);
 
       // Update case state class
       bookHardcoverCase.classList.remove("state-front-cover", "state-back-cover", "state-open-spread");
@@ -2056,8 +2054,9 @@ function formatScientificText(text) {
       if (btnPrev) btnPrev.disabled = currentSpreadIndex === 0;
       if (btnNext) btnNext.disabled = currentSpreadIndex === 15;
 
-      if (handlePrev) handlePrev.style.display = currentSpreadIndex === 0 ? "none" : "flex";
-      if (handleNext) handleNext.style.display = currentSpreadIndex === 15 ? "none" : "flex";
+      const isClosed = currentSpreadIndex === 0 || currentSpreadIndex === 15;
+      if (handlePrev) handlePrev.style.display = isClosed ? "none" : "flex";
+      if (handleNext) handleNext.style.display = isClosed ? "none" : "flex";
 
       // Dynamic handle hints
       if (handleNext) {
@@ -2200,9 +2199,11 @@ function formatScientificText(text) {
         leafFaceBack.style.clipPath = "polygon(0 0, 0 0, 0 0)";
       }
 
-      // Clenched hand follows corner point
-      const tilt = -12 + (Math.atan2(vy, vx) * 180 / Math.PI) * 0.35;
-      handIndicatorNext.style.transform = `translate3d(${(x - W).toFixed(1)}px, ${(y - H).toFixed(1)}px, 0) scale(0.9) rotate(${tilt.toFixed(1)}deg)`;
+      // Clenched hand follows corner point only while dragging
+      if (isDragging) {
+        const tilt = -12 + (Math.atan2(vy, vx) * 180 / Math.PI) * 0.35;
+        handIndicatorNext.style.transform = `translate3d(${(x - W).toFixed(1)}px, ${(y - H).toFixed(1)}px, 0) scale(0.9) rotate(${tilt.toFixed(1)}deg)`;
+      }
     }
 
     // Apply Backward Deformable Fold from Bottom-Left Corner (0, H)
@@ -2278,8 +2279,10 @@ function formatScientificText(text) {
         leafFaceBack.style.clipPath = "polygon(0 0, 0 0, 0 0)";
       }
 
-      const tilt = 12 - (Math.atan2(vy, -vx) * 180 / Math.PI) * 0.35;
-      handIndicatorPrev.style.transform = `translate3d(${x.toFixed(1)}px, ${(y - H).toFixed(1)}px, 0) scale(0.9) rotate(${tilt.toFixed(1)}deg)`;
+      if (isDragging) {
+        const tilt = 12 - (Math.atan2(vy, -vx) * 180 / Math.PI) * 0.35;
+        handIndicatorPrev.style.transform = `translate3d(${x.toFixed(1)}px, ${(y - H).toFixed(1)}px, 0) scale(0.9) rotate(${tilt.toFixed(1)}deg)`;
+      }
     }
 
     // Animation Loop for Spring / Easing Arc Release
@@ -2333,6 +2336,7 @@ function formatScientificText(text) {
       } catch (err) {}
 
       handleNext.classList.add("is-grabbing");
+      if (handlePrev) handlePrev.style.visibility = "hidden";
       handIndicatorNext.classList.add("hand-clenched");
       startX = e.clientX;
       startY = e.clientY;
@@ -2392,6 +2396,7 @@ function formatScientificText(text) {
       } catch (err) {}
 
       handleNext.classList.remove("is-grabbing");
+      if (handlePrev) handlePrev.style.visibility = "";
 
       const W = flippingLeaf.offsetWidth || (bookHardcoverCase.offsetWidth / 2);
       const H = flippingLeaf.offsetHeight || 600;
@@ -2448,6 +2453,7 @@ function formatScientificText(text) {
       } catch (err) {}
 
       handlePrev.classList.add("is-grabbing");
+      if (handleNext) handleNext.style.visibility = "hidden";
       handIndicatorPrev.classList.add("hand-clenched");
       startX = e.clientX;
       startY = e.clientY;
@@ -2501,6 +2507,7 @@ function formatScientificText(text) {
       } catch (err) {}
 
       handlePrev.classList.remove("is-grabbing");
+      if (handleNext) handleNext.style.visibility = "";
 
       const W = flippingLeaf.offsetWidth || (bookHardcoverCase.offsetWidth / 2);
       const H = flippingLeaf.offsetHeight || 600;
@@ -2583,6 +2590,7 @@ function formatScientificText(text) {
 
       isFlipping = true;
       targetSpreadIndex = clamped;
+      setBookPose(clamped);
 
       const dir = targetSpreadIndex > currentSpreadIndex ? 'next' : 'prev';
 
@@ -2680,6 +2688,11 @@ function formatScientificText(text) {
 
       if (badgeEl) badgeEl.textContent = data.badge;
       if (pdfBtn) pdfBtn.href = encodeURI(data.pdfUrl);
+      if (data.coverImage) {
+        bookHardcoverCase.style.setProperty('--paper-cover-img', `url('${encodeURI(data.coverImage)}')`);
+      } else {
+        bookHardcoverCase.style.removeProperty('--paper-cover-img');
+      }
 
       // Build Pagination Dots with Tooltips (16 states: 0 to 15)
       if (stripEl) {
@@ -2708,7 +2721,7 @@ function formatScientificText(text) {
           dotsHtml.push(`
             <button class="folio-dot-item ${isActive ? 'active' : ''}" type="button" data-spread-index="${spreadIdx}" role="tab" aria-selected="${isActive}" aria-label="${plate.badge}: ${plate.title}">
               <span class="dot-pip"></span>
-              <span class="dot-tooltip"><strong>${plate.badge}</strong> · ${plate.title}</span>
+              <span class="dot-tooltip"><strong>${plate.badge}</strong> · ${formatScientificText(plate.title)}</span>
             </button>
           `);
         });
@@ -2739,9 +2752,15 @@ function formatScientificText(text) {
         });
       }
 
+      bookHardcoverCase.classList.add("no-pose-anim");
       renderSpread(currentSpreadIndex, false);
+      const bookViewport = document.querySelector("#book-viewport");
+      bookViewport.classList.remove("is-entering");
+      void bookViewport.offsetWidth;
+      bookViewport.classList.add("is-entering");
 
       dialog.showModal();
+      requestAnimationFrame(() => requestAnimationFrame(() => bookHardcoverCase.classList.remove("no-pose-anim")));
       requestAnimationFrame(() => {
         dialog.classList.add("is-open");
       });
