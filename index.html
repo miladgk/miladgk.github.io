@@ -32,8 +32,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <script>
+    // Apply the saved theme before first paint to avoid a flash of the default theme
+    try {
+      var savedTheme = localStorage.getItem("portfolio_theme");
+      if (savedTheme === "lab" || savedTheme === "midnight") {
+        document.documentElement.setAttribute("data-theme", savedTheme);
+      }
+    } catch (e) {}
+  </script>
   <link rel="stylesheet" href="styles.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <!-- Mermaid (pinned, SRI-checked) is loaded on demand by script.js when the Flowchart tab opens -->
   <script defer src="script.js"></script>
   <script type="application/ld+json">
   {
@@ -111,7 +120,7 @@
           <div class="kpi" data-perspectives="physics">
             <strong>07</strong>
             <span>Peer-Reviewed Papers</span>
-            <small class="kpi-meta">2018–2026 · research record</small>
+            <small class="kpi-meta">2018 to 2026 · research record</small>
           </div>
           <div class="kpi" data-perspectives="physics">
             <strong>18</strong>
@@ -140,7 +149,7 @@
 
     <section class="section shell chapter-section" id="work" data-chapter="1" data-chapter-label="Systems">
       <div class="section-head"><div><div class="eyebrow">01 / Selected systems</div><h2>Built to move from<br>raw signal to truth.</h2></div><div class="section-head-actions"><p>Public engineering work and private R&D, presented at architecture level.</p></div></div>
-      <div class="filter-row"><button class="filter active" data-filter="all">All systems</button><button class="filter" data-filter="data">Data engineering</button><button class="filter" data-filter="ml">Scientific ML</button><button class="filter" data-filter="science">Materials & FEM</button><button class="filter" data-filter="product">Product / full-stack</button></div>
+      <div class="filter-row" role="group" aria-label="Filter systems by category"><button class="filter active" type="button" aria-pressed="true" data-filter="all">All systems</button><button class="filter" type="button" aria-pressed="false" data-filter="data">Data engineering</button><button class="filter" type="button" aria-pressed="false" data-filter="ml">Scientific ML</button><button class="filter" type="button" aria-pressed="false" data-filter="science">Materials & FEM</button><button class="filter" type="button" aria-pressed="false" data-filter="product">Product / full-stack</button></div>
       <!-- Split-Screen Scrollytelling Showcase -->
       <div class="showcase-scrolly">
         <div class="project-grid" id="project-list" role="region" aria-label="Project showcase list">
@@ -175,7 +184,7 @@
               <div class="card-expandable-content">
                 <div class="card-schematic visual-banner atoms" aria-label="Atomistic trajectory descriptors and phase classification flow"><svg viewBox="0 0 500 110" aria-hidden="true"><circle cx="120" cy="48" r="24"/><circle cx="180" cy="30" r="16"/><circle cx="210" cy="73" r="22"/><circle cx="270" cy="40" r="19"/><circle cx="330" cy="70" r="24"/><path d="M120 48l60-18 30 43 60-33 60 30" fill="none"/></svg></div>
                 <p>Atomistic trajectory processing and classification of <strong>3 amorphous Cu-Zr phases</strong> at the per-atom level.</p>
-                <div class="metrics"><b>18 <small>descriptors / atom</small></b><b>0.854 <small>holdout score</small></b></div>
+                <div class="metrics"><b>18 <small>descriptors / atom</small></b><b>0.733 <small>holdout macro F1</small></b></div>
                 <div class="tags"><span>LAMMPS</span><span>Python 3.10</span><span>HistGradientBoosting</span><span>RDF / Voronoi</span><span>SHAP</span></div>
                 <div class="card-links">
                   <a class="card-link" href="https://github.com/miladgk/amorphous-phase-ml" target="_blank" rel="noopener noreferrer">View repository ↗</a>
@@ -312,18 +321,18 @@
                 <span class="stage-category" id="stage-category">Data engineering</span>
               </div>
               <div class="stage-tabs" role="tablist" aria-label="Project visual display modes">
-                <button class="stage-tab active" type="button" data-mode="schematic" role="tab" aria-selected="true" aria-controls="stage-schematic-view">Schematic</button>
-                <button class="stage-tab" type="button" data-mode="flowchart" role="tab" aria-selected="false" aria-controls="stage-flowchart-view">Flowchart</button>
+                <button class="stage-tab active" type="button" id="stage-tab-schematic" data-mode="schematic" role="tab" aria-selected="true" aria-controls="stage-schematic-view" tabindex="0">Schematic</button>
+                <button class="stage-tab" type="button" id="stage-tab-flowchart" data-mode="flowchart" role="tab" aria-selected="false" aria-controls="stage-flowchart-view" tabindex="-1">Flowchart</button>
               </div>
             </div>
 
             <div class="stage-screen" id="stage-screen">
-              <div class="stage-view stage-view-schematic active" id="stage-schematic-view" role="tabpanel">
+              <div class="stage-view stage-view-schematic active" id="stage-schematic-view" role="tabpanel" aria-labelledby="stage-tab-schematic">
                 <div class="stage-schematic-mount" id="stage-schematic-mount">
                   <div class="card-schematic visual-banner energy" aria-label="Synthetic telemetry ingestion and PostgreSQL analytics flow"><svg viewBox="0 0 500 110" aria-hidden="true"><path d="M0 75C35 70 40 28 75 55s35 25 65 0 35 18 70-12 44 31 73 4 41-13 68 3 43-34 74-8 39 15 75-20" fill="none" stroke="currentColor" stroke-width="2"/><path d="M0 92h500" stroke="currentColor" opacity=".22"/><circle cx="0" cy="0" r="4" fill="currentColor"><animateMotion dur="6.8s" repeatCount="indefinite" calcMode="linear" keyPoints="0;0.16;0.31;0.47;0.63;0.79;0.91;1" keyTimes="0;0.18;0.34;0.52;0.67;0.81;0.92;1" path="M0 75C35 70 40 28 75 55s35 25 65 0 35 18 70-12 44 31 73 4 41-13 68 3 43-34 74-8 39 15 75-20"/></circle></svg></div>
                 </div>
               </div>
-              <div class="stage-view stage-view-flowchart" id="stage-flowchart-view" role="tabpanel">
+              <div class="stage-view stage-view-flowchart" id="stage-flowchart-view" role="tabpanel" aria-labelledby="stage-tab-flowchart">
                 <div class="mermaid stage-mermaid" id="stage-mermaid"></div>
               </div>
             </div>
@@ -362,9 +371,9 @@
       <div class="timeline-item"><span class="timeline-year">2012 to 2015</span><div><h3>Engineering Role</h3><p><strong>IOOC</strong></p></div></div>
     <a href="#top" class="back-to-top section-top">Top ↑</a></div></section>
 
-    <section class="section tinted chapter-section" id="publications" data-chapter="4" data-chapter-label="Research"><div class="shell"><div class="section-head"><div><div class="eyebrow">04 / Publications</div><h2>Seven studies in<br>materials & mechanics.</h2></div><p>Peer-reviewed work spanning thin films, irradiation, glasses, and atomistic failure.</p></div><div class="pub-filters"><button class="pub-filter active" data-pub-filter="all">All research</button><button class="pub-filter" data-pub-filter="atomistic">Atomistic & thin films</button><button class="pub-filter" data-pub-filter="mechanics">Mechanics & glasses</button></div><div class="publication-grid">
+    <section class="section tinted chapter-section" id="publications" data-chapter="4" data-chapter-label="Research"><div class="shell"><div class="section-head"><div><div class="eyebrow">04 / Publications</div><h2>Seven studies in<br>materials & mechanics.</h2></div><p>Peer-reviewed work spanning thin films, irradiation, glasses, and atomistic failure.</p></div><div class="pub-filters" role="group" aria-label="Filter publications by topic"><button class="pub-filter active" type="button" aria-pressed="true" data-pub-filter="all">All research</button><button class="pub-filter" type="button" aria-pressed="false" data-pub-filter="atomistic">Atomistic & thin films</button><button class="pub-filter" type="button" aria-pressed="false" data-pub-filter="mechanics">Mechanics & glasses</button></div><div class="publication-grid">
       <article class="publication" data-pub="atomistic"><span class="year">2026</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/pii/S2352492826007622?via%3Dihub" target="_blank" rel="noopener noreferrer">Materials Today Communications ↗</a><h3>Crystallization dynamics and interfacial structure during HiPIMS growth of thin Nb films on Cu</h3><p>Atomistic MD · HiPIMS deposition · Nb/Cu superconducting RF interfaces</p><div class="pub-actions"><button class="open-paper-folio" type="button" data-paper-id="nb-cu-2026" aria-haspopup="dialog">Illustrated Paper · Figures &amp; PDF →</button><a class="pub-scholar-link" href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:Tyk-4Ss8FVUC" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></div></article>
-      <article class="publication" data-pub="atomistic"><span class="year">2024</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/pii/S1359645424000521" target="_blank" rel="noopener noreferrer">Acta Materialia ↗</a><h3>Surface orientation effects on Cu blistering under high-fluence H ion irradiation</h3><p>Hydrogen blistering · Ion irradiation · Cu surfaces · Atomistic modeling</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:UeHWp8X0CEIC" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
+      <article class="publication" data-pub="atomistic"><span class="year">2024</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/pii/S1359645424000521" target="_blank" rel="noopener noreferrer">Acta Materialia ↗</a><h3>Surface orientation effects on Cu blistering under high-fluence H ion irradiation</h3><p>Hydrogen blistering · Ion irradiation · Cu surfaces · Atomistic modeling</p><div class="pub-actions"><button class="open-paper-folio" type="button" data-paper-id="blistering-cu-2024" aria-haspopup="dialog">Illustrated Paper · Figures &amp; PDF →</button><a class="pub-scholar-link" href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:UeHWp8X0CEIC" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></div></article>
       <article class="publication" data-pub="atomistic"><span class="year">2024</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/pii/S025789722300974X" target="_blank" rel="noopener noreferrer">Surface and Coatings Technology ↗</a><h3>Comparative study of Nb film growth on Cu substrates using DCMS and HiPIMS</h3><p>Thin-film growth mechanisms · DCMS vs. HiPIMS · Energetic deposition</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:u-x6o8ySG0sC" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
       <article class="publication" data-pub="mechanics"><span class="year">2022</span><div><a class="journal" href="https://www.sciencedirect.com/science/article/abs/pii/S2352431622000281" target="_blank" rel="noopener noreferrer">Extreme Mechanics Letters ↗</a><h3>Notch-tip brittle-ductile transitions in metallic glasses</h3><p>Metallic glasses · Fracture mechanics · Brittle-to-ductile transition</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:2osOgNQ5qMEC" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
       <article class="publication pub-collapsed" data-pub="mechanics"><span class="year">2021</span><div><a class="journal" href="https://iopscience.iop.org/article/10.1149/2162-8777/abe590/meta" target="_blank" rel="noopener noreferrer">ECS J. Solid State Sci. Technol. ↗</a><h3>Investigation of grain boundary mechanical failure under strain and stress control</h3><p>Grain boundary mechanics · Failure analysis · Atomistic deformation</p><a href="https://scholar.google.com/citations?view_op=view_citation&hl=en&user=dzrQ6WsAAAAJ&sortby=pubdate&citation_for_view=dzrQ6WsAAAAJ:qjMakFHDy7sC" target="_blank" rel="noopener noreferrer">Google Scholar ↗</a></div></article>
@@ -493,7 +502,7 @@
         </div>
 
         <!-- Sleek Pagination Dots Bar with Hover Tooltips -->
-        <nav class="book-pagination-dots" id="paper-folio-strip" role="tablist" aria-label="Book pages navigation">
+        <nav class="book-pagination-dots" id="paper-folio-strip" aria-label="Book pages">
           <!-- Dynamically populated dots with tooltips -->
         </nav>
       </div>
@@ -510,24 +519,24 @@
 
     <nav class="chapter-dock" id="chapter-dock" aria-label="Chapter pager" role="navigation">
       <button class="chapter-flipper-btn" type="button" id="chapter-prev" aria-label="Previous chapter (PageUp)">↑</button>
-      <div class="chapter-dots" role="tablist" aria-label="Chapter list">
-        <button class="chapter-dot active" type="button" data-chapter="hero" role="tab" aria-selected="true" aria-label="Chapter 00: Intro">
+      <div class="chapter-dots">
+        <button class="chapter-dot active" type="button" data-chapter="hero" aria-current="true" aria-label="Chapter 00: Intro">
           <span class="chapter-dot-pip"></span>
           <span class="chapter-dot-label">00 Intro</span>
         </button>
-        <button class="chapter-dot" type="button" data-chapter="work" role="tab" aria-selected="false" aria-label="Chapter 01: Systems">
+        <button class="chapter-dot" type="button" data-chapter="work" aria-label="Chapter 01: Systems">
           <span class="chapter-dot-pip"></span>
           <span class="chapter-dot-label">01 Systems</span>
         </button>
-        <button class="chapter-dot" type="button" data-chapter="arsenal" role="tab" aria-selected="false" aria-label="Chapter 02: Arsenal">
+        <button class="chapter-dot" type="button" data-chapter="arsenal" aria-label="Chapter 02: Arsenal">
           <span class="chapter-dot-pip"></span>
           <span class="chapter-dot-label">02 Arsenal</span>
         </button>
-        <button class="chapter-dot" type="button" data-chapter="trajectory" role="tab" aria-selected="false" aria-label="Chapter 03: Trajectory">
+        <button class="chapter-dot" type="button" data-chapter="trajectory" aria-label="Chapter 03: Trajectory">
           <span class="chapter-dot-pip"></span>
           <span class="chapter-dot-label">03 Trajectory</span>
         </button>
-        <button class="chapter-dot" type="button" data-chapter="publications" role="tab" aria-selected="false" aria-label="Chapter 04: Research">
+        <button class="chapter-dot" type="button" data-chapter="publications" aria-label="Chapter 04: Research">
           <span class="chapter-dot-pip"></span>
           <span class="chapter-dot-label">04 Research</span>
         </button>
@@ -535,7 +544,7 @@
       <button class="chapter-flipper-btn" type="button" id="chapter-next" aria-label="Next chapter (PageDown)">↓</button>
     </nav>
   </main>
-  <footer class="site-footer shell" id="contact"><div><div class="eyebrow">Let’s connect</div><p class="quote-attribution">Nelson Mandela</p><h2>It always seems impossible until it is done.</h2></div><div class="footer-links"><a href="https://github.com/miladgk">GitHub ↗</a><a href="https://www.linkedin.com/in/milad-ghaemikermani/">LinkedIn ↗</a><a href="https://scholar.google.com/citations?hl=en&user=dzrQ6WsAAAAJ">Google Scholar ↗</a><a href="https://miladgk.github.io">miladgk.github.io ↗</a></div><small>© 2026 Milad Ghaemi · Helsinki, Finland</small></footer>
+  <footer class="site-footer shell" id="contact"><div><div class="eyebrow">Let’s connect</div><p class="quote-attribution">Nelson Mandela</p><h2>It always seems impossible until it is done.</h2></div><div class="footer-links"><a href="https://github.com/miladgk">GitHub ↗</a><a href="https://www.linkedin.com/in/milad-ghaemikermani/">LinkedIn ↗</a><a href="https://scholar.google.com/citations?hl=en&user=dzrQ6WsAAAAJ">Google Scholar ↗</a><a href="https://miladgk.github.io">miladgk.github.io ↗</a></div><small>© 2026 Milad Ghaemi · Helsinki, Finland</small><p class="site-update-note" role="note">This site is being updated, so some details may still contain small errors.</p></footer>
 
   <!-- ======================================================================
        Floating LLM-RAG Technical Assistant Chatbot Widget
@@ -562,8 +571,12 @@
             <strong class="rag-header-title">Ask Milad’s AI</strong>
             <span class="rag-model-badge">Deep Project Specs</span>
           </div>
-          <div class="rag-context-badge" id="rag-context-badge" title="Active context synced with portfolio view">
-            <span class="rag-context-label">Context:</span> <span class="rag-context-name" id="rag-context-name">General Profile</span>
+          <div class="rag-context-badge" id="rag-context-badge">
+            <label class="rag-context-label" for="rag-context-select">Context:</label>
+            <select class="rag-context-select" id="rag-context-select" aria-describedby="rag-context-hint">
+              <option value="auto">Auto: General Profile</option>
+            </select>
+            <span class="visually-hidden" id="rag-context-hint">Auto follows the section you are viewing. Pick a project to focus the assistant on it.</span>
           </div>
         </div>
         <button class="rag-panel-close" id="rag-panel-close" type="button" aria-label="Close assistant panel">×</button>
@@ -572,11 +585,6 @@
       <!-- Message History Thread -->
       <div class="rag-messages-thread" id="rag-messages" role="log" aria-live="polite">
         <!-- Populated dynamically via script -->
-      </div>
-
-      <!-- Dynamic Quick Prompt Chips (Synced with Active Project) -->
-      <div class="rag-quick-chips" id="rag-quick-chips" role="group" aria-label="Suggested quick questions">
-        <!-- Dynamically populated chips -->
       </div>
 
       <!-- Input Form -->

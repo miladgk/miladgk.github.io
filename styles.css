@@ -36,7 +36,6 @@ html[data-theme="lab"],
   --border-width: 1px;
   --border-style: solid;
   --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.6);
-  --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.8), 0 0 0 1px #B6F36A;
   --space-card: 26px;
   --motion-speed: 0.2s;
   --grid-pattern: linear-gradient(#1A1D22 1px, transparent 1px), linear-gradient(90deg, #1A1D22 1px, transparent 1px);
@@ -74,7 +73,6 @@ html[data-theme="midnight"] {
   --border-width: 1px;
   --border-style: solid;
   --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.35);
-  --shadow-hover: 0 18px 45px rgba(0, 0, 0, 0.45), 0 0 25px rgba(129, 140, 248, 0.14);
   --space-card: 22px;
   --motion-speed: 0.28s;
   --grid-pattern: radial-gradient(circle, rgba(129, 140, 248, 0.08) 1px, transparent 1px);
@@ -119,7 +117,6 @@ body {
   line-height: 1.55;
   overflow-x: clip;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
   transition: background var(--motion-speed), color var(--motion-speed);
 }
 
@@ -143,6 +140,13 @@ body::before {
   background: var(--hero-glow);
   pointer-events: none;
   z-index: 0;
+}
+
+/* The 3D chapter transitions (perspective + rotateX) can render a few px wider than the
+   viewport. Clip them here: overflow on <body> propagates to the viewport, which mobile
+   browsers do not honour when sizing the page, so they would zoom out instead. */
+main {
+  overflow-x: clip;
 }
 
 .shell {
@@ -453,7 +457,8 @@ button {
 
 .hero {
   display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
+  /* minmax(0, ...) lets columns shrink below their content's min-content width */
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   gap: 20px 55px;
   align-items: center;
   padding: 0;
@@ -662,7 +667,8 @@ button {
   height: 100%;
   display: block;
   cursor: grab;
-  touch-action: none;
+  /* Vertical swipes scroll the page; horizontal drags rotate the cluster */
+  touch-action: pan-y;
 }
 
 #network-canvas:active,
@@ -753,14 +759,14 @@ button {
    -------------------------------------------------------------------------- */
 .showcase-scrolly {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
   position: relative;
 }
 
 @media (min-width: 951px) {
   .showcase-scrolly {
-    grid-template-columns: 1.05fr 0.95fr;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
     gap: 36px;
     align-items: start;
   }
@@ -1836,7 +1842,8 @@ summary span {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 45px;
-  padding: 85px 0 32px;
+  /* Bottom space keeps the last lines clear of the fixed chat launcher */
+  padding: 85px 0 96px;
 }
 
 .site-footer h2 {
@@ -2016,7 +2023,7 @@ summary span {
     padding: 36px 0 20px;
   }
   .hero {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 28px;
     padding: 0;
   }
@@ -2185,6 +2192,9 @@ summary span {
 
 /* Reduced Motion Override */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   *,
   *::before,
   *::after {
@@ -2274,7 +2284,9 @@ summary span {
   width: 100vw;
   max-width: 100vw;
   height: 100vh;
+  height: 100dvh;
   max-height: 100vh;
+  max-height: 100dvh;
   padding: 0;
   margin: 0;
   border: none;
@@ -2314,6 +2326,7 @@ summary span {
   justify-content: center;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   padding: 16px 24px 14px;
   box-sizing: border-box;
   position: relative;
@@ -2747,12 +2760,11 @@ summary span {
   color: #6E685E;
 }
 
-.num-left {
-  left: 0;
-}
-
+/* Centred: the bottom corners are covered by the page-turn handles */
+.num-left,
 .num-right {
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 /* Hardcover Surface (Front Cover & Back Cover) */
@@ -2861,10 +2873,6 @@ summary span {
   box-shadow: 1px 0 2px rgba(0,0,0,0.08);
 }
 
-.cover-spine-groove.groove-right {
-  left: auto;
-  right: 12px;
-}
 
 /* Page 1 (Front Matter) */
 .book-paper-title {
@@ -3168,6 +3176,12 @@ summary span {
   line-height: 1.68;
   color: #242220;
   text-align: justify;
+  /* Fills the page; script.js shrinks the font until the caption fits */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  /* Keep clear of the page number and the corner page-turn handle */
+  margin-bottom: 40px;
 }
 
 /* Mathematical typography inside captions */
@@ -3223,6 +3237,34 @@ summary span {
   line-height: 1.66;
   color: #242220;
   text-align: justify;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Clear the page number and corner handle: on the text itself on the left page,
+   on the seal that follows the text on the right page */
+.page-conclusion > .conclusion-body {
+  margin-bottom: 40px;
+}
+
+.page-conclusion > .conclusion-body:has(+ .conclusion-seal) {
+  margin-bottom: 0;
+}
+
+.page-conclusion > .conclusion-seal {
+  margin-bottom: 34px;
+}
+
+.conclusion-body p.para-continued {
+  text-indent: 0;
+}
+
+/* Last resort when even the smallest font does not fit */
+.plate-caption-text.is-scrollable,
+.conclusion-body.is-scrollable {
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .conclusion-body p {
@@ -3795,10 +3837,11 @@ summary span {
 .rag-chat-panel {
   position: fixed;
   left: 24px;
-  bottom: 82px;
+  bottom: calc(82px + var(--rag-kb-inset, 0px));
   z-index: 9999;
   width: min(440px, calc(100vw - 32px));
   height: min(600px, calc(100vh - 100px));
+  height: min(600px, calc(var(--rag-vv-height, 100dvh) - 100px));
   display: flex;
   flex-direction: column;
   border-radius: 16px;
@@ -3892,11 +3935,50 @@ summary span {
   opacity: 0.7;
 }
 
-.rag-context-name {
-  color: var(--accent);
+.rag-context-select {
+  min-width: 0;
+  max-width: 100%;
+  flex: 1 1 auto;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
   font-weight: 600;
-  overflow: hidden;
+  color: var(--accent);
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 3px 6px;
+  cursor: pointer;
   text-overflow: ellipsis;
+}
+
+.rag-context-select:hover {
+  border-color: var(--accent);
+}
+
+.rag-context-select option {
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.site-update-note {
+  grid-column: 1 / -1;
+  margin: -32px 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--muted);
+  opacity: 0.85;
 }
 
 .rag-panel-close {
@@ -4081,34 +4163,41 @@ summary span {
 }
 
 /* Dynamic Quick Prompt Chips */
-.rag-quick-chips {
+/* Suggested questions: a block inside the message thread, wrapping and scrolling with it */
+.rag-suggestions {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
-  padding: 8px 14px;
-  overflow-x: auto;
-  white-space: nowrap;
-  scrollbar-width: none;
-  border-top: 1px solid var(--line);
-  background: rgba(0, 0, 0, 0.18);
-  flex-shrink: 0;
+  padding: 10px 12px;
+  margin: 2px 0 4px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.14);
 }
 
-.rag-quick-chips::-webkit-scrollbar {
-  display: none;
+.rag-suggestions-title {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 2px;
 }
 
 .rag-chip-btn {
   font-family: var(--font-mono);
   font-size: 0.67rem;
+  line-height: 1.35;
   color: var(--ink);
   background: var(--surface2);
   border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 5px 11px;
+  border-radius: 14px;
+  padding: 6px 11px;
   cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
+  white-space: normal;
+  text-align: left;
+  max-width: 100%;
   transition: all 0.18s ease;
 }
 
@@ -4211,8 +4300,36 @@ summary span {
     left: 10px;
     right: 10px;
     width: auto;
-    bottom: 68px;
+    bottom: calc(68px + var(--rag-kb-inset, 0px));
     height: calc(100vh - 84px);
+    height: calc(var(--rag-vv-height, 100dvh) - 84px);
     border-radius: 14px;
   }
+  /* 16px stops iOS Safari from zooming the page when the input is focused */
+  .rag-input-textarea {
+    font-size: 16px;
+  }
+}
+
+/* ==========================================================================
+   Keyboard focus
+   ========================================================================== */
+/* Zero-specificity fallback: any focusable control without its own focus style gets one */
+:where(a, button, textarea, [role="button"], [role="tab"], [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* These set outline: none, so they need an explicit focus-visible style */
+.book-corner-handle:focus-visible,
+.folio-dot-item:focus-visible,
+.hardcover-surface:focus-visible,
+.book-ga-img-wrap:focus-visible,
+.book-plate-img-wrap:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.folio-dot-item:focus-visible .dot-pip {
+  transform: scale(1.4);
 }

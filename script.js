@@ -6,14 +6,43 @@ document.addEventListener("DOMContentLoaded", () => {
   const themePickerBtns = document.querySelectorAll(".theme-picker-btn");
   let currentTheme = "lab";
 
-  // Cache initial mermaid diagram code before Mermaid renders SVG (excluding stage flowchart)
-  const mermaidElements = Array.from(document.querySelectorAll(".mermaid:not(#stage-mermaid)"));
-  mermaidElements.forEach(el => {
-    el.dataset.mermaidCode = el.textContent.trim();
-  });
+  // Single source of truth for the reduced-motion preference (it can change while the page is open)
+  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const prefersReducedMotion = () => reducedMotionQuery.matches;
+  const scrollBehavior = () => (prefersReducedMotion() ? "auto" : "smooth");
 
-  function getSystemTheme() {
-    return "lab";
+  // Keys typed into form fields, media controls or editable content must keep their native meaning
+  function isTypingOrMediaTarget(el) {
+    if (!el || !(el instanceof Element)) return false;
+    if (el.isContentEditable) return true;
+    return Boolean(el.closest("input, textarea, select, video, audio, [contenteditable='true']"));
+  }
+
+  // Make a non-button element operable like a button (Enter / Space)
+  function makeKeyboardActivatable(el, label) {
+    if (!el.hasAttribute("role")) el.setAttribute("role", "button");
+    if (!el.hasAttribute("tabindex")) el.tabIndex = 0;
+    if (label && !el.hasAttribute("aria-label")) el.setAttribute("aria-label", label);
+    el.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        el.click();
+      }
+    });
+  }
+
+  // SMIL animations (<animateMotion> in the schematics) ignore CSS, so pause them explicitly
+  function syncSvgMotion(root = document) {
+    root.querySelectorAll("svg").forEach(svg => {
+      if (typeof svg.pauseAnimations !== "function") return;
+      if (!svg.querySelector("animate, animateMotion, animateTransform, set")) return;
+      if (prefersReducedMotion()) {
+        svg.pauseAnimations();
+        svg.setCurrentTime(0);
+      } else {
+        svg.unpauseAnimations();
+      }
+    });
   }
 
   function getSavedTheme() {
@@ -23,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {
       console.warn("localStorage unavailable", e);
     }
-    return getSystemTheme();
+    return "lab";
   }
 
   function saveTheme(theme) {
@@ -41,60 +70,72 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function reRenderMermaid(theme) {
-    if (!window.mermaid) return;
-    const configs = {
-      lab: {
-        theme: "dark",
-        themeVariables: {
-          darkMode: true,
-          background: "#121417",
-          primaryColor: "#181B20",
-          primaryBorderColor: "#B6F36A",
-          primaryTextColor: "#F0F0EC",
-          lineColor: "#B6F36A",
-          edgeLabelBackground: "#181B20",
-          fontFamily: "Space Grotesk, sans-serif"
-        }
-      },
-      midnight: {
-        theme: "dark",
-        themeVariables: {
-          darkMode: true,
-          background: "#111827",
-          primaryColor: "#1e293b",
-          primaryBorderColor: "#818cf8",
-          primaryTextColor: "#f1f5f9",
-          lineColor: "#818cf8",
-          edgeLabelBackground: "#1e293b",
-          fontFamily: "Inter, sans-serif"
-        }
+  // Mermaid is only needed for the stage Flowchart tab, so it is loaded on first use
+  // instead of blocking page scripts. Version is pinned and checked with SRI.
+  const MERMAID_SRC = "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.min.js";
+  const MERMAID_SRI = "sha384-EOXBFmc3gx5mb+vn0vPvvGqACToJD24hhacX5Yx+8NUUQrHIle/Qi5Bg9o3zKwW2";
+  const MERMAID_THEMES = {
+    lab: {
+      theme: "dark",
+      themeVariables: {
+        darkMode: true,
+        background: "#121417",
+        primaryColor: "#181B20",
+        primaryBorderColor: "#B6F36A",
+        primaryTextColor: "#F0F0EC",
+        lineColor: "#B6F36A",
+        edgeLabelBackground: "#181B20",
+        fontFamily: "Space Grotesk, sans-serif"
       }
-    };
-
-    try {
-      const activeConfig = configs[theme] || configs.lab;
-      window.mermaid.initialize({
-        startOnLoad: false,
-        securityLevel: "loose",
-        ...activeConfig
-      });
-
-      const staticMermaidNodes = Array.from(document.querySelectorAll(".mermaid:not(#stage-mermaid)"));
-      staticMermaidNodes.forEach(el => {
-        el.removeAttribute("data-processed");
-        el.textContent = el.dataset.mermaidCode || "";
-      });
-
-      if (staticMermaidNodes.length) {
-        window.mermaid.run({ nodes: staticMermaidNodes });
+    },
+    midnight: {
+      theme: "dark",
+      themeVariables: {
+        darkMode: true,
+        background: "#111827",
+        primaryColor: "#1e293b",
+        primaryBorderColor: "#818cf8",
+        primaryTextColor: "#f1f5f9",
+        lineColor: "#818cf8",
+        edgeLabelBackground: "#1e293b",
+        fontFamily: "Inter, sans-serif"
       }
-      if (typeof updateStageMermaid === "function" && typeof stageMode !== "undefined" && stageMode === "flowchart") {
-        updateStageMermaid();
-      }
-    } catch (err) {
-      console.warn("Mermaid re-render failed", err);
     }
+  };
+  let mermaidLoadPromise = null;
+
+  function loadMermaid() {
+    if (window.mermaid) return Promise.resolve(window.mermaid);
+    if (!mermaidLoadPromise) {
+      mermaidLoadPromise = new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src = MERMAID_SRC;
+        script.integrity = MERMAID_SRI;
+        script.crossOrigin = "anonymous";
+        script.async = true;
+        script.onload = () => window.mermaid ? resolve(window.mermaid) : reject(new Error("Mermaid global missing"));
+        script.onerror = () => {
+          script.remove();
+          mermaidLoadPromise = null; // allow a retry on the next Flowchart open
+          reject(new Error("Mermaid failed to load"));
+        };
+        document.head.appendChild(script);
+      });
+    }
+    return mermaidLoadPromise;
+  }
+
+  function configureMermaid(theme) {
+    window.mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: "strict",
+      ...(MERMAID_THEMES[theme] || MERMAID_THEMES.lab)
+    });
+  }
+
+  // Re-render the stage flowchart in the new theme, only if Mermaid is already in use
+  function reRenderMermaid() {
+    if (window.mermaid && stageMode === "flowchart") updateStageMermaid();
   }
 
   function applyTheme(newTheme, isInitial = false) {
@@ -105,14 +146,14 @@ document.addEventListener("DOMContentLoaded", () => {
       currentTheme = newTheme;
       updateThemeUI(newTheme);
       if (!isInitial) saveTheme(newTheme);
-      reRenderMermaid(newTheme);
+      reRenderMermaid();
       if (window.themeCanvasUpdate) window.themeCanvasUpdate(newTheme);
     };
 
     if (
       !isInitial &&
       document.startViewTransition &&
-      !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      !prefersReducedMotion()
     ) {
       document.startViewTransition(performUpdate);
     } else {
@@ -128,17 +169,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
-
-  // System color scheme change listener
-  if (window.matchMedia) {
-    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
-      try {
-        if (!localStorage.getItem("portfolio_theme")) {
-          applyTheme("lab");
-        }
-      } catch (err) { }
-    });
-  }
 
   // ------------------------------------------------------------------------
   // Filters, Perspectives & Project Data
@@ -187,7 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "Applies explainability and physical post-processing to interpret phase predictions and interface behavior."
       ],
       stack: ["LAMMPS", "Python 3.10", "RDF / Voronoi", "HistGradientBoosting", "SHAP"],
-      verification: "Holdout macro F1 of 0.854, group-aware splits, calibration, and explainability analysis.",
+      verification: "Spatial holdout macro F1 of 0.733 (Cu64Zr36 F1 0.970), group-aware splits, calibration, and explainability analysis.",
       mermaid: "flowchart LR\nA[LAMMPS] --> B[Descriptors] --> C[Validation] --> D[Group split]\nD --> E[Classifier] --> F[3 phase predictions]\nE --> G[Explainability]",
       links: {
         github: "https://github.com/miladgk/amorphous-phase-ml",
@@ -248,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ],
       stack: ["Gmsh", "Code_Aster", "CalculiX", "FEniCSx", "Physics checks"],
       verification: "71-rule physical validation engine, 11 benchmark verification suites, and 810 automated tests.",
-      mermaid: "flowchart LR\nA[Model] --> B[Review gate] --> C[Gmsh mesh]\nC --> D[Code_Aster] & E[CalculiX] --> F[Physics checks]"
+      mermaid: "flowchart LR\nA[Model] --> B[Review gate] --> C[Gmsh mesh]\nC --> D[Code_Aster] & E[CalculiX] & G[FEniCSx] --> F[Physics checks]"
     },
     "Quantum ESPRESSO Advisor": {
       category: "Electronic structure · Private R&D",
@@ -281,17 +311,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const perspectiveConfig = {
     all: {
       categories: ["all"],
-      order: ["data", "ml", "science", "product"],
       message: "A complete view across data platforms, scientific ML, and computational systems."
     },
     engineering: {
       categories: ["data", "ml", "product"],
-      order: ["data", "ml", "product"],
       message: "For data and ML engineering: pipelines, quality, analytics, and deployable intelligence."
     },
     physics: {
       categories: ["science", "ml"],
-      order: ["science", "ml"],
       message: "For computational physics and HPC: atomistic modeling, scientific ML, and verified simulation."
     }
   };
@@ -320,10 +347,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ? card.dataset.category === currentFilter
         : true
     );
-    const order = currentPerspective === "all" && currentFilter !== "all"
-      ? [currentFilter]
-      : config.order;
-
     projectCards.forEach(card => card.classList.toggle("hidden", !visible.includes(card)));
     visible
       .sort((a, b) => parseInt(a.dataset.index, 10) - parseInt(b.dataset.index, 10))
@@ -346,7 +369,9 @@ document.addEventListener("DOMContentLoaded", () => {
       button.setAttribute("aria-pressed", String(active));
     });
     filterButtons.forEach(button => {
-      button.classList.toggle("active", button.dataset.filter === "all");
+      const isAll = button.dataset.filter === "all";
+      button.classList.toggle("active", isAll);
+      button.setAttribute("aria-pressed", String(isAll));
     });
     status.textContent = perspectiveConfig[perspective].message;
     setKpiEmphasis(perspective);
@@ -363,7 +388,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!["all", "data", "ml", "science", "product"].includes(category)) return;
       currentFilter = category;
       currentPerspective = "all";
-      filterButtons.forEach(item => item.classList.toggle("active", item === button));
+      filterButtons.forEach(item => {
+        item.classList.toggle("active", item === button);
+        item.setAttribute("aria-pressed", String(item === button));
+      });
       perspectiveButtons.forEach(item => {
         const active = item.dataset.perspective === "all";
         item.classList.toggle("active", active);
@@ -382,7 +410,10 @@ document.addEventListener("DOMContentLoaded", () => {
     pubFilters.forEach(button => {
       button.addEventListener("click", () => {
         const filter = button.dataset.pubFilter;
-        pubFilters.forEach(b => b.classList.toggle("active", b === button));
+        pubFilters.forEach(b => {
+          b.classList.toggle("active", b === button);
+          b.setAttribute("aria-pressed", String(b === button));
+        });
         publicationCards.forEach(card => {
           const match = filter === "all" || card.dataset.pub === filter;
           card.classList.toggle("hidden", !match);
@@ -490,31 +521,47 @@ document.addEventListener("DOMContentLoaded", () => {
   let activeProjectCard = document.querySelector(".project-card.is-active") || projectCards[0];
   let stageMode = "schematic";
   let isUserScrolling = false;
-  let isTransitioning = false;
   let clickTimeout = null;
   let morphTimer = null;
-  let transitionTimer = null;
+
+  let stageRenderToken = 0;
+
+  function setStageMermaidStatus(message) {
+    const note = document.createElement("p");
+    note.style.cssText = "color:var(--muted);font-size:0.75rem;padding:20px;text-align:center";
+    note.textContent = message;
+    stageMermaid.replaceChildren(note);
+  }
 
   async function updateStageMermaid() {
-    if (!stageMermaid || !window.mermaid || !activeProjectCard) return;
+    if (!stageMermaid || !activeProjectCard) return;
+    // Each call gets a token so a slow, older render cannot overwrite a newer one
+    const token = ++stageRenderToken;
     const title = activeProjectCard.dataset.project || activeProjectCard.querySelector("h3")?.textContent.trim();
     const mermaidCode = architectureData[title]?.mermaid;
     if (!mermaidCode) {
-      stageMermaid.innerHTML = "<p style='color:var(--muted);font-size:0.75rem;padding:20px;text-align:center'>No architecture diagram available.</p>";
+      setStageMermaidStatus("No architecture diagram available.");
       return;
     }
+
+    let mermaid;
     try {
-      stageMermaid.innerHTML = "";
-      const uniqueId = `stage-mermaid-${Date.now()}`;
-      const { svg } = await window.mermaid.render(uniqueId, mermaidCode);
+      if (!window.mermaid) setStageMermaidStatus("Loading diagram...");
+      mermaid = await loadMermaid();
+    } catch (e) {
+      console.warn("Mermaid load failed", e);
+      if (token === stageRenderToken) setStageMermaidStatus("Diagram unavailable. Check your connection and reopen the Flowchart tab.");
+      return;
+    }
+
+    try {
+      configureMermaid(currentTheme);
+      const { svg } = await mermaid.render(`stage-mermaid-svg-${token}`, mermaidCode);
+      if (token !== stageRenderToken) return;
       stageMermaid.innerHTML = svg;
     } catch (e) {
       console.warn("Mermaid stage render failed", e);
-      stageMermaid.textContent = mermaidCode;
-      stageMermaid.removeAttribute("data-processed");
-      try {
-        window.mermaid.run({ nodes: [stageMermaid] });
-      } catch (err) { }
+      if (token === stageRenderToken) setStageMermaidStatus("Diagram could not be rendered.");
     }
   }
 
@@ -555,7 +602,7 @@ document.addEventListener("DOMContentLoaded", () => {
         stageCategory.textContent = catNames[category] || category;
       }
       if (stageTitle) stageTitle.textContent = title;
-      if (typeof syncRagProjectContext === "function") {
+      if (typeof syncRagProjectContext === "function" && title !== currentRagContext) {
         syncRagProjectContext(title);
       }
 
@@ -567,6 +614,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const cardSchematic = card.querySelector(".card-schematic");
       if (stageSchematicMount && cardSchematic) {
         stageSchematicMount.innerHTML = cardSchematic.outerHTML;
+        syncSvgMotion(stageSchematicMount);
       }
 
       if (stageActions) {
@@ -613,6 +661,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const active = t === tab;
         t.classList.toggle("active", active);
         t.setAttribute("aria-selected", String(active));
+        t.tabIndex = active ? 0 : -1;
       });
       const schematicView = document.querySelector("#stage-schematic-view");
       const flowchartView = document.querySelector("#stage-flowchart-view");
@@ -623,6 +672,22 @@ document.addEventListener("DOMContentLoaded", () => {
           updateStageMermaid();
         }
       }
+    });
+  });
+
+  // WAI-ARIA tabs: Left/Right/Home/End move between tabs and activate them
+  const stageTabList = Array.from(stageTabs);
+  stageTabList.forEach((tab, index) => {
+    tab.addEventListener("keydown", e => {
+      let next = null;
+      if (e.key === "ArrowRight") next = stageTabList[(index + 1) % stageTabList.length];
+      else if (e.key === "ArrowLeft") next = stageTabList[(index - 1 + stageTabList.length) % stageTabList.length];
+      else if (e.key === "Home") next = stageTabList[0];
+      else if (e.key === "End") next = stageTabList[stageTabList.length - 1];
+      if (!next) return;
+      e.preventDefault();
+      next.focus();
+      next.click();
     });
   });
 
@@ -646,7 +711,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const rect = card.getBoundingClientRect();
       if (rect.top < 80 || rect.bottom > window.innerHeight) {
-        card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        card.scrollIntoView({ behavior: scrollBehavior(), block: "nearest" });
       }
     });
 
@@ -705,7 +770,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ------------------------------------------------------------------------
   // Spotlight Cursor Glow Effect
   // ------------------------------------------------------------------------
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduceMotion = prefersReducedMotion();
   const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   if (!reduceMotion && finePointer) {
     const spotlightTargets = document.querySelectorAll(".kpi, .project-card");
@@ -727,7 +792,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Dynamic Hero Canvas Animation (Unique style per theme)
   // ------------------------------------------------------------------------
   let currentScrollY = window.scrollY || window.pageYOffset || 0;
-  let lastScrollY = currentScrollY;
   let scrollVelocity = 0;
   let smoothedScrollVelocity = 0;
   let normalizedScrollProgress = 0;
@@ -757,6 +821,15 @@ document.addEventListener("DOMContentLoaded", () => {
     let lastDragX = 0;
     let lastDragY = 0;
     let lastTimestamp = 0;
+    let lastDragTime = 0;
+    let canvasInView = true;
+
+    // Single entry point for (re)starting the animation loop
+    function startCanvasLoop() {
+      if (animId || prefersReducedMotion() || document.hidden || !canvasInView) return;
+      lastTimestamp = performance.now();
+      animId = requestAnimationFrame(renderFrame);
+    }
     let animSimTime = 0;
 
     let midnightNodes = [];
@@ -774,6 +847,8 @@ document.addEventListener("DOMContentLoaded", () => {
         bg: style.getPropertyValue("--bg").trim() || "#0B0C0E"
       };
     }
+
+    let themeColors = getThemeColors();
 
     function initEntities() {
       if (!width || !height) return;
@@ -882,19 +957,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Smooth mouse parallax damping when idle
         const targetMouseX = mouse.x > 0 ? -(mouse.x - cx) * 0.0006 : 0;
-        const targetMouseY = mouse.y > 0 ? (mouse.y - cy) * 0.0005 : 0;
         labMouseOffsetX += (targetMouseX - labMouseOffsetX) * Math.min(1, dt * 4);
-      } else {
-        dragInertiaX = 0;
-        dragInertiaY = 0;
-        labMouseOffsetX = 0;
       }
+      // While dragging, rotation comes straight from the pointer (pointermove) and the
+      // fling velocity is kept, so it can carry on as inertia after release.
 
       const effectiveRotY = labRotY + labMouseOffsetX;
       const cosY = Math.cos(effectiveRotY);
       const sinY = Math.sin(effectiveRotY);
       const cosX = Math.cos(labRotX);
       const sinX = Math.sin(labRotX);
+
+      // Rotate about Y, then X. +z after rotation points away from the viewer.
+      const rotate = (x0, y0, z0) => {
+        const x1 = x0 * cosY + z0 * sinY;
+        const z1 = -x0 * sinY + z0 * cosY;
+        return { x: x1, y: y0 * cosX - z1 * sinX, z: y0 * sinX + z1 * cosX };
+      };
 
       // Project 3D nodes to 2D
       const projected = labLatticeNodes.map(node => {
@@ -904,17 +983,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const y0 = node.oy + vib * 0.8;
         const z0 = node.oz + vib * 0.5;
 
-        // Rotate Y then X
-        const x1 = x0 * cosY + z0 * sinY;
-        const z1 = -x0 * sinY + z0 * cosY;
-        const y1 = y0 * cosX - z1 * sinX;
-        const z2 = y0 * sinX + z1 * cosX;
-
-        const scale = fov / (fov + z2);
+        const r = rotate(x0, y0, z0);
+        const scale = fov / (fov + r.z);
         return {
-          px: cx + x1 * scale * size,
-          py: cy + y1 * scale * size,
-          depth: z2,
+          px: cx + r.x * scale * size,
+          py: cy - r.y * scale * size, // world +y is up on screen, same as the triad
+          depth: r.z,
           scale: scale,
           element: node.element
         };
@@ -1024,32 +1098,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const ay = height - 42;
       const axisLen = 26;
 
-      // Project 3D unit vectors using current 3D rotation matrix
-      // X vector (1, 0, 0)
-      const xx1 = cosY, xz1 = -sinY;
-      const xy1 = -xz1 * sinX;
-      const xpx = ax + xx1 * axisLen;
-      const xpy = ay - xy1 * axisLen;
-
-      // Y vector (0, 1, 0) - vertical up
-      const yy1 = cosX;
-      const ypx = ax;
-      const ypy = ay - yy1 * axisLen;
-
-      // Z vector (0, 0, 1) - out of screen
-      const zx1 = sinY, zz1 = cosY;
-      const zy1 = -zz1 * sinX;
-      const zpx = ax + zx1 * axisLen;
-      const zpy = ay - zy1 * axisLen;
-
+      // Project the unit axes with the same rotation as the cluster (screen y up)
       const axes = [
-        { name: "X", px: xpx, py: xpy, depth: xz1 * cosX, color: "#F59E0B" },
-        { name: "Y", px: ypx, py: ypy, depth: sinX, color: colors.accent },
-        { name: "Z", px: zpx, py: zpy, depth: zz1 * cosX, color: "#00F0FF" }
-      ];
+        { name: "X", v: rotate(1, 0, 0), color: "#F59E0B" },
+        { name: "Y", v: rotate(0, 1, 0), color: colors.accent },
+        { name: "Z", v: rotate(0, 0, 1), color: "#00F0FF" }
+      ].map(a => ({ name: a.name, color: a.color, px: ax + a.v.x * axisLen, py: ay - a.v.y * axisLen, depth: a.v.z }));
 
-      // Sort by depth so closer axis renders on top
-      axes.sort((a, b) => a.depth - b.depth);
+      // Painter's order: farthest axis (largest depth) first, nearest drawn on top
+      axes.sort((a, b) => b.depth - a.depth);
 
       ctx.save();
       // Center pivot point
@@ -1110,11 +1167,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const speedBoost = 1 + Math.min(2.4, Math.abs(smoothedScrollVelocity) * 0.022);
       const scrollDriftY = -smoothedScrollVelocity * 0.018;
 
+      ctx.save();
       midnightNodes.forEach(node => {
         node.x += node.vx * speedBoost;
         node.y += node.vy * speedBoost + scrollDriftY;
-        if (node.x < 20 || node.x > width - 20) node.vx *= -1;
-        if (node.y < 30 || node.y > height - 30) node.vy *= -1;
+        // Clamp and point the velocity back inside. Flipping the sign alone traps nodes
+        // at the edge when scroll drift pushes them further out than one step returns.
+        if (node.x < 20) { node.x = 20; node.vx = Math.abs(node.vx); }
+        else if (node.x > width - 20) { node.x = width - 20; node.vx = -Math.abs(node.vx); }
+        if (node.y < 30) { node.y = 30; node.vy = Math.abs(node.vy); }
+        else if (node.y > height - 30) { node.y = height - 30; node.vy = -Math.abs(node.vy); }
 
         const distMouse = Math.hypot(node.x - mouse.x, node.y - mouse.y);
         const near = Math.max(0, 1 - distMouse / 140);
@@ -1129,6 +1191,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.fill();
         ctx.shadowBlur = 0;
       });
+      ctx.restore();
 
       const midnightSpawnChance = 0.04 + Math.min(0.08, Math.abs(smoothedScrollVelocity) * 0.002);
       if (Math.random() < midnightSpawnChance && midnightNodes.length > 2) {
@@ -1172,14 +1235,14 @@ document.addEventListener("DOMContentLoaded", () => {
       smoothedScrollVelocity += (scrollVelocity - smoothedScrollVelocity) * Math.min(1, dt * 7.5);
       scrollVelocity *= 0.86;
 
-      const colors = getThemeColors();
+      const colors = themeColors;
       if (animTheme === "midnight") {
         drawMidnight(animSimTime, colors);
       } else {
         drawLab(animSimTime, dt, colors);
       }
 
-      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && !document.hidden) {
+      if (!prefersReducedMotion() && !document.hidden && canvasInView) {
         animId = requestAnimationFrame(renderFrame);
       } else {
         animId = null;
@@ -1193,21 +1256,19 @@ document.addEventListener("DOMContentLoaded", () => {
           animId = null;
         }
       } else {
-        if (!animId && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-          lastTimestamp = performance.now();
-          animId = requestAnimationFrame(renderFrame);
-        }
+        startCanvasLoop();
       }
     });
 
     window.themeCanvasUpdate = newTheme => {
       animTheme = newTheme;
+      themeColors = getThemeColors();
       initEntities();
       lastTimestamp = performance.now();
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      if (prefersReducedMotion()) {
         renderFrame(performance.now());
-      } else if (!animId) {
-        animId = requestAnimationFrame(renderFrame);
+      } else {
+        startCanvasLoop();
       }
     };
 
@@ -1220,8 +1281,12 @@ document.addEventListener("DOMContentLoaded", () => {
       dragStartY = event.clientY;
       lastDragX = event.clientX;
       lastDragY = event.clientY;
+      // Fold the hover parallax into the base rotation so grabbing does not jump
+      labRotY += labMouseOffsetX;
+      labMouseOffsetX = 0;
       startRotX = labRotX;
       startRotY = labRotY;
+      lastDragTime = performance.now();
       dragInertiaX = 0;
       dragInertiaY = 0;
     });
@@ -1234,19 +1299,28 @@ document.addEventListener("DOMContentLoaded", () => {
       if (isCanvasDragging) {
         const dx = event.clientX - dragStartX;
         const dy = event.clientY - dragStartY;
-        labRotY = startRotY + dx * 0.01;
+        // Front of the cluster moves with the pointer (drag right turns it right, up tilts it up)
+        labRotY = startRotY - dx * 0.01;
         labRotX = Math.max(-Math.PI * 0.45, Math.min(Math.PI * 0.45, startRotX - dy * 0.01));
 
-        dragInertiaX = (event.clientX - lastDragX) * 0.008;
+        dragInertiaX = -(event.clientX - lastDragX) * 0.008;
         dragInertiaY = -(event.clientY - lastDragY) * 0.008;
         lastDragX = event.clientX;
         lastDragY = event.clientY;
+        lastDragTime = performance.now();
+        // Under reduced motion there is no running loop, so draw the dragged pose directly
+        if (!animId) renderFrame(performance.now());
       }
     });
 
     function onCanvasPointerUp(event) {
       if (!isCanvasDragging) return;
       isCanvasDragging = false;
+      // Holding still before release means no fling
+      if (event.type === "pointercancel" || performance.now() - lastDragTime > 80) {
+        dragInertiaX = 0;
+        dragInertiaY = 0;
+      }
       canvas.classList.remove("is-grabbing");
       try { canvas.releasePointerCapture(event.pointerId); } catch (e) { }
     }
@@ -1260,8 +1334,41 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    window.addEventListener("resize", resize);
+    // Resize at most once per frame and only when the canvas size or DPR actually changed.
+    // resize() clears the canvas, so redraw immediately when no animation loop is running.
+    let resizeRaf = null;
+    let lastCanvasSize = "";
+    function onResize() {
+      if (resizeRaf) return;
+      resizeRaf = requestAnimationFrame(() => {
+        resizeRaf = null;
+        const rect = canvas.getBoundingClientRect();
+        const size = `${Math.round(rect.width)}x${Math.round(rect.height)}@${window.devicePixelRatio || 1}`;
+        if (size === lastCanvasSize) return;
+        lastCanvasSize = size;
+        resize();
+        if (!animId) renderFrame(performance.now());
+      });
+    }
+
+    reducedMotionQuery.addEventListener("change", startCanvasLoop);
+
+    // Stop drawing while the hero is scrolled out of view; resume when it returns
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(entries => {
+        canvasInView = entries[entries.length - 1].isIntersecting;
+        if (canvasInView) {
+          startCanvasLoop();
+        } else if (animId) {
+          cancelAnimationFrame(animId);
+          animId = null;
+        }
+      }).observe(canvas);
+    }
+
+    window.addEventListener("resize", onResize, { passive: true });
     resize();
+    lastCanvasSize = `${Math.round(width)}x${Math.round(height)}@${window.devicePixelRatio || 1}`;
     renderFrame(performance.now());
   }
 
@@ -1311,7 +1418,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // 3D Chapter Scroll Transitions & Floating Chapter Pager Dock
   // ------------------------------------------------------------------------
   const chapterSections = Array.from(document.querySelectorAll(".chapter-section"));
-  const chapterDock = document.querySelector("#chapter-dock");
   const chapterDots = document.querySelectorAll(".chapter-dot");
   const chapterPrevBtn = document.querySelector("#chapter-prev");
   const chapterNextBtn = document.querySelector("#chapter-next");
@@ -1320,7 +1426,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentChapterIndex = 0;
 
   function updateChapterProgress() {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // The dock must keep tracking the current chapter; only the 3D transitions are skipped
+    const reduced = prefersReducedMotion();
 
     const vh = window.innerHeight;
     const viewportCenter = vh * 0.5;
@@ -1355,6 +1462,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Section spans viewport: in active viewing zone
         p = 0;
       }
+      if (reduced) p = 0; // flat, untransformed sections under reduced motion
 
       if (section.id === "work") {
         section.style.transform = "none";
@@ -1421,7 +1529,8 @@ document.addEventListener("DOMContentLoaded", () => {
     chapterDots.forEach((dot, i) => {
       const isActive = i === index;
       dot.classList.toggle("active", isActive);
-      dot.setAttribute("aria-selected", String(isActive));
+      if (isActive) dot.setAttribute("aria-current", "true");
+      else dot.removeAttribute("aria-current");
     });
   }
 
@@ -1429,7 +1538,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const targetElement = document.getElementById(targetId);
     if (!targetElement) return;
 
-    targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    targetElement.scrollIntoView({ behavior: scrollBehavior(), block: "start" });
   }
 
   chapterDots.forEach(dot => {
@@ -1458,7 +1567,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (architectureDialog && architectureDialog.open) return;
     const paperFolioDialog = document.querySelector("#paper-folio-dialog");
     if (paperFolioDialog && paperFolioDialog.open) return;
-    if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
+    if (event.defaultPrevented || event.ctrlKey || event.metaKey) return;
+    if (isTypingOrMediaTarget(event.target) || isTypingOrMediaTarget(document.activeElement)) return;
+    if (document.activeElement?.closest?.("#rag-chat-panel")) return;
 
     if (event.key === "PageDown" || (event.altKey && event.key === "ArrowDown")) {
       if (currentChapterIndex < chapterIds.length - 1) {
@@ -1487,7 +1598,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateHeroParallax() {
     if (!heroSection || !heroVisual) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (prefersReducedMotion()) {
       heroVisual.style.removeProperty("--hero-visual-y");
       heroVisual.style.removeProperty("--hero-visual-scale");
       return;
@@ -1532,6 +1643,9 @@ document.addEventListener("DOMContentLoaded", () => {
       "id": "nb-cu-2026",
       "badge": "2026 \u00b7 Materials Today Communications",
       "journal": "Materials Today Communications 54 (2026) 115373",
+      "highlightsLabel": "Key Research Highlights",
+      "graphicalAbstractCaption": "Graphical Abstract: Atomistic MD modeling of Nb thin film growth on Cu(111) by HiPIMS",
+      "sealLabel": "Materials Today Communications · CERN / University of Helsinki Collaboration",
       "doiUrl": "https://doi.org/10.1016/j.mtcomm.2026.115373",
       "title": "Crystallization dynamics and interfacial structure during growth of thin Nb films on Cu by high-power impulse magnetron sputtering: A molecular dynamics study",
       "authors": "Milad Ghaemi, Kostas Sarakinos, Flyura Djurabekova, Alvaro Lopez-Cazalilla, Guillaume Jonathan Rosaz, Sergio Calatroni",
@@ -1662,6 +1776,133 @@ document.addEventListener("DOMContentLoaded", () => {
           "caption": "Video 4. Time-resolved evolution of surface roughening during deposition at $f_i = 33\\%$ and $E_i = 50\\text{ eV}$. Gradual surface-feature development and continuous roughness accumulation occur throughout growth. Early BCC nucleation ($\\Theta \\approx 1\\text{ ML}$) and steady statistical roughening indicate morphology evolution governed by adatom mobility under moderate ion energies."
         }
       ]
+    },
+    "blistering-cu-2024": {
+      "id": "blistering-cu-2024",
+      "badge": "2024 · Acta Materialia",
+      "journal": "Acta Materialia 266 (2024) 119699",
+      "highlightsLabel": "Key Findings",
+      "graphicalAbstractCaption": "Graphical Abstract: Orientation-dependent blistering of Cu under high fluence keV H ion irradiation",
+      "sealLabel": "Acta Materialia · University of Helsinki / CERN Collaboration",
+      "doiUrl": "https://doi.org/10.1016/j.actamat.2024.119699",
+      "title": "Effect of surface orientation on blistering of copper under high fluence keV hydrogen ion irradiation",
+      "authors": "A. Lopez-Cazalilla, C. Serafim, J. Kimari, M. Ghaemi, A.T. Perez-Fontenla, S. Calatroni, A. Grudiev, W. Wuensch, F. Djurabekova",
+      "pdfUrl": "assets/papers/blistering_cu_2026/Effect of surface orientation on blistering of copper under high fluence keV hydrogen ion irradiation.pdf",
+      "coverImage": "assets/papers/blistering_cu_2026/cover_image.jpg",
+      "graphicalAbstract": "assets/papers/blistering_cu_2026/Graphical abstract.jpg",
+      "highlights": [
+        "Blistering of the irradiated polycrystalline Cu surface does not grow uniformly with ion fluence: initially only some grains exhibit blisters, while others remain intact.",
+        "Grains with the $\\{1\\,0\\,0\\}$ orientation are the most prone to blistering, while grains oriented in the $\\{1\\,1\\,0\\}$ are the most resistant to it.",
+        "Blister shapes correlate with grain orientation and are explained by the specific behavior of dislocations within the FCC crystal structure.",
+        "The delay in blistering is governed by the overlap of the H depth profile and the vacancy depth distribution, not by the penetration depth of the implanted ions."
+      ],
+      "keywords": "Copper; Hydrogen; Blisters; Molecular dynamics; Crystallographic orientation; Surface effects; Experimental techniques",
+      "abstract": "Copper and hydrogen are among the most common elements that are widely used in industrial and fundamental research applications. Copper surfaces are often exposed to hydrogen in the form of charged ions. The hydrogen ions can accelerate towards the surface, resulting in an accumulation of hydrogen below the surface. Harmless in low concentrations, prolonged hydrogen exposure can lead to dramatic changes on copper surfaces. This effect is visible to the naked eye in the form of blisters densely covering the exposed surface. Blisters are structural modifications that can affect the physical properties of the surface including, for example, vacuum dielectric strength. Using scanning electron microscopy we found that the blistering of the irradiated polycrystalline copper surface does not grow uniformly with ion fluence. Initially, only some grains exhibit blisters, while others remain intact. Our experiments indicate that grains with the $\\{1\\,0\\,0\\}$ orientation are the most prone to blistering, while the grains oriented in the $\\{1\\,1\\,0\\}$ are the most resistant to it. Moreover, we noticed that blisters assume different shapes correlating with specific grain orientation. Good agreement of experiments with the atomistic simulations explains the difference in the shapes of the blisters by specific behavior of dislocations within the FCC crystal structure. Moreover, our simulations reveal the correlation of the delay in blister formation on surfaces with certain orientations compared to the others with the dependence of the hydrogen penetration depth and the depth and amount of vacancies in copper on the orientation of the irradiated surface.",
+      "conclusion": [
+        "In this work, we report the non-uniform blistering of a polycrystalline copper surface under the high fluence $45\\text{ keV}$ negative hydrogen ion irradiation. The morphology analysis of the surfaces irradiated with two different ion fluences revealed that the shape of the blisters grown on different grains was different and correlated with the crystallographic orientation of the grain surface. Moreover, the whole surface of the areas irradiated to high ion fluence was densely covered with blisters fairly uniformly, while at lower fluence the coverage was highly non-uniform: well-developed blisters were seen only on some grains, while the other grains remained flat.",
+        "To obtain the insights into mechanisms of copper surface blistering, we carried out a set of molecular dynamics simulations to show how the surface of the differently oriented grains yields under the pressure built up in bubbles formed in copper during the hydrogen ion implantation. The shape of protrusions obtained from the bubbles placed under the surface with different orientations is in good agreement with the shape of blisters observed in experiments. We also were able to explain the delay for blistering on $\\{1\\,1\\,1\\}$ and $\\{1\\,1\\,0\\}$ oriented surfaces compared to that of $\\{1\\,0\\,0\\}$ orientations, when we explicitly considered the crystal structure of copper. We revealed that the difference in blistering is not associated with the difference in the penetration depth of the implanted ions as it was proposed earlier but by the degree of the overlap of the hydrogen depth profile and the vacancy depth distribution. This conclusion is consistent with our experimental observation of the fastest blister growth on the grains of $\\{1\\,0\\,0\\}$ orientations, in which the overlap of depth distributions of the implanted hydrogen atoms and the vacancies created due to ion impacts was the strongest."
+      ],
+      "plates": [
+        {
+          "id": "fig-1",
+          "sheetIndex": 1,
+          "type": "image",
+          "badge": "FIGURE 01",
+          "title": "Simulation cells with disk- and hemisphere-shaped voids",
+          "src": "assets/papers/blistering_cu_2026/Fig. 1.jpg",
+          "caption": "Fig. 1. Slice of the different simulation cells. In blue the fixed layer at the bottom. (a) Disk-shaped void and (b) hemisphere-shaped void."
+        },
+        {
+          "id": "fig-2",
+          "sheetIndex": 2,
+          "type": "image",
+          "badge": "FIGURE 02",
+          "title": "SEM of the transition area: (1 1 1), (1 0 0) and (1 1 0) grains",
+          "src": "assets/papers/blistering_cu_2026/Fig. 2.jpg",
+          "caption": "Fig. 2. SEM images of the Cu surface irradiated by $\\text{H}^-$ ions up to a dose of $\\sim 1.3 \\times 10^{19}\\text{ H}^-/\\text{cm}^2$ at the transition area. (a) The surface of two grains is marked as (1 1 1) and (1 0 0). A yellow line marks where the cross-section was carried out. Black circles mark some of the dimples. (b) Cross-sections of the two grains (1 1 1) and (1 0 0) (corresponding to the yellow line in (a)), shown in Figures (d–e) respectively. (c) Surface of the two grains marked as (1 0 0) and (1 1 0). Inset: Zoom of the boundary region between the two grains. (f) Cross-section of a (1 1 0) grain in the transition area shown in (c) by a green line. A Zeiss Crossbeam 540 Focused Ion Beam (FIB)/Scanning Electron Microscope (SEM) was used to perform the cross-section on the sample. Imaging was performed using InLens Secondary Electron Detector at $10\\text{ keV}$ and various magnifications. The areas shown in the cross sections are marked in red, blue and green for (1 0 0), (1 1 1) and (1 1 0), respectively. The horizontal dashed line separates the two different regions explored at the transition area. EBSD maps of the regions explored can be found in insets of (a) and (c) respectively. For a view of the complete EBSD map, see Figure S1b."
+        },
+        {
+          "id": "fig-3",
+          "sheetIndex": 3,
+          "type": "image",
+          "badge": "FIGURE 03",
+          "title": "SEM of the high fluence area: blisters on differently oriented grains",
+          "src": "assets/papers/blistering_cu_2026/Fig. 3.jpg",
+          "caption": "Fig. 3. SEM images of the Cu surface irradiated by $\\text{H}^-$ ions up to a dose of $\\sim 1.3 \\times 10^{19}\\text{ H}^-/\\text{cm}^2$ at the high fluence area. Surface of two grains explored: (a) (1 1 1) and (1 0 0), (b) (1 1 1) and (1 1 0) and (c) (1 0 0) and (1 1 0). Cross-sections of the two grains (d) (1 1 1) and (1 0 0), and (e) (1 1 0). A Zeiss Crossbeam 540 Focused Ion Beam (FIB)/Scanning Electron Microscope (SEM) was used to perform the cross section on the sample. Imaging was performed using InLens Secondary Electron Detector at $10\\text{ keV}$ and various magnifications. Vertical and horizontal dashed lines separate the three different regions explored at the high fluence area. Black circles mark some of the dimples. EBSD maps of the regions explored can be found in insets of (a), (b) and (c) respectively. For a view of the complete EBSD map, see Figure S1c."
+        },
+        {
+          "id": "fig-4",
+          "sheetIndex": 4,
+          "type": "image",
+          "badge": "FIGURE 04",
+          "title": "MD protrusions above pressurized H bubbles on (1 0 0), (1 1 1) and (1 1 0)",
+          "src": "assets/papers/blistering_cu_2026/Fig. 4.jpg",
+          "caption": "Fig. 4. Final configurations (after $100\\text{ ps}$) of surfaces for disk-shaped (a, b, c) and hemispherical-shaped bubbles (g, h, i) using (1 0 0), (1 1 1) and (1 1 0) surfaces orientation, respectively, under $n_\\text{H}/\\text{Vac} = 2$. The directions normal to $\\{1\\,1\\,1\\}$ planes projected onto the differently oriented surfaces are marked in blue. Atoms are colored according to their $z$ position in $\\text{\\AA}$. The lower limit corresponds to the initial level of the surface in each case, and upper limit is chosen for an easier visualization of the protrusion. Top view of cells surfaces at different times for disk-shaped (e, f, g) and hemispherical-shaped bubbles (j, k, l) oriented as (1 0 0), (1 1 1) and (1 1 0), respectively, under $n_\\text{H}/\\text{Vac} = 2$. The view corresponding to (1 0 0) surfaces (a, d) has been tilted for improvement of clearness. Atoms located at the surface and those with centrosymmetry parameter (CSP) smaller than 5 are omitted for clarity. (m) Schematic of the $\\{1\\,1\\,1\\}$ planes projected (dashed blue lines) onto (1 0 0), (1 1 1) and (1 1 0) surfaces."
+        },
+        {
+          "id": "fig-5",
+          "sheetIndex": 5,
+          "type": "image",
+          "badge": "FIGURE 05",
+          "title": "Channeling map and H, recoil and vacancy depth distributions",
+          "src": "assets/papers/blistering_cu_2026/Fig. 5.jpg",
+          "caption": "Fig. 5. (a) Channeling map for the $45\\text{ keV}$ H ion irradiation of Cu calculated using the MDRANGE code. The map is colored according to the mean H penetration depth (in nm, see the color bar) for each crystallographic direction identified by the pair of the polar and azimuthal angles. The main crystallographic directions are indicated at the corners of the map. The plot is generated with the polar and azimuthal angular steps of $1^\\circ$, and each point is the average obtained for 100 impacts. (b) Zoom-in of grain boundary between (1 1 1) (blue) and (1 0 0) (red) grains at the transition area. The rectangular zones marked in each grain are of the same area. (c) Vacancies (black), recoil atoms with the energy above $40\\text{ eV}$ (magenta) depth distributions as well as the H depth profile (olive) obtained by the CASWIN code, averaged over 50 000 H ion impacts. The $y$-axis shows the probability density depth distribution per ion impact. Black, magenta and olive vertical dashed lines mark the maxima of vacancy, recoil and H depth distributions, respectively. (d) H depth profile (open markers) and distribution of recoils with energy above $40\\text{ eV}$ (filled markers) for $\\langle 1\\,0\\,0 \\rangle$ (square), $\\langle 1\\,1\\,1 \\rangle$ (triangle) and $\\langle 1\\,1\\,0 \\rangle$ (diamond) as a function of depth in MDRANGE averaged over 10 000 ion impacts. The recoil profiles are used to model the vacancy profile shown in (c). Vertical lines of different colors mark the maxima of the distributions of the corresponding colors."
+        },
+        {
+          "id": "video-s1",
+          "sheetIndex": 6,
+          "type": "video",
+          "badge": "VIDEO S1",
+          "title": "Disk-shaped bubble under a (1 0 0) surface: square protrusion",
+          "src": "assets/papers/blistering_cu_2026/Video S1.mp4",
+          "caption": "Video S1. Disk-shaped H bubble beneath a (1 0 0) Cu surface under $n_\\text{H}/\\text{Vac} = 2$. The complex dislocation-mediated interaction of the bubble with the surface: stacking faults between Shockley partials extend from the bubble towards the surface in four $\\langle 1\\,1\\,0 \\rangle$ directions on the $\\{1\\,1\\,1\\}$ planes, intersect the (1 0 0) surface at $45^\\circ$ and form the square protrusion of Fig. 4a and 4d."
+        },
+        {
+          "id": "video-s2",
+          "sheetIndex": 7,
+          "type": "video",
+          "badge": "VIDEO S2",
+          "title": "Hemispherical bubble under a (1 0 0) surface: terraced protrusion",
+          "src": "assets/papers/blistering_cu_2026/Video S2.mp4",
+          "caption": "Video S2. Hemispherical H bubble beneath a (1 0 0) Cu surface under $n_\\text{H}/\\text{Vac} = 2$. The curved top of the bubble offers a larger area for shear stress to build up along the $\\{1\\,1\\,1\\}$ slip planes, facilitating the emission of dislocations. The protrusion forms as terraces, multilayered formations that stand out from the surface much more strongly than for the disk-shaped bubble (Fig. 4g and 4j)."
+        },
+        {
+          "id": "video-s3",
+          "sheetIndex": 8,
+          "type": "video",
+          "badge": "VIDEO S3",
+          "title": "Disk-shaped bubble under a (1 1 0) surface: rhomboid protrusion",
+          "src": "assets/papers/blistering_cu_2026/Video S3.mp4",
+          "caption": "Video S3. Disk-shaped H bubble beneath a (1 1 0) Cu surface under $n_\\text{H}/\\text{Vac} = 2$. The stacking faults grow straight to the surface along the $\\{1\\,1\\,1\\}$ planes perpendicular to the (1 1 0) surface. These planes form angles of approximately $71^\\circ$ and $109^\\circ$, the same vertex angles as the rhomboid-shaped protrusion (Fig. 4c and 4f) and the blisters seen in experiment."
+        },
+        {
+          "id": "video-s4",
+          "sheetIndex": 9,
+          "type": "video",
+          "badge": "VIDEO S4",
+          "title": "Hemispherical bubble under a (1 1 0) surface: larger terraced rhomboid",
+          "src": "assets/papers/blistering_cu_2026/Video S4.mp4",
+          "caption": "Video S4. Hemispherical H bubble beneath a (1 1 0) Cu surface under $n_\\text{H}/\\text{Vac} = 2$. The protrusion again appears in a rhomboidal shape, as for the disk-shaped bubble, but it is larger and terraced as on the (1 0 0) surface, a direct consequence of the curvature of the top of the bubble (Fig. 4i and 4l)."
+        },
+        {
+          "id": "video-s5",
+          "sheetIndex": 10,
+          "type": "video",
+          "badge": "VIDEO S5",
+          "title": "Disk-shaped bubble under a (1 1 1) surface: triangular protrusion",
+          "src": "assets/papers/blistering_cu_2026/Video S5.mp4",
+          "caption": "Video S5. Disk-shaped H bubble placed deeper beneath a (1 1 1) Cu surface at higher pressure. Significant plastic deformation develops as a dislocation network between the bubble and the surface. Stacking faults forming along the three $\\{1\\,1\\,1\\}$ planes intersect the (1 1 1) surface in the form of a triangle, producing the triangular protrusion of Fig. 4b and 4e."
+        },
+        {
+          "id": "video-s6",
+          "sheetIndex": 11,
+          "type": "video",
+          "badge": "VIDEO S6",
+          "title": "Hemispherical bubble under a (1 1 1) surface: dislocation emission",
+          "src": "assets/papers/blistering_cu_2026/Video S6.mp4",
+          "caption": "Video S6. Hemispherical H bubble beneath a (1 1 1) Cu surface under $n_\\text{H}/\\text{Vac} = 2$: the complete process of dislocation emission. The protrusion is much less clear, with many triangular shapes standing out, because there are more frequent sites where dislocations can be emitted, and it tends towards a more circular shape than for the disk-shaped bubble (Fig. 4h and 4k)."
+        }
+      ]
     }
   };
 
@@ -1669,8 +1910,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const dialog = document.querySelector("#paper-folio-dialog");
     if (!dialog) return;
 
-    const badgeEl = document.querySelector("#paper-folio-badge");
-    const counterEl = document.querySelector("#paper-folio-counter");
     const pdfBtn = document.querySelector("#paper-folio-pdf-btn");
     const closeBtn = document.querySelector("#paper-folio-close");
     const btnPrev = document.querySelector("#folio-btn-prev");
@@ -1683,7 +1922,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const flippingLeaf = document.querySelector("#book-flipping-leaf");
     const leafFaceFront = document.querySelector("#leaf-face-front");
     const leafFaceBack = document.querySelector("#leaf-face-back");
-    const leafShadow = document.querySelector("#leaf-shadow-overlay");
 
     const handlePrev = document.querySelector("#handle-prev");
     const handleNext = document.querySelector("#handle-next");
@@ -1696,7 +1934,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const zoomClose = document.querySelector("#paper-folio-zoom-close");
 
     let currentPaper = null;
-    let currentSpreadIndex = 0; // 0 = Front Cover, 1..14 = Spreads, 15 = Back Cover
+    let currentSpreadIndex = 0; // 0 = front cover, 1 = front matter, then plates, conclusions, back cover
+
+    // Spread layout for N plates: 0 cover | 1 front matter | 2..N+1 plates | N+2 conclusions | N+3 back cover
+    const plateCount = () => (currentPaper ? currentPaper.plates.length : 0);
+    const conclusionSpread = () => plateCount() + 2;
+    const backCoverSpread = () => plateCount() + 3;
+    const isPlateSpread = i => i >= 2 && i <= plateCount() + 1;
     let isFlipping = false;
     let isDragging = false;
     let dragDirection = null; // 'next' or 'prev'
@@ -1779,11 +2023,90 @@ document.addEventListener("DOMContentLoaded", () => {
         s = s.replace(/\bfi\b/g, "<i>f<sub>i</sub></i>");
         s = s.replace(/\bEi\b/g, "<i>E<sub>i</sub></i>");
         s = s.replace(/\bZ\b/g, "<i>Z</i>");
+        // Generic pieces (after the specific rules above, so those keep precedence)
+        s = s.replace(/\\,/g, " ");
+        s = s.replace(/\^\\circ/g, "&deg;");
+        s = s.replace(/\^\{([^{}]+)\}/g, "<sup>$1</sup>");
+        s = s.replace(/\^([0-9+\-])/g, "<sup>$1</sup>");
+        s = s.replace(/_\{([^{}]+)\}/g, "<sub>$1</sub>");
+        s = s.replace(/([A-Za-z])_([A-Za-z0-9])/g, "$1<sub>$2</sub>");
+        s = s.replace(/\\\{/g, "{").replace(/\\\}/g, "}");
+        s = s.replace(/\\langle\s*/g, "&lang;").replace(/\s*\\rangle/g, "&rang;");
         return `<span class="folio-math-term">${s}</span>`;
       });
       out = out.replace(/\bfi\s*=\s*(\d+)%/g, "<i>f<sub>i</sub></i> = $1%");
       out = out.replace(/\bEi\s*=\s*(\d+)\s*(?:eV)?/g, "<i>E<sub>i</sub></i> = $1 eV");
       return out;
+    }
+
+    // Readable text for aria-label / alt (no LaTeX, no tags)
+    function plainScientificText(text) {
+      const tmp = document.createElement("div");
+      tmp.innerHTML = formatScientificText(text);
+      return tmp.textContent.replace(/"/g, "'").trim();
+    }
+
+    // Split the conclusions at the sentence boundary closest to half of the text, so both
+    // pages carry a similar amount. A paragraph cut in two continues on the right page.
+    function splitConclusion(paragraphs) {
+      const pieces = [];
+      paragraphs.forEach((para, pi) => {
+        para.split(/(?<=[.!?])\s+(?=[A-Z])/).forEach(sentence => pieces.push({ pi, sentence }));
+      });
+      const total = pieces.reduce((n, p) => n + p.sentence.length, 0);
+      let best = 1;
+      let bestDiff = Infinity;
+      let cum = 0;
+      for (let k = 1; k < pieces.length; k++) {
+        cum += pieces[k - 1].sentence.length;
+        // The left page also holds the "Conclusions" heading, so aim slightly below half
+        const diff = Math.abs(cum - total * 0.47);
+        if (diff < bestDiff) { bestDiff = diff; best = k; }
+      }
+      const group = list => {
+        const out = [];
+        list.forEach(p => {
+          const last = out[out.length - 1];
+          if (last && last.pi === p.pi) last.text += " " + p.sentence;
+          else out.push({ pi: p.pi, text: p.sentence });
+        });
+        return out;
+      };
+      const left = group(pieces.slice(0, best));
+      const right = group(pieces.slice(best));
+      const continued = left.length && right.length && left[left.length - 1].pi === right[0].pi;
+      return { left: left.map(p => p.text), right: right.map(p => p.text), continued };
+    }
+
+    // Shrink long captions / conclusions until they fit their page; scroll as a last resort
+    const FIT_SELECTORS = ".plate-caption-text, .conclusion-body";
+    const FIT_MIN_PX = 10.5;
+    function fitPageText(root) {
+      root.querySelectorAll(FIT_SELECTORS).forEach(el => {
+        el.style.fontSize = "";
+        el.classList.remove("is-scrollable");
+        if (!el.clientHeight) return; // not laid out yet (hidden leaf); refitted when shown
+        let size = parseFloat(getComputedStyle(el).fontSize);
+        while (el.scrollHeight > el.clientHeight + 1 && size > FIT_MIN_PX) {
+          size -= 0.5;
+          el.style.fontSize = `${size}px`;
+        }
+        if (el.scrollHeight > el.clientHeight + 1) el.classList.add("is-scrollable");
+      });
+    }
+
+    function setPage(el, spreadIndex, side) {
+      el.innerHTML = getPageHtml(spreadIndex, side);
+      fitPageText(el);
+      requestAnimationFrame(() => fitPageText(el));
+    }
+
+    // Both conclusion pages use the same (smallest fitted) font size
+    function equalizeConclusionFont() {
+      const bodies = [pageLeft, pageRight].map(p => p.querySelector(".conclusion-body")).filter(Boolean);
+      if (bodies.length !== 2) return;
+      const min = Math.min(...bodies.map(b => parseFloat(getComputedStyle(b).fontSize)));
+      bodies.forEach(b => { b.style.fontSize = `${min}px`; });
     }
 
     function getPageHtml(spreadIndex, side) {
@@ -1808,14 +2131,14 @@ document.addEventListener("DOMContentLoaded", () => {
           return `
             <div class="page-content page-frontmatter">
               <div class="page-running-header">
-                <span class="rh-journal">Materials Today Communications 54 (2026) 115373</span>
-                <a class="rh-doi" href="${currentPaper.doiUrl}" target="_blank" rel="noopener noreferrer">doi:10.1016/j.mtcomm.2026.115373 ↗</a>
+                <span class="rh-journal">${currentPaper.journal}</span>
+                <a class="rh-doi" href="${currentPaper.doiUrl}" target="_blank" rel="noopener noreferrer">doi:${currentPaper.doiUrl.replace("https://doi.org/", "")} ↗</a>
               </div>
               <h2 class="book-paper-title">${currentPaper.title}</h2>
               <p class="book-paper-authors">${currentPaper.authors}</p>
               
               <div class="book-highlights-section">
-                <h3 class="book-section-label">Key Research Highlights</h3>
+                <h3 class="book-section-label">${currentPaper.highlightsLabel || "Key Research Highlights"}</h3>
                 <ul class="book-highlights-bullets">
                   ${highlightsHtml}
                 </ul>
@@ -1839,7 +2162,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <p class="book-abstract-p">${formatScientificText(currentPaper.abstract)}</p>
 
               <div class="book-ga-box">
-                <div class="book-ga-img-wrap" data-zoom-src="${currentPaper.graphicalAbstract}" data-zoom-caption="Graphical Abstract: Atomistic MD modeling of Nb thin film growth on Cu(111) by HiPIMS">
+                <div class="book-ga-img-wrap" data-zoom-src="${currentPaper.graphicalAbstract}" data-zoom-caption="${currentPaper.graphicalAbstractCaption}">
                   <img src="${currentPaper.graphicalAbstract}" alt="Graphical Abstract" class="book-ga-img">
                   <span class="ga-zoom-badge">🔍 Click to zoom</span>
                 </div>
@@ -1851,8 +2174,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      // Spreads 2 to 13: 12 Scientific Plates (Pages 3 to 26)
-      if (spreadIndex >= 2 && spreadIndex <= 13) {
+      // Plate spreads: one figure or video per spread
+      if (isPlateSpread(spreadIndex)) {
         const plateIndex = spreadIndex - 2;
         const plate = currentPaper.plates[plateIndex];
         const leftPageNum = 2 * spreadIndex - 1;
@@ -1873,7 +2196,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   </video>
                 ` : `
                   <div class="book-plate-img-wrap" data-zoom-src="${plate.src}" data-zoom-caption="${plate.badge} · ${plate.title}">
-                    <img class="book-plate-img" src="${plate.src}" alt="${plate.badge} · ${plate.title}">
+                    <img class="book-plate-img" src="${plate.src}" alt="${plate.badge} · ${plainScientificText(plate.title)}">
                     <span class="plate-zoom-badge">🔍 Expand Figure</span>
                   </div>
                 `}
@@ -1904,8 +2227,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      // Spread 14: Conclusions Spread (Pages 27 & 28)
-      if (spreadIndex === 14) {
+      // Conclusions spread: paragraphs split across the two pages
+      if (spreadIndex === conclusionSpread()) {
+        const split = splitConclusion(currentPaper.conclusion);
+        const toHtml = (list, firstContinued = false) => list
+          .map((t, i) => `<p${firstContinued && i === 0 ? ' class="para-continued"' : ""}>${formatScientificText(t)}</p>`)
+          .join("");
         if (side === 'left') {
           return `
             <div class="page-content page-conclusion">
@@ -1914,10 +2241,9 @@ document.addEventListener("DOMContentLoaded", () => {
               </div>
               <h2 class="book-conclusion-title">Conclusions</h2>
               <div class="conclusion-body">
-                <p>${formatScientificText(currentPaper.conclusion[0])}</p>
-                <p>${formatScientificText(currentPaper.conclusion[1])}</p>
+                ${toHtml(split.left)}
               </div>
-              <div class="page-footer-num num-left">27</div>
+              <div class="page-footer-num num-left">${2 * spreadIndex - 1}</div>
             </div>
           `;
         } else {
@@ -1927,21 +2253,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 <span class="rh-section">Conclusions (Continued)</span>
               </div>
               <div class="conclusion-body">
-                <p>${formatScientificText(currentPaper.conclusion[2])}</p>
-                <p>${formatScientificText(currentPaper.conclusion[3])}</p>
+                ${toHtml(split.right, split.continued)}
               </div>
               <div class="conclusion-seal">
                 <span class="seal-mark">✦ ✦ ✦</span>
-                <span class="seal-label">Materials Today Communications · CERN / University of Helsinki Collaboration</span>
+                <span class="seal-label">${currentPaper.sealLabel}</span>
               </div>
-              <div class="page-footer-num num-right">28</div>
+              <div class="page-footer-num num-right">${2 * spreadIndex}</div>
             </div>
           `;
         }
       }
 
-      // State 15: Closed Back Hardcover
-      if (spreadIndex === 15) {
+      // Closed back hardcover
+      if (spreadIndex === backCoverSpread()) {
         if (side === 'left') {
           return `<div class="page-content page-blank"></div>`;
         }
@@ -1972,8 +2297,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!container) return;
       container.querySelectorAll("[data-zoom-src]").forEach(el => {
         el.addEventListener("click", () => {
-          openZoom(el.dataset.zoomSrc, el.dataset.zoomCaption || "");
+          openZoom(el.dataset.zoomSrc, el.dataset.zoomCaption || "", el);
         });
+        makeKeyboardActivatable(el, `Enlarge: ${el.dataset.zoomCaption || "figure"}`);
       });
 
       const coverFront = container.querySelector(".cover-front");
@@ -1984,6 +2310,7 @@ document.addEventListener("DOMContentLoaded", () => {
             flipToSpread(1);
           }
         });
+        makeKeyboardActivatable(coverFront); // role, tabindex and label are set in the markup
       }
 
       const btnReopen = container.querySelector("#backcover-reopen");
@@ -2001,7 +2328,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Book pose: closed (front or back cover, centered) or open (two-page spread, shifted right)
     function setBookPose(spreadIndex) {
-      bookHardcoverCase.dataset.pose = (spreadIndex === 0 || spreadIndex === 15) ? "closed" : "open";
+      bookHardcoverCase.dataset.pose = (spreadIndex === 0 || spreadIndex === backCoverSpread()) ? "closed" : "open";
     }
 
     function renderSpread(spreadIndex, isAfterTurn = false) {
@@ -2012,7 +2339,7 @@ document.addEventListener("DOMContentLoaded", () => {
       bookHardcoverCase.classList.remove("state-front-cover", "state-back-cover", "state-open-spread");
       if (spreadIndex === 0) {
         bookHardcoverCase.classList.add("state-front-cover");
-      } else if (spreadIndex === 15) {
+      } else if (spreadIndex === backCoverSpread()) {
         bookHardcoverCase.classList.add("state-back-cover");
       } else {
         bookHardcoverCase.classList.add("state-open-spread");
@@ -2022,14 +2349,19 @@ document.addEventListener("DOMContentLoaded", () => {
       const existingVideo = bookHardcoverCase.querySelector("video");
       if (existingVideo) existingVideo.pause();
 
-      pageLeft.innerHTML = getPageHtml(spreadIndex, 'left');
-      pageRight.innerHTML = getPageHtml(spreadIndex, 'right');
+      setPage(pageLeft, spreadIndex, 'left');
+      setPage(pageRight, spreadIndex, 'right');
 
       wirePageInteractions(pageLeft);
       wirePageInteractions(pageRight);
+      requestAnimationFrame(() => {
+        fitPageText(pageLeft);
+        fitPageText(pageRight);
+        equalizeConclusionFont();
+      });
 
       // Staggered caption reveal on right page
-      if (spreadIndex >= 2 && spreadIndex <= 13) {
+      if (isPlateSpread(spreadIndex)) {
         const captionCard = pageRight.querySelector(".page-plate-caption");
         if (captionCard) {
           if (isAfterTurn) {
@@ -2052,29 +2384,10 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateNavUI() {
       if (!currentPaper) return;
 
-      // Update counter text if element exists
-      if (counterEl) {
-        if (currentSpreadIndex === 0) {
-          counterEl.textContent = "Front Hardcover (Closed)";
-        } else if (currentSpreadIndex === 1) {
-          counterEl.textContent = "Spread 01 / 14 · Pages 01-02 (Title & Abstract)";
-        } else if (currentSpreadIndex >= 2 && currentSpreadIndex <= 13) {
-          const pIdx = currentSpreadIndex - 2;
-          const plate = currentPaper.plates[pIdx];
-          const pLeft = String(2 * currentSpreadIndex - 1).padStart(2, "0");
-          const pRight = String(2 * currentSpreadIndex).padStart(2, "0");
-          counterEl.textContent = `Spread ${String(currentSpreadIndex).padStart(2, "0")} / 14 · Pages ${pLeft}-${pRight} (${plate.badge})`;
-        } else if (currentSpreadIndex === 14) {
-          counterEl.textContent = "Spread 14 / 14 · Pages 27-28 (Conclusions)";
-        } else if (currentSpreadIndex === 15) {
-          counterEl.textContent = "Back Hardcover (Closed)";
-        }
-      }
-
       if (btnPrev) btnPrev.disabled = currentSpreadIndex === 0;
-      if (btnNext) btnNext.disabled = currentSpreadIndex === 15;
+      if (btnNext) btnNext.disabled = currentSpreadIndex === backCoverSpread();
 
-      const isClosed = currentSpreadIndex === 0 || currentSpreadIndex === 15;
+      const isClosed = currentSpreadIndex === 0 || currentSpreadIndex === backCoverSpread();
       if (handlePrev) handlePrev.style.display = isClosed ? "none" : "flex";
       if (handleNext) handleNext.style.display = isClosed ? "none" : "flex";
 
@@ -2083,7 +2396,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const hintNext = handleNext.querySelector(".handle-hint");
         if (hintNext) {
           if (currentSpreadIndex === 0) hintNext.textContent = "Click or drag to open";
-          else if (currentSpreadIndex === 14) hintNext.textContent = "Close to back cover";
+          else if (currentSpreadIndex === conclusionSpread()) hintNext.textContent = "Close to back cover";
           else hintNext.textContent = "Drag to turn page";
         }
       }
@@ -2092,7 +2405,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const hintPrev = handlePrev.querySelector(".handle-hint");
         if (hintPrev) {
           if (currentSpreadIndex === 1) hintPrev.textContent = "Close to front cover";
-          else if (currentSpreadIndex === 15) hintPrev.textContent = "Drag to reopen";
+          else if (currentSpreadIndex === backCoverSpread()) hintPrev.textContent = "Drag to reopen";
           else hintPrev.textContent = "Drag to turn back";
         }
       }
@@ -2103,7 +2416,8 @@ document.addEventListener("DOMContentLoaded", () => {
           const idx = parseInt(item.dataset.spreadIndex, 10);
           const isActive = idx === currentSpreadIndex;
           item.classList.toggle("active", isActive);
-          item.setAttribute("aria-selected", String(isActive));
+          if (isActive) item.setAttribute("aria-current", "page");
+          else item.removeAttribute("aria-current");
         });
       }
     }
@@ -2345,7 +2659,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Forward Drag (Bottom-Right Handle)
     function onPointerDownNext(e) {
-      if (e.button !== 0 || isFlipping || currentSpreadIndex >= 15) return;
+      if (e.button !== 0 || isFlipping || currentSpreadIndex >= backCoverSpread()) return;
 
       isDragging = true;
       dragDirection = 'next';
@@ -2370,9 +2684,9 @@ document.addEventListener("DOMContentLoaded", () => {
       flippingLeaf.style.right = "10px";
       flippingLeaf.style.width = "calc(50% - 10px)";
 
-      leafFaceFront.innerHTML = getPageHtml(currentSpreadIndex, 'right');
-      leafFaceBack.innerHTML = getPageHtml(targetSpreadIndex, 'left');
-      pageRight.innerHTML = getPageHtml(targetSpreadIndex, 'right');
+      setPage(leafFaceFront, currentSpreadIndex, 'right');
+      setPage(leafFaceBack, targetSpreadIndex, 'left');
+      setPage(pageRight, targetSpreadIndex, 'right');
 
       const nextCap = pageRight.querySelector(".page-plate-caption");
       if (nextCap) {
@@ -2445,7 +2759,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         isFlipping = true;
         animateCornerFold('next', lastCornerX, lastCornerY, W, H, 280, () => {
-          pageRight.innerHTML = getPageHtml(currentSpreadIndex, 'right');
+          setPage(pageRight, currentSpreadIndex, 'right');
           wirePageInteractions(pageRight);
 
           flippingLeaf.style.display = "none";
@@ -2487,9 +2801,9 @@ document.addEventListener("DOMContentLoaded", () => {
       flippingLeaf.style.right = "auto";
       flippingLeaf.style.width = "calc(50% - 10px)";
 
-      leafFaceFront.innerHTML = getPageHtml(currentSpreadIndex, 'left');
-      leafFaceBack.innerHTML = getPageHtml(targetSpreadIndex, 'right');
-      pageLeft.innerHTML = getPageHtml(targetSpreadIndex, 'left');
+      setPage(leafFaceFront, currentSpreadIndex, 'left');
+      setPage(leafFaceBack, targetSpreadIndex, 'right');
+      setPage(pageLeft, targetSpreadIndex, 'left');
 
       flippingLeaf.style.display = "block";
       const W = flippingLeaf.offsetWidth || (bookHardcoverCase.offsetWidth / 2);
@@ -2556,7 +2870,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         isFlipping = true;
         animateCornerFold('prev', lastCornerX, lastCornerY, 0, H, 280, () => {
-          pageLeft.innerHTML = getPageHtml(currentSpreadIndex, 'left');
+          setPage(pageLeft, currentSpreadIndex, 'left');
           wirePageInteractions(pageLeft);
 
           flippingLeaf.style.display = "none";
@@ -2598,11 +2912,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Programmatic flip function for buttons and keyboard with Deformable Corner Fold
     function flipToSpread(targetIndex) {
       if (isFlipping) return;
-      const clamped = Math.max(0, Math.min(15, targetIndex));
+      const clamped = Math.max(0, Math.min(backCoverSpread(), targetIndex));
       if (clamped === currentSpreadIndex) return;
 
-      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (prefersReducedMotion) {
+      if (prefersReducedMotion()) {
         currentSpreadIndex = clamped;
         renderSpread(currentSpreadIndex, false);
         return;
@@ -2624,9 +2937,9 @@ document.addEventListener("DOMContentLoaded", () => {
         flippingLeaf.style.right = "10px";
         flippingLeaf.style.width = "calc(50% - 10px)";
 
-        leafFaceFront.innerHTML = getPageHtml(currentSpreadIndex, 'right');
-        leafFaceBack.innerHTML = getPageHtml(targetSpreadIndex, 'left');
-        pageRight.innerHTML = getPageHtml(targetSpreadIndex, 'right');
+        setPage(leafFaceFront, currentSpreadIndex, 'right');
+        setPage(leafFaceBack, targetSpreadIndex, 'left');
+        setPage(pageRight, targetSpreadIndex, 'right');
 
         const nextCap = pageRight.querySelector(".page-plate-caption");
         if (nextCap) {
@@ -2658,9 +2971,9 @@ document.addEventListener("DOMContentLoaded", () => {
         flippingLeaf.style.right = "auto";
         flippingLeaf.style.width = "calc(50% - 10px)";
 
-        leafFaceFront.innerHTML = getPageHtml(currentSpreadIndex, 'left');
-        leafFaceBack.innerHTML = getPageHtml(targetSpreadIndex, 'right');
-        pageLeft.innerHTML = getPageHtml(targetSpreadIndex, 'left');
+        setPage(leafFaceFront, currentSpreadIndex, 'left');
+        setPage(leafFaceBack, targetSpreadIndex, 'right');
+        setPage(pageLeft, targetSpreadIndex, 'left');
 
         flippingLeaf.style.display = "block";
         const W = flippingLeaf.offsetWidth || (bookHardcoverCase.offsetWidth / 2);
@@ -2680,17 +2993,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Zoom Lightbox
-    function openZoom(src, captionText) {
+    let zoomTrigger = null;
+
+    function openZoom(src, captionText, trigger = null) {
+      zoomTrigger = trigger;
       zoomImg.src = src;
+      zoomImg.alt = captionText || "Enlarged figure";
       zoomCaption.textContent = captionText || "";
       zoomOverlay.classList.add("is-active");
       zoomOverlay.setAttribute("aria-hidden", "false");
+      zoomClose.focus();
     }
 
     function closeZoom() {
+      if (!zoomOverlay.classList.contains("is-active")) return;
       zoomOverlay.classList.remove("is-active");
       zoomOverlay.setAttribute("aria-hidden", "true");
       zoomImg.src = "";
+      if (zoomTrigger && zoomTrigger.isConnected) zoomTrigger.focus();
+      zoomTrigger = null;
     }
 
     zoomClose.addEventListener("click", closeZoom);
@@ -2706,7 +3027,6 @@ document.addEventListener("DOMContentLoaded", () => {
       currentPaper = data;
       currentSpreadIndex = initialSpread;
 
-      if (badgeEl) badgeEl.textContent = data.badge;
       if (pdfBtn) pdfBtn.href = encodeURI(data.pdfUrl);
       if (data.coverImage) {
         bookHardcoverCase.style.setProperty('--paper-cover-img', `url('${encodeURI(data.coverImage)}')`);
@@ -2714,13 +3034,13 @@ document.addEventListener("DOMContentLoaded", () => {
         bookHardcoverCase.style.removeProperty('--paper-cover-img');
       }
 
-      // Build Pagination Dots with Tooltips (16 states: 0 to 15)
+      // Build pagination dots with tooltips (one per spread)
       if (stripEl) {
         const dotsHtml = [];
 
         // 0: Cover
         dotsHtml.push(`
-          <button class="folio-dot-item ${initialSpread === 0 ? 'active' : ''}" type="button" data-spread-index="0" role="tab" aria-selected="${initialSpread === 0}" aria-label="Front Cover">
+          <button class="folio-dot-item ${initialSpread === 0 ? 'active' : ''}" type="button" data-spread-index="0" ${initialSpread === 0 ? 'aria-current="page"' : ''} aria-label="Front Cover">
             <span class="dot-pip"></span>
             <span class="dot-tooltip">Front Hardcover</span>
           </button>
@@ -2728,35 +3048,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 1: Overview
         dotsHtml.push(`
-          <button class="folio-dot-item ${initialSpread === 1 ? 'active' : ''}" type="button" data-spread-index="1" role="tab" aria-selected="${initialSpread === 1}" aria-label="Pages 01-02: Abstract & Title">
+          <button class="folio-dot-item ${initialSpread === 1 ? 'active' : ''}" type="button" data-spread-index="1" ${initialSpread === 1 ? 'aria-current="page"' : ''} aria-label="Pages 01-02: Abstract & Title">
             <span class="dot-pip"></span>
             <span class="dot-tooltip">Pages 01-02 · Abstract &amp; Title</span>
           </button>
         `);
 
-        // 2..13: 12 Scientific Plates
+        // One dot per plate
         currentPaper.plates.forEach((plate, pIdx) => {
           const spreadIdx = pIdx + 2;
           const isActive = spreadIdx === initialSpread;
           dotsHtml.push(`
-            <button class="folio-dot-item ${isActive ? 'active' : ''}" type="button" data-spread-index="${spreadIdx}" role="tab" aria-selected="${isActive}" aria-label="${plate.badge}: ${plate.title}">
+            <button class="folio-dot-item ${isActive ? 'active' : ''}" type="button" data-spread-index="${spreadIdx}" ${isActive ? 'aria-current="page"' : ''} aria-label="${plate.badge}: ${plainScientificText(plate.title)}">
               <span class="dot-pip"></span>
               <span class="dot-tooltip"><strong>${plate.badge}</strong> · ${formatScientificText(plate.title)}</span>
             </button>
           `);
         });
 
-        // 14: Conclusions
+        // Conclusions and back cover
+        const cs = conclusionSpread();
+        const bs = backCoverSpread();
+        const pad = n => String(n).padStart(2, "0");
         dotsHtml.push(`
-          <button class="folio-dot-item ${initialSpread === 14 ? 'active' : ''}" type="button" data-spread-index="14" role="tab" aria-selected="${initialSpread === 14}" aria-label="Pages 27-28: Conclusions">
+          <button class="folio-dot-item ${initialSpread === cs ? 'active' : ''}" type="button" data-spread-index="${cs}" ${initialSpread === cs ? 'aria-current="page"' : ''} aria-label="Pages ${pad(2 * cs - 1)}-${pad(2 * cs)}: Conclusions">
             <span class="dot-pip"></span>
-            <span class="dot-tooltip">Pages 27-28 · Conclusions</span>
+            <span class="dot-tooltip">Pages ${pad(2 * cs - 1)}-${pad(2 * cs)} · Conclusions</span>
           </button>
         `);
-
-        // 15: Back Cover
         dotsHtml.push(`
-          <button class="folio-dot-item ${initialSpread === 15 ? 'active' : ''}" type="button" data-spread-index="15" role="tab" aria-selected="${initialSpread === 15}" aria-label="Back Hardcover">
+          <button class="folio-dot-item ${initialSpread === bs ? 'active' : ''}" type="button" data-spread-index="${bs}" ${initialSpread === bs ? 'aria-current="page"' : ''} aria-label="Back Hardcover">
             <span class="dot-pip"></span>
             <span class="dot-tooltip">Back Hardcover (Colophon &amp; PDF)</span>
           </button>
@@ -2799,11 +3120,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Trigger buttons on publication cards
+    let folioTrigger = null;
     document.querySelectorAll(".open-paper-folio").forEach(btn => {
       btn.addEventListener("click", () => {
-        const pid = btn.dataset.paperId;
-        openFolio(pid, 0);
+        folioTrigger = btn;
+        openFolio(btn.dataset.paperId, 0);
       });
+    });
+
+    // Escape fires "cancel": close the zoom first, otherwise run the animated close
+    dialog.addEventListener("cancel", e => {
+      e.preventDefault();
+      if (zoomOverlay.classList.contains("is-active")) closeZoom();
+      else closeFolio();
+    });
+
+    // Runs however the dialog closes: stop media, reset the zoom, restore focus
+    dialog.addEventListener("close", () => {
+      dialog.classList.remove("is-open");
+      dialog.querySelectorAll("video").forEach(v => v.pause());
+      closeZoom();
+      if (folioTrigger && folioTrigger.isConnected) folioTrigger.focus();
     });
 
     closeBtn.addEventListener("click", closeFolio);
@@ -2817,15 +3154,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     window.addEventListener("keydown", e => {
-      if (!dialog.open) return;
-
-      if (zoomOverlay.classList.contains("is-active")) {
-        if (e.key === "Escape") {
-          e.preventDefault();
-          closeZoom();
-        }
-        return;
-      }
+      if (!dialog.open || zoomOverlay.classList.contains("is-active")) return;
+      // Arrow keys seek in video controls and move within buttons' native behaviour elsewhere
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || isTypingOrMediaTarget(e.target)) return;
 
       if (e.key === "ArrowLeft") {
         e.preventDefault();
@@ -2833,9 +3164,6 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (e.key === "ArrowRight") {
         e.preventDefault();
         flipToSpread(currentSpreadIndex + 1);
-      } else if (e.key === "Escape") {
-        e.preventDefault();
-        closeFolio();
       }
     });
   }
@@ -2854,9 +3182,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const launcher = document.querySelector("#rag-chat-launcher");
     const panel = document.querySelector("#rag-chat-panel");
     const closeBtn = document.querySelector("#rag-panel-close");
-    const contextName = document.querySelector("#rag-context-name");
+    const contextSelect = document.querySelector("#rag-context-select");
     const messagesContainer = document.querySelector("#rag-messages");
-    const chipsContainer = document.querySelector("#rag-quick-chips");
     const inputForm = document.querySelector("#rag-input-form");
     const textarea = document.querySelector("#rag-input");
     const sendBtn = document.querySelector("#rag-send-btn");
@@ -2868,96 +3195,136 @@ document.addEventListener("DOMContentLoaded", () => {
     let isThinking = false;
     const ragHistory = [];
 
+    // Quick prompts per project. Every topic is documented in the worker's knowledge base.
+    // `local` names the offline answer used when the worker is unreachable:
+    // "architecture" | "stack" | "verification" are built from architectureData (site content),
+    // anything else is a key in PROFILE_LOCAL_ANSWERS.
     const QUICK_CHIPS = {
       "Industrial Energy SQL Pipeline": [
-        "How does declarative partitioning work?",
-        "Explain the two-layer idempotency mechanism",
-        "How was Fingrid TSO data ingested?",
-        "What are the latency benchmarks for the REST API?"
+        { q: "How are PostgreSQL partitioning and idempotent ingestion designed?", local: "architecture" },
+        { q: "How is real Fingrid grid data combined with the synthetic telemetry?", local: "architecture" },
+        { q: "How are data quality and z-score anomalies verified?", local: "verification" }
       ],
       "Amorphous Phase ML": [
-        "What physical descriptors were used in ml_rdf?",
-        "Which 3 amorphous phases were classified?",
-        "How was SHAP explainability applied?",
-        "What was the Voronoi tessellation cutoff?"
+        { q: "Which 18 descriptors does the phase classifier use?", local: "architecture" },
+        { q: "How does spatial holdout validation prevent leakage?", local: "verification" },
+        { q: "What does SHAP reveal about the three Cu-Zr phases?", local: "architecture" }
       ],
       "Aether Climate Engine": [
-        "How does Aether process planetary NetCDF grids?",
-        "Explain the chunked Dask memory optimization",
-        "How are geospatial raster anomalies detected?"
+        { q: "How does the dead-letter queue handle anomalous telemetry?", local: "architecture" },
+        { q: "How are the dbt staging, fact, and mart layers organized?", local: "architecture" },
+        { q: "Which forecasting models does Aether compare?", local: "stack" }
       ],
       "Airflow Academy": [
-        "How are custom Airflow operators tested?",
-        "What data quality validation rules run on DAGs?",
-        "How does the interactive evaluation harness work?"
+        { q: "How does AST validation grade student DAGs?", local: "architecture" },
+        { q: "How are Docker sandboxes isolated and throttled?", local: "architecture" },
+        { q: "How are execution logs streamed over SSE?", local: "verification" }
       ],
       "Smileprint": [
-        "How is STL dental mesh slicing implemented?",
-        "How are regulatory audit logs handled?",
-        "Explain the circular economy resin recycling"
+        { q: "How do the append-only audit triggers work?", local: "architecture" },
+        { q: "How are SHA-256 hashes used in the PDF reports?", local: "verification" },
+        { q: "Which Finnish and EU regulations does it cover?", local: "architecture" }
       ],
       "Verified FEM Workbench": [
-        "Which multi-solver FEA engines are supported?",
-        "How are stress tensor invariants computed?",
-        "Explain the verification against analytical solutions"
+        { q: "What does the non-bypassable review gate check?", local: "architecture" },
+        { q: "How are Code_Aster, CalculiX, and FEniCSx results compared?", local: "verification" },
+        { q: "Which analytical benchmarks verify the solvers?", local: "verification" }
       ],
       "Quantum ESPRESSO Advisor": [
-        "Explain the SCF curvature theory optimization",
-        "How are k-point grids and cutoffs recommended?",
-        "What Fortran algorithmic patches were developed?"
+        { q: "What bug does the update_pot.f90 patch fix?", local: "architecture" },
+        { q: "How are k-point probing and Amdahl projections done?", local: "architecture" },
+        { q: "How does the evidence ledger verify its 47 claims?", local: "verification" }
       ],
       "Tessera": [
-        "What is the spatial state machine architecture?",
-        "How does the discrete Voronoi grid algorithm work?",
-        "What are the frame rate and memory benchmarks?"
+        { q: "How does the discrete Voronoi engine break ties?", local: "architecture" },
+        { q: "How are daily puzzles generated from SHA-256 seeds?", local: "architecture" },
+        { q: "How are the 400 levels stored with Room?", local: "stack" }
       ],
       "General Profile": [
-        "Summarize Milad's PhD research & publications",
-        "What HPC supercomputers has Milad used?",
-        "Explain the CERN collaboration on Nb/Cu films",
-        "What are Milad's primary data engineering skills?"
+        { q: "Summarize Milad's PhD research and publications", local: "publications" },
+        { q: "Which HPC systems has Milad used?", local: "hpc" },
+        { q: "What was the CERN collaboration on Nb/Cu films?", local: "cern" },
+        { q: "What are Milad's core data engineering skills?", local: "skills" }
       ]
     };
 
-    // Verified local fallback knowledge for zero-setup demo & local inspection
-    const VERIFIED_LOCAL_KNOWLEDGE = {
-      "How does declarative partitioning work?": {
-        answer: "The **Industrial Energy SQL Pipeline** utilizes PostgreSQL 15 declarative range partitioning on the core `readings` table, partitioned monthly by `recorded_at` (`readings_2023_01` through `readings_2023_12`). Queries filtering by timestamp leverage automated partition pruning, reducing disk I/O and query latency from 850 ms down to 42 ms on 500,000+ row scans.",
-        sources: [{ title: "Industrial Energy SQL Pipeline: Architecture & Schema", project: "energy" }]
+    // Offline answers for the profile chips. Only facts already published on this page.
+    const PROFILE_LOCAL_ANSWERS = {
+      publications: () => {
+        const items = Array.from(document.querySelectorAll(".publication")).map(card => {
+          const year = card.querySelector(".year")?.textContent.trim() || "";
+          const journal = (card.querySelector(".journal")?.textContent || "").replace("↗", "").trim();
+          const title = card.querySelector("h3")?.textContent.trim() || "";
+          return `- **${journal} (${year}):** ${title}`;
+        });
+        return {
+          answer: `Milad completed a PhD in Materials Research & Nanosciences at the **University of Helsinki** (2021 to 2026), focused on atomistic modeling of thin-film growth, irradiation, and metallic glasses.\n\nPeer-reviewed publications (${items.length}):\n${items.join("\n")}`,
+          sources: [{ title: "Portfolio: Publications section" }]
+        };
       },
-      "Explain the two-layer idempotency mechanism": {
-        answer: "The data ingestion pipeline implements a **two-layer idempotency strategy**:\n1. **High-Watermark Filtering:** `SELECT MAX(recorded_at) FROM readings` skips already ingested batches at stream extraction.\n2. **Database Deduplication:** On collision, unique constraints on `(sensor_id, recorded_at)` prevent duplicate entry, ensuring crash-resilient re-runs without data corruption.",
-        sources: [{ title: "Industrial Energy SQL Pipeline: Data Ingestion & Quality", project: "energy" }]
-      },
-      "How was Fingrid TSO data ingested?": {
-        answer: "Real Finnish national electricity transmission metrics were fetched from the **Fingrid Open Data API** (datasets 75 for wind generation and 124 for electricity consumption) for 2023. The ingestion worker implements exponential backoff, rate limiting, linear gap interpolation, and zero-clamping, storing 17,520 verified hourly records.",
-        sources: [{ title: "Industrial Energy SQL Pipeline: Fingrid TSO Integration", project: "energy" }]
-      },
-      "What physical descriptors were used in ml_rdf?": {
-        answer: "In **Amorphous Phase ML (`ml_rdf`)**, atomistic structures are encoded using:\n- **Radial Distribution Functions (RDF):** Captures pairwise atomic pair probabilities up to a 6.0 Å radial cutoff.\n- **Voronoi Polyhedral Indices `<n3, n4, n5, n6>`:** Characterizes local coordination polyhedra (e.g., `<0, 0, 12, 0>` for icosahedral short-range order, `<0, 3, 6, 4>` for BCC-like, and `<0, 4, 4, 4>` for FCC-like packing).",
-        sources: [{ title: "Amorphous Phase ML: Descriptors & Machine Learning", project: "amorphous" }]
-      },
-      "Which 3 amorphous phases were classified?": {
-        answer: "The framework classifies 3 distinct local amorphous topological packings in Cu-Zr metallic glasses:\n1. **Icosahedral Short-Range Order (ISRO):** Voronoi signature `<0, 0, 12, 0>`, typical of stable glassy backbones.\n2. **BCC-like Disordered Regions:** Voronoi coordination `<0, 3, 6, 4>`.\n3. **FCC-like Disordered Packing:** Voronoi coordination `<0, 4, 4, 4>`.\nModels trained (RandomForest and XGBoost) achieved >94% classification accuracy.",
-        sources: [{ title: "Amorphous Phase ML: Phase Classification", project: "amorphous" }]
-      },
-      "How was SHAP explainability applied?": {
-        answer: "**SHAP (SHapley Additive exPlanations)** TreeExplainer was applied to the trained phase classification models. It revealed that 5-fold coordination rings (`n5 = 12`) and the first RDF split-peak intensity provide over 68% of the model's predictive importance for identifying stable glassy matrices versus shear-transformation-prone regions.",
-        sources: [{ title: "Amorphous Phase ML: Explainable AI & SHAP", project: "amorphous" }]
-      },
-      "Summarize Milad's PhD research & publications": {
-        answer: "Milad Ghaemi completed his PhD in **Materials Research & Nanosciences** at the **University of Helsinki** (Department of Physics / Computational Materials Physics, 2021-2026).\n- Author of **7 peer-reviewed papers** (including *Materials Today Communications*, *Materials & Design*, *Computational Materials Science*, and *Physical Review Materials*).\n- Research focused on atomistic molecular dynamics simulations (LAMMPS) and first-principles calculations (VASP) for thin-film energetic deposition, defect mechanics, and metallic glasses.\n- Collaborated with international partners including **CERN** on superconducting thin-film RF cavities for the Future Circular Collider (FCC).",
-        sources: [{ title: "Milad Ghaemi, PhD: Academic Profile & Publications", project: "profile" }]
-      },
-      "What HPC supercomputers has Milad used?": {
-        answer: "Milad has extensive high-performance computing (HPC) experience on **CSC - IT Center for Science** national clusters in Finland:\n- **Puhti:** Intel Xeon Cascade Lake / Gold nodes for high-throughput MD trajectories.\n- **Mahti:** AMD EPYC 7H12 128-core nodes for large-scale parallel simulations.\n- **Ukko & Kale:** University of Helsinki physics clusters.\n*Note:* Milad's supercomputing experience is strictly on Finnish national CSC clusters (Puhti, Mahti, Ukko, Kale); he has no experience on LUMI.",
-        sources: [{ title: "Milad Ghaemi: HPC Supercomputing Infrastructure", project: "profile" }]
-      },
-      "Explain the CERN collaboration on Nb/Cu films": {
-        answer: "In collaboration with experimentalists at **CERN**, Milad modeled the energetic deposition of thin niobium (Nb) films on copper (Cu) substrates via HiPIMS and DCMS for superconducting radiofrequency (SRF) cavities.\n- Analyzed experimental **SEM** and **XPS** characterization data provided by CERN to benchmark atomistic simulations.\n- Discovered that an ion energy fraction of ~33% (-70 to -100 eV) produces a metastable amorphous Cu45Nb55 interlayer that optimizes interfacial adhesion and minimizes defect formation.",
-        sources: [{ title: "CERN Collaboration: Nb/Cu Superconducting Thin Films", project: "profile" }]
+      hpc: () => ({
+        answer: "Milad's HPC work runs on Finnish CSC national systems and university clusters: **Puhti**, **Mahti**, **Ukko**, and **Kale**, using Slurm and MPI for large-scale LAMMPS molecular dynamics. He has no experience on LUMI.",
+        sources: [{ title: "Portfolio: Technical arsenal" }]
+      }),
+      cern: () => ({
+        answer: "With CERN collaborators, Milad modeled the growth of Nb films on Cu for superconducting RF cavities using large-scale molecular dynamics of DCMS and HiPIMS deposition. CERN provided SEM and XPS data; the modeling was computational.\n\nKey result (*Materials Today Communications*, 2026): residual vacancy defects depend non-monotonically on the Cu content of the amorphous Nb-Cu interface, with a minimum near **45% Cu**, reached at intermediate ion energies of **70 to 100 eV**.",
+        sources: [{ title: "Materials Today Communications (2026)" }]
+      }),
+      skills: () => {
+        const card = Array.from(document.querySelectorAll(".arsenal-card"))
+          .find(c => /data engineering/i.test(c.querySelector("h3")?.textContent || ""));
+        const pills = card ? Array.from(card.querySelectorAll(".pill-list span")).map(el => el.textContent.trim()) : [];
+        return {
+          answer: `Core data engineering and orchestration toolkit: ${pills.map(p => `\`${p}\``).join(", ")}.\n\nSee the **Industrial Energy SQL Pipeline** and **Aether Climate Engine** projects for these tools in production-style pipelines.`,
+          sources: [{ title: "Portfolio: Technical arsenal" }]
+        };
       }
     };
+
+    function buildProjectLocalAnswer(projectName, kind) {
+      const project = architectureData[projectName];
+      if (!project) return null;
+      const source = [{ title: `${projectName}: portfolio summary` }];
+      if (kind === "stack") {
+        return {
+          answer: `**${projectName}** (${project.category})\n\nStack: ${project.stack.map(t => `\`${t}\``).join(", ")}\n\n${project.summary}`,
+          sources: source
+        };
+      }
+      if (kind === "verification") {
+        return {
+          answer: `**${projectName}: verification**\n\n${project.verification}\n\n${project.summary}`,
+          sources: source
+        };
+      }
+      return {
+        answer: `**${projectName}**\n\n${project.summary}\n${project.breakdown.map(b => `- ${b}`).join("\n")}`,
+        sources: source
+      };
+    }
+
+    function findChip(question) {
+      for (const [context, chips] of Object.entries(QUICK_CHIPS)) {
+        const chip = chips.find(c => c.q === question);
+        if (chip) return { context, chip };
+      }
+      return null;
+    }
+
+    function localAnswer(question) {
+      const found = findChip(question);
+      if (found) {
+        const { context, chip } = found;
+        const result = PROFILE_LOCAL_ANSWERS[chip.local]
+          ? PROFILE_LOCAL_ANSWERS[chip.local]()
+          : buildProjectLocalAnswer(context, chip.local);
+        if (result) return result;
+      }
+      return {
+        answer: "The live assistant is unavailable right now, so I can only answer the suggested questions below from the portfolio itself. For full project details, use **Inspect Architecture & Specs** on any project.",
+        sources: []
+      };
+    }
 
     function escapeHtml(str) {
       if (!str) return "";
@@ -3010,32 +3377,84 @@ document.addEventListener("DOMContentLoaded", () => {
       return htmlLines.join("\n");
     }
 
-    function syncContext(projectName) {
-      currentRagContext = projectName || "General Profile";
-      if (contextName) {
-        contextName.textContent = currentRagContext;
-      }
-      renderQuickChips(currentRagContext);
-    }
-    syncRagProjectContext = syncContext;
+    // Context: "auto" follows the page (viewport section / selected project card);
+    // picking an entry in the dropdown pins that context until "Auto" is chosen again.
+    let contextMode = "auto";
+    let autoContext = "General Profile";
+    let isWorkInView = false;
 
-    function renderQuickChips(contextKey) {
-      chipsContainer.replaceChildren();
-      const chips = QUICK_CHIPS[contextKey] || QUICK_CHIPS["General Profile"] || [];
-
-      chips.forEach(question => {
-        const btn = document.createElement("button");
-        btn.className = "rag-chip-btn";
-        btn.type = "button";
-        btn.textContent = question;
-        btn.addEventListener("click", () => {
-          handleUserSend(question);
-        });
-        chipsContainer.appendChild(btn);
+    if (contextSelect) {
+      Object.keys(QUICK_CHIPS).forEach(name => {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        contextSelect.appendChild(opt);
+      });
+      contextSelect.addEventListener("change", () => {
+        if (contextSelect.value === "auto") {
+          contextMode = "auto";
+          syncContext(autoContext);
+        } else {
+          contextMode = "manual";
+          syncContext(contextSelect.value);
+        }
       });
     }
 
-    function appendMessage(role, text, sources = []) {
+    function updateAutoOption() {
+      const autoOpt = contextSelect?.querySelector('option[value="auto"]');
+      if (autoOpt) autoOpt.textContent = `Auto: ${autoContext}`;
+    }
+
+    function syncContext(projectName) {
+      currentRagContext = projectName || "General Profile";
+      renderQuickChips(currentRagContext);
+    }
+
+    // Called by the page (scroll position / project cards)
+    function setAutoContext(name) {
+      autoContext = name || "General Profile";
+      updateAutoOption();
+      if (contextMode === "auto" && autoContext !== currentRagContext) syncContext(autoContext);
+    }
+
+    // Project selections only drive the assistant while the Systems section is on screen
+    syncRagProjectContext = projectName => {
+      if (isWorkInView) setAutoContext(projectName);
+    };
+
+    // Suggested questions live inside the thread (they wrap and scroll vertically with it)
+    let suggestionsBlock = null;
+
+    function keepSuggestionsLast() {
+      if (suggestionsBlock) messagesContainer.appendChild(suggestionsBlock);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function renderQuickChips(contextKey) {
+      const chips = QUICK_CHIPS[contextKey] || QUICK_CHIPS["General Profile"] || [];
+      const block = document.createElement("div");
+      block.className = "rag-suggestions";
+      block.setAttribute("role", "group");
+      block.setAttribute("aria-label", `Suggested questions about ${contextKey}`);
+      const title = document.createElement("div");
+      title.className = "rag-suggestions-title";
+      title.textContent = `Suggested · ${contextKey}`;
+      block.appendChild(title);
+      chips.forEach(({ q }) => {
+        const btn = document.createElement("button");
+        btn.className = "rag-chip-btn";
+        btn.type = "button";
+        btn.textContent = q;
+        btn.addEventListener("click", () => handleUserSend(q));
+        block.appendChild(btn);
+      });
+      if (suggestionsBlock) suggestionsBlock.remove();
+      suggestionsBlock = block;
+      keepSuggestionsLast();
+    }
+
+    function appendMessage(role, text, sources = [], { record = true } = {}) {
       const msgDiv = document.createElement("div");
       msgDiv.className = `rag-msg msg-${role}`;
 
@@ -3056,11 +3475,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       msgDiv.appendChild(bubbleDiv);
       messagesContainer.appendChild(msgDiv);
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      keepSuggestionsLast();
 
-      ragHistory.push({ role, content: text });
-      if (ragHistory.length > 6) {
-        ragHistory.shift();
+      if (record) {
+        ragHistory.push({ role, content: text });
+        if (ragHistory.length > 6) ragHistory.shift();
       }
     }
 
@@ -3075,7 +3494,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       msgDiv.appendChild(bubble);
       messagesContainer.appendChild(msgDiv);
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      keepSuggestionsLast();
     }
 
     function removeThinkingIndicator() {
@@ -3083,51 +3502,43 @@ document.addEventListener("DOMContentLoaded", () => {
       if (indicator) indicator.remove();
     }
 
-    async function queryAssistant(userQuery) {
+    const RAG_TIMEOUT_MS = 20000;
+
+    // Returns { answer, sources, offline }. Never throws: any worker failure
+    // (unset URL, network error, timeout, cold-start error, bad payload) falls back to local answers.
+    async function queryAssistant(userQuery, history) {
       if (RAG_WORKER_URL) {
-        const response = await fetch(RAG_WORKER_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: userQuery,
-            activeProject: currentRagContext,
-            history: ragHistory.slice(-6)
-          })
-        });
-
-        if (!response.ok) {
-          const errData = await response.json().catch(() => ({}));
-          throw new Error(errData.error || `Server returned status ${response.status}`);
-        }
-
-        const data = await response.json();
-        return {
-          answer: data.answer || "No response received from model.",
-          sources: data.sources || []
-        };
-      }
-
-      // Local fallback mode when RAG_WORKER_URL is not set yet
-      await new Promise(r => setTimeout(r, 450)); // simulate brief processing
-
-      if (VERIFIED_LOCAL_KNOWLEDGE[userQuery]) {
-        return VERIFIED_LOCAL_KNOWLEDGE[userQuery];
-      }
-
-      // Keyword match in verified local knowledge
-      const lower = userQuery.toLowerCase();
-      for (const [qKey, data] of Object.entries(VERIFIED_LOCAL_KNOWLEDGE)) {
-        const qWords = qKey.toLowerCase().split(/\s+/).filter(w => w.length > 4);
-        const match = qWords.some(w => lower.includes(w));
-        if (match) {
-          return data;
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), RAG_TIMEOUT_MS);
+        try {
+          const response = await fetch(RAG_WORKER_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
+            body: JSON.stringify({
+              message: userQuery,
+              activeProject: currentRagContext,
+              history
+            })
+          });
+          if (response.ok) {
+            const data = await response.json();
+            if (typeof data.answer === "string" && data.answer.trim()) {
+              return {
+                answer: data.answer,
+                sources: Array.isArray(data.sources) ? data.sources : [],
+                offline: false
+              };
+            }
+          }
+          console.warn("RAG worker returned an unusable response", response.status);
+        } catch (err) {
+          console.warn("RAG worker unreachable, using local answers", err);
+        } finally {
+          clearTimeout(timer);
         }
       }
-
-      return {
-        answer: `I am currently operating in **verified local cache mode** on the frontend.\n\nTo enable open-ended reasoning powered by **Google Gemini 2.5 Flash** across all 86KB of project specifications, connect your Cloudflare Worker:\n1. Deploy the worker from \`rag-worker/\` via Cloudflare Dashboard or \`npx wrangler deploy\`.\n2. Set \`GEMINI_API_KEY\` in your Cloudflare Worker.\n3. Paste the worker URL into \`const RAG_WORKER_URL\` at the top of the RAG module in \`script.js\`.\n\nIn the meantime, click any of the quick-prompt chips above to inspect verified technical details!`,
-        sources: [{ title: "RAG Worker Setup Guide", project: "rag-worker" }]
-      };
+      return { ...localAnswer(userQuery), offline: true };
     }
 
     async function handleUserSend(text) {
@@ -3139,26 +3550,64 @@ document.addEventListener("DOMContentLoaded", () => {
       charCount.textContent = "0 / 500";
       sendBtn.disabled = true;
 
+      // Snapshot history before adding the current question, so it is not sent twice
+      const historySnapshot = ragHistory.slice(-6);
       appendMessage("user", query);
       isThinking = true;
       showThinkingIndicator();
 
       try {
-        const result = await queryAssistant(query);
+        const result = await queryAssistant(query, historySnapshot);
         removeThinkingIndicator();
-        appendMessage("assistant", result.answer, result.sources);
+        // Offline answers stay out of the history sent to the model
+        appendMessage("assistant", result.answer, result.sources, { record: !result.offline });
       } catch (err) {
         removeThinkingIndicator();
-        appendMessage("assistant", `**Connection Error:** Unable to reach the RAG backend (${escapeHtml(err.message)}).\n\nIf running locally, ensure your Cloudflare Worker is deployed or check \`rag-worker/README.md\` for setup instructions.`);
+        console.error("RAG assistant failed", err);
+        appendMessage("assistant", "Something went wrong while answering. Please try again in a moment.", [], { record: false });
       } finally {
         isThinking = false;
         sendBtn.disabled = textarea.value.trim().length === 0;
       }
     }
 
+    // Keep the panel inside the visible area when the on-screen keyboard opens.
+    // Fixed elements are laid out against the layout viewport, which the keyboard
+    // does not shrink on iOS (and by default on Android), so measure the visual viewport.
+    let viewportRaf = null;
+    function syncPanelToViewport() {
+      const vv = window.visualViewport;
+      if (!vv) return;
+      if (Math.abs(vv.scale - 1) > 0.01) {
+        // Pinch-zoomed: leave the panel at its normal size
+        panel.style.removeProperty("--rag-vv-height");
+        panel.style.removeProperty("--rag-kb-inset");
+        return;
+      }
+      const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      panel.style.setProperty("--rag-vv-height", `${Math.round(vv.height)}px`);
+      panel.style.setProperty("--rag-kb-inset", `${Math.round(inset)}px`);
+    }
+    function scheduleViewportSync() {
+      if (!isRagOpen || viewportRaf) return;
+      viewportRaf = requestAnimationFrame(() => {
+        viewportRaf = null;
+        syncPanelToViewport();
+      });
+    }
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", scheduleViewportSync, { passive: true });
+      window.visualViewport.addEventListener("scroll", scheduleViewportSync, { passive: true });
+    }
+
     // Event Listeners
     launcher.addEventListener("click", () => {
-      isRagOpen = !isRagOpen;
+      if (isRagOpen) {
+        closeRagPanel();
+        return;
+      }
+      isRagOpen = true;
+      syncPanelToViewport();
       panel.classList.toggle("is-open", isRagOpen);
       panel.setAttribute("aria-hidden", String(!isRagOpen));
       launcher.setAttribute("aria-expanded", String(isRagOpen));
@@ -3167,20 +3616,24 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    closeBtn.addEventListener("click", () => {
+    function closeRagPanel() {
+      if (!isRagOpen) return;
+      const hadFocus = panel.contains(document.activeElement);
       isRagOpen = false;
       panel.classList.remove("is-open");
       panel.setAttribute("aria-hidden", "true");
       launcher.setAttribute("aria-expanded", "false");
-    });
+      // The panel becomes visibility:hidden, so focus inside it would be lost
+      if (hadFocus) launcher.focus();
+    }
+
+    closeBtn.addEventListener("click", closeRagPanel);
 
     window.addEventListener("keydown", e => {
-      if (e.key === "Escape" && isRagOpen) {
-        isRagOpen = false;
-        panel.classList.remove("is-open");
-        panel.setAttribute("aria-hidden", "true");
-        launcher.setAttribute("aria-expanded", "false");
-      }
+      if (e.key !== "Escape" || !isRagOpen) return;
+      // A modal dialog on top handles its own Escape
+      if (document.querySelector("dialog[open]")) return;
+      closeRagPanel();
     });
 
     textarea.addEventListener("input", () => {
@@ -3205,13 +3658,36 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Initial greeting
-    appendMessage("assistant", "Hello! I am Milad Ghaemi's AI Technical Assistant. Ask me about system architectures, data pipelines, physics modeling, or research publications. Select any project in the portfolio to focus our context!");
+    appendMessage("assistant", "Hello! I am Milad Ghaemi's AI Technical Assistant. Ask me about system architectures, data pipelines, physics modeling, or research publications. Select any project in the portfolio to focus our context!", [], { record: false });
 
     // Initialize chips for initial context
     syncContext("General Profile");
+
+    // Follow the viewport: project context while the Systems section is on screen,
+    // General Profile elsewhere. Project changes inside #work come from setActiveProject.
+    const workSection = document.querySelector("#work");
+    if (workSection && "IntersectionObserver" in window) {
+      new IntersectionObserver(entries => {
+        const entry = entries[entries.length - 1];
+        isWorkInView = entry.isIntersecting;
+        if (entry.isIntersecting) {
+          const title = activeProjectCard?.dataset?.project;
+          if (title) setAutoContext(title);
+        } else {
+          setAutoContext("General Profile");
+        }
+      }, { rootMargin: "-30% 0px -30% 0px" }).observe(workSection);
+    }
   }
 
   initRagChatbot();
+
+  syncSvgMotion();
+  reducedMotionQuery.addEventListener("change", () => {
+    syncSvgMotion();
+    updateChapterProgress();
+    updateHeroParallax();
+  });
 
   updateScrollMetrics();
   updateHeroParallax();

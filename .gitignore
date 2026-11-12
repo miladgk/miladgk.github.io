@@ -15,3 +15,5 @@ rag-worker/
 *.key
 *.token*
 
+# Local helper scripts (e.g. cover rendering); not part of the site
+scratchpad/
