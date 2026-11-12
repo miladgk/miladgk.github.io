@@ -536,5 +536,73 @@
     </nav>
   </main>
   <footer class="site-footer shell" id="contact"><div><div class="eyebrow">Let’s connect</div><p class="quote-attribution">Nelson Mandela</p><h2>It always seems impossible until it is done.</h2></div><div class="footer-links"><a href="https://github.com/miladgk">GitHub ↗</a><a href="https://www.linkedin.com/in/milad-ghaemikermani/">LinkedIn ↗</a><a href="https://scholar.google.com/citations?hl=en&user=dzrQ6WsAAAAJ">Google Scholar ↗</a><a href="https://miladgk.github.io">miladgk.github.io ↗</a></div><small>© 2026 Milad Ghaemi · Helsinki, Finland</small></footer>
+
+  <!-- ======================================================================
+       Floating LLM-RAG Technical Assistant Chatbot Widget
+       ====================================================================== -->
+  <aside class="rag-widget-container" aria-label="Milad's AI Technical Assistant">
+    <!-- Floating Launcher Button in Bottom-Left Corner -->
+    <button class="rag-launcher-btn" id="rag-chat-launcher" type="button" aria-expanded="false" aria-controls="rag-chat-panel" aria-label="Open Milad's AI Technical Assistant">
+      <span class="rag-launcher-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+        </svg>
+      </span>
+      <span class="rag-launcher-label">Ask Milad’s AI</span>
+      <span class="rag-launcher-pulse" aria-hidden="true"></span>
+    </button>
+
+    <!-- Expandable Glassmorphic Chat Panel -->
+    <div class="rag-chat-panel" id="rag-chat-panel" role="dialog" aria-modal="false" aria-label="Milad's AI Technical Assistant" aria-hidden="true">
+      <!-- Panel Header -->
+      <header class="rag-panel-header">
+        <div class="rag-header-info">
+          <div class="rag-header-title-row">
+            <span class="rag-ai-status-pip" aria-hidden="true"></span>
+            <strong class="rag-header-title">Ask Milad’s AI</strong>
+            <span class="rag-model-badge">Deep Project Specs</span>
+          </div>
+          <div class="rag-context-badge" id="rag-context-badge" title="Active context synced with portfolio view">
+            <span class="rag-context-label">Context:</span> <span class="rag-context-name" id="rag-context-name">General Profile</span>
+          </div>
+        </div>
+        <button class="rag-panel-close" id="rag-panel-close" type="button" aria-label="Close assistant panel">×</button>
+      </header>
+
+      <!-- Message History Thread -->
+      <div class="rag-messages-thread" id="rag-messages" role="log" aria-live="polite">
+        <!-- Populated dynamically via script -->
+      </div>
+
+      <!-- Dynamic Quick Prompt Chips (Synced with Active Project) -->
+      <div class="rag-quick-chips" id="rag-quick-chips" role="group" aria-label="Suggested quick questions">
+        <!-- Dynamically populated chips -->
+      </div>
+
+      <!-- Input Form -->
+      <form class="rag-input-form" id="rag-input-form">
+        <div class="rag-input-wrapper">
+          <textarea
+            class="rag-input-textarea"
+            id="rag-input"
+            rows="1"
+            maxlength="500"
+            placeholder="Ask about architecture, pipelines, physics..."
+            aria-label="Your technical question"
+          ></textarea>
+          <button class="rag-send-btn" id="rag-send-btn" type="submit" aria-label="Send message">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+        <div class="rag-input-footer">
+          <span class="rag-char-count" id="rag-char-count">0 / 500</span>
+          <span class="rag-disclaimer">Grounded in verified project specs</span>
+        </div>
+      </form>
+    </div>
+  </aside>
 </body>
 </html>

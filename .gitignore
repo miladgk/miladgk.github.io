@@ -2,3 +2,16 @@
 projecs_files/
 projects_files/
 
+# Private RAG documentation and worker bundles (NEVER commit to public repo)
+_private_rag_docs/
+rag-worker/
+
+# Environment secrets and credentials
+.env
+.env.*
+.dev.vars
+*.secret*
+*.pem
+*.key
+*.token*
+

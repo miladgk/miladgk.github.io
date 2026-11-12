@@ -1,4 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
+  let syncRagProjectContext = null;
+  let currentRagContext = "General Profile";
+
   const THEMES = ["lab", "midnight"];
   const themePickerBtns = document.querySelectorAll(".theme-picker-btn");
   let currentTheme = "lab";
@@ -133,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!localStorage.getItem("portfolio_theme")) {
           applyTheme("lab");
         }
-      } catch (err) {}
+      } catch (err) { }
     });
   }
 
@@ -511,7 +514,7 @@ document.addEventListener("DOMContentLoaded", () => {
       stageMermaid.removeAttribute("data-processed");
       try {
         window.mermaid.run({ nodes: [stageMermaid] });
-      } catch (err) {}
+      } catch (err) { }
     }
   }
 
@@ -552,6 +555,9 @@ document.addEventListener("DOMContentLoaded", () => {
         stageCategory.textContent = catNames[category] || category;
       }
       if (stageTitle) stageTitle.textContent = title;
+      if (typeof syncRagProjectContext === "function") {
+        syncRagProjectContext(title);
+      }
 
       const cardMetrics = card.querySelector(".metrics");
       if (stageMetrics && cardMetrics) {
@@ -676,17 +682,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  let scrollRaf = null;
-  window.addEventListener("scroll", () => {
-    if (window.innerWidth <= 950) return;
-    if (!scrollRaf) {
-      scrollRaf = requestAnimationFrame(() => {
-        updateScrollSpy();
-        scrollRaf = null;
-      });
-    }
-  }, { passive: true });
-
+  // Scroll spy observer for project cards
   const scrollObserver = new IntersectionObserver(() => {
     updateScrollSpy();
   }, {
@@ -1156,13 +1152,11 @@ document.addEventListener("DOMContentLoaded", () => {
       midnightPackets = midnightPackets.filter(p => p.t < 1);
     }
 
-    // Future-proof Theme Stubs (Preserving all 6 theme hooks)
-    function drawPaper(time, dt, colors) {}
-    function drawTerminal(time, dt, colors) {}
-    function drawAurora(time, dt, colors) {}
-    function drawSwiss(time, dt, colors) {}
-
     function renderFrame(timestamp) {
+      if (!width || !height || labLatticeNodes.length === 0) {
+        resize();
+      }
+
       if (!lastTimestamp) lastTimestamp = timestamp;
       let rawDt = (timestamp - lastTimestamp) / 1000;
       lastTimestamp = timestamp;
@@ -1181,26 +1175,28 @@ document.addEventListener("DOMContentLoaded", () => {
       const colors = getThemeColors();
       if (animTheme === "midnight") {
         drawMidnight(animSimTime, colors);
-      } else if (animTheme === "paper") {
-        drawPaper(animSimTime, dt, colors);
-      } else if (animTheme === "terminal") {
-        drawTerminal(animSimTime, dt, colors);
-      } else if (animTheme === "aurora") {
-        drawAurora(animSimTime, dt, colors);
-      } else if (animTheme === "swiss") {
-        drawSwiss(animSimTime, dt, colors);
       } else {
         drawLab(animSimTime, dt, colors);
       }
 
-      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && !document.hidden) {
         animId = requestAnimationFrame(renderFrame);
+      } else {
+        animId = null;
       }
     }
 
     document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) {
-        lastTimestamp = performance.now();
+      if (document.hidden) {
+        if (animId) {
+          cancelAnimationFrame(animId);
+          animId = null;
+        }
+      } else {
+        if (!animId && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          lastTimestamp = performance.now();
+          animId = requestAnimationFrame(renderFrame);
+        }
       }
     });
 
@@ -1210,6 +1206,8 @@ document.addEventListener("DOMContentLoaded", () => {
       lastTimestamp = performance.now();
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         renderFrame(performance.now());
+      } else if (!animId) {
+        animId = requestAnimationFrame(renderFrame);
       }
     };
 
@@ -1217,7 +1215,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (event.button !== 0) return;
       isCanvasDragging = true;
       canvas.classList.add("is-grabbing");
-      try { canvas.setPointerCapture(event.pointerId); } catch (e) {}
+      try { canvas.setPointerCapture(event.pointerId); } catch (e) { }
       dragStartX = event.clientX;
       dragStartY = event.clientY;
       lastDragX = event.clientX;
@@ -1236,11 +1234,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (isCanvasDragging) {
         const dx = event.clientX - dragStartX;
         const dy = event.clientY - dragStartY;
-        labRotY = startRotY - dx * 0.01;
-        labRotX = Math.max(-Math.PI * 0.45, Math.min(Math.PI * 0.45, startRotX + dy * 0.01));
+        labRotY = startRotY + dx * 0.01;
+        labRotX = Math.max(-Math.PI * 0.45, Math.min(Math.PI * 0.45, startRotX - dy * 0.01));
 
-        dragInertiaX = -(event.clientX - lastDragX) * 0.008;
-        dragInertiaY = (event.clientY - lastDragY) * 0.008;
+        dragInertiaX = (event.clientX - lastDragX) * 0.008;
+        dragInertiaY = -(event.clientY - lastDragY) * 0.008;
         lastDragX = event.clientX;
         lastDragY = event.clientY;
       }
@@ -1250,7 +1248,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!isCanvasDragging) return;
       isCanvasDragging = false;
       canvas.classList.remove("is-grabbing");
-      try { canvas.releasePointerCapture(event.pointerId); } catch (e) {}
+      try { canvas.releasePointerCapture(event.pointerId); } catch (e) { }
     }
 
     canvas.addEventListener("pointerup", onCanvasPointerUp);
@@ -1510,15 +1508,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let scrollTicking = false;
   window.addEventListener("scroll", () => {
-    updateScrollMetrics();
     if (!scrollTicking) {
+      scrollTicking = true;
       requestAnimationFrame(() => {
+        updateScrollMetrics();
+        if (window.innerWidth > 950) {
+          updateScrollSpy();
+        }
         updateChapterProgress();
         updateTimeline();
         updateHeroParallax();
         scrollTicking = false;
       });
-      scrollTicking = true;
     }
   }, { passive: true });
 
@@ -1527,142 +1528,142 @@ document.addEventListener("DOMContentLoaded", () => {
      Interactive Wide Single-Sheet Page-Flipping Paper Folio
      ========================================================================== */
   const paperFolioData = {
-  "nb-cu-2026": {
-    "id": "nb-cu-2026",
-    "badge": "2026 \u00b7 Materials Today Communications",
-    "journal": "Materials Today Communications 54 (2026) 115373",
-    "doiUrl": "https://doi.org/10.1016/j.mtcomm.2026.115373",
-    "title": "Crystallization dynamics and interfacial structure during growth of thin Nb films on Cu by high-power impulse magnetron sputtering: A molecular dynamics study",
-    "authors": "Milad Ghaemi, Kostas Sarakinos, Flyura Djurabekova, Alvaro Lopez-Cazalilla, Guillaume Jonathan Rosaz, Sergio Calatroni",
-    "pdfUrl": "assets/papers/nb-cu-hipims-2026/Crystallization dynamics and interfacial structure during growth of thin Nb films on Cu by high-power impulse magnetron sputtering A molecular dynamics study.pdf",
-    "coverImage": "assets/papers/nb-cu-hipims-2026/cover_image.png",
-    "graphicalAbstract": "assets/papers/nb-cu-hipims-2026/Graphical Abstract.jpg",
-    "highlights": [
-      "Optimal HiPIMS conditions are found at intermediate ion energy (70\u2013100 eV).",
-      "Interfacial vacancy concentration exhibits unexpected non-monotonic composition dependence.",
-      "Atomic peening, ballistic mixing, and gas implantation compete during deposition.",
-      "Crystallization is delayed at high energies, then triggers rapid surface roughening."
-    ],
-    "keywords": "Nb thin film; Copper; Molecular dynamics; Magnetron sputtering deposition; Superconducting cavities of particle accelerators",
-    "abstract": "Improving the performance of niobium (Nb)-coated copper (Cu) Superconducting Radio Frequency (SRF) cavities is crucial for next-generation particle accelerators. Yet, performance is often limited by the reduction of the cavities\u2019 superconducting properties at high accelerating fields, a behavior linked to Nb thin-film growth defects. Using large-scale molecular dynamics (MD) simulations, we systematically investigate the influence of high-power impulse magnetron sputtering (HiPIMS) deposition parameters, specifically ion energy and fraction of ionized species in the deposition flux, on the growth of Nb films on Cu(1 1 1) substrates. We find that high ion energies and ionization fractions induce significant surface roughening during growth, which is in agreement with the available experimental data. Moreover, our simulations reveal that this behavior is driven by the formation and rapid crystallization of a metastable amorphous Nb-Cu phase at the interface. Critically, we discover a nonmonotonic relationship between the composition of the amorphous layer and the concentration of residual vacancy defects. The defect density is minimized at an optimal composition of approximately 45% Cu, increasing for the interfaces with a lesser or greater amount of Cu compared to Nb. This reveals that the optimization of SRF cavities requires not only an increase in ion energy but also an accurate and careful tuning of deposition parameters to engineer the ideal interfacial composition, thereby minimizing the number density of performance-degrading defects.",
-    "conclusion": [
-      "In this work, we have employed comprehensive MD simulations to unravel the complex mechanisms governing the energetic deposition of Nb thin films on Cu substrates, to provide an atomistic roadmap for improving the SRF cavity performance. Our simulations demonstrate that high ion energy and ionization fraction lead to transient surface roughening. This is driven by the rapid crystallization of a metastable amorphous interface, whose composition is controlled by the deposition parameters.",
-      "Crucially, this atomistic finding provides a direct physical rationale for recent experimental observations in Nb-coated SRF cavities. Independent studies by Wang et al. [25] and Carlos et al. [26] demonstrated that cavity performance and critical current density reach a distinct optimum at an intermediate substrate bias of approximately $-75\\text{ V}$, degrading at both higher and lower biases. Our simulation results are consistent with this empirical trend: the intermediate energy range of $70\\text{--}100\\text{ eV}$ (at $f_i \\approx 33\\%$) produces an interfacial composition near $\\text{Cu}_{45}\\text{Nb}_{55}$ that minimizes the retention of performance-degrading vacancy defects, while both lower and higher energies drive the composition away from this optimum and increase the defect density.",
-      "The main conclusion of this study is the identification of an optimal processing window for defect minimization. We revealed a nonmonotonic, U-shaped relationship between the Cu concentration in the amorphous interface and the final density of vacancy defects. The minimum number of defects occurs at an optimal composition of $\\sim 45\\%\\text{ Cu}$. This insight fundamentally shifts the optimization paradigm from simply maximizing interfacial mixing to precisely controlling the deposition parameters to achieve this ideal composition. Conditions that require too low-energy deposition fail to create sufficient mixing, while those conditions consisting of too high-energy surpass the optimum point, creating a Cu-rich interface that is also prone to higher defect formation.",
-      "These localized vacancy clusters represent the atomistic nucleation stage of nanoscale void formation and can degrade both interfacial adhesion and SRF cavity performance. While our parametric variation of $f_i$ captures the fundamental atomistic effects of different flux compositions, explicitly modeling the macroscopic temporal structure of the HiPIMS pulse, including duty cycle and dynamic ion-flux evolution, represents an important direction for future multiscale simulation efforts."
-    ],
-    "plates": [
-      {
-        "id": "fig-1",
-        "sheetIndex": 1,
-        "type": "image",
-        "badge": "FIGURE 01",
-        "title": "Multi-scale modeling of Nb thin film growth for SRF applications",
-        "src": "assets/papers/nb-cu-hipims-2026/Fig. 1.jpg",
-        "caption": "Fig. 1. Multi-scale modeling of Nb thin film growth for SRF applications. (a) Quarter cut of an SRF cavity, showing the support rod, the niobium (cathode), the copper cavity wall, and the plasma sheath region where deposition occurs. The red circle indicates the localized surface area modeled by MD. (b) atomistic simulation setup corresponding to the area marked in (a). The box dimensions are approximately $10.3 \\times 10.3 \\times 5.5\\text{ nm}^3$, with two fixed bottom layers and NVT thermal bath zones to stabilize the system. The remaining atoms evolve under an NVE ensemble. Ionized particles ($\\text{Nb}^+$, $\\text{Ar}^+$, $\\text{Nb}^{++}$) are introduced normal to the surface ($\\theta = 0^\\circ$), while neutral Nb atoms are deposited at random angles between $0^\\circ$ and $75^\\circ$ to mimic realistic deposition conditions in RF cavity geometries."
-      },
-      {
-        "id": "fig-2",
-        "sheetIndex": 2,
-        "type": "image",
-        "badge": "FIGURE 02",
-        "title": "Evolution of surface roughness and BCC atomic fraction",
-        "src": "assets/papers/nb-cu-hipims-2026/Fig. 2.jpg",
-        "caption": "Fig. 2. Evolution of surface roughness parameter $\\sigma$, Eq. (1)(a, c and e) and the BCC atomic fraction $f_{\\text{BCC}} = \\frac{N_{\\text{Nb}}(\\text{BCC})}{N_{\\text{Nb}}}$ (b, d and f) during the deposition simulations of $\\Theta = 22\\text{ ML}$ of Nb on a Cu substrate under different deposition conditions. The panels are organized according to different ionization fractions $f_i$, while the ion energies $E_i$ are color-coded in the legends. The shaded regions represent the standard deviation."
-      },
-      {
-        "id": "fig-3",
-        "sheetIndex": 3,
-        "type": "image",
-        "badge": "FIGURE 03",
-        "title": "Partial Radial Distribution Functions (PRDFs)",
-        "src": "assets/papers/nb-cu-hipims-2026/Fig. 3.jpg",
-        "caption": "Fig. 3. Partial Radial Distribution Functions (PRDFs) characterizing the atomic-scale structure as a function of $f_i$ and $E_i$. (a\u2013c) Nb\u2013Nb correlations reveal that higher $f_i$ and $E_i$ lead to increased film ordering and densification. (d\u2013f) Nb\u2013Cu correlations show that intermixing at the interface is enhanced by both higher $f_i$ and $E_i$. (g\u2013i) Ar\u2013Cu correlations provide direct evidence of $\\text{Ar}^+$ implantation, which increases significantly with higher $f_i$ and $E_i$."
-      },
-      {
-        "id": "fig-4",
-        "sheetIndex": 4,
-        "type": "image",
-        "badge": "FIGURE 04",
-        "title": "Mean coordination number (CN) of niobium atoms",
-        "src": "assets/papers/nb-cu-hipims-2026/Fig. 4.jpg",
-        "caption": "Fig. 4. Mean coordination number (CN) of niobium atoms as a function of depth ($Z$ coordinate) for the three simulated flux compositions: (a) 66%, (b) 33%, and (c) 10% ionized particles. Different colors represent different incident ion energies, as indicated in the legend. The gray dashed line shows the initial top surface position of the pristine Cu substrate."
-      },
-      {
-        "id": "fig-5",
-        "sheetIndex": 5,
-        "type": "image",
-        "badge": "FIGURE 05",
-        "title": "Compositional gradient and Cu/Nb concentration profiles",
-        "src": "assets/papers/nb-cu-hipims-2026/Fig. 5.jpg",
-        "caption": "Fig. 5. Analysis of compositional gradient plotted as the logarithmic Cu/Nb concentration profiles at $\\Theta \\approx 22\\text{ ML}$ for $f_i$ equal to (a) 10%, (b) 33%, and (c) 66%, respectively. Within each panel, different colored lines denote simulation runs for different $E_i$ values for singly ionized species from $50\\text{ eV}$ to $200\\text{ eV}$, as indicated in the legend."
-      },
-      {
-        "id": "fig-6",
-        "sheetIndex": 6,
-        "type": "image",
-        "badge": "FIGURE 06",
-        "title": "Interface structure and Voronoi polyhedra distributions",
-        "src": "assets/papers/nb-cu-hipims-2026/Fig. 6.jpg",
-        "caption": "Fig. 6. Structure of the interface obtained during the thin film deposition with $E_i = 50\\text{ eV}$ and $f_i = 10\\%$ in (a) and (c), and with $E_i = 200\\text{ eV}$ and $f_i = 66\\%$ in (b) and (d). (a) and (b) show the atomic structure of the interface with the atoms colored according to CNA in OVITO. (c) and (d) show the Voronoi polyhedra distributions of the same interfaces shown in (a) and (b). The Voronoi polyhedra emphasize the level of disorder in the interface, although the film under the conditions shown in (b) and (d) is overall much denser."
-      },
-      {
-        "id": "fig-7",
-        "sheetIndex": 7,
-        "type": "image",
-        "badge": "FIGURE 07",
-        "title": "Atomic Cu fraction in the disordered interface region",
-        "src": "assets/papers/nb-cu-hipims-2026/Fig. 7.jpg",
-        "caption": "Fig. 7. Atomic Cu fraction in the disordered interface region as a function of deposition energy $E_i$ and ionization fraction $f_i$ of the deposition flux calculated as $\\frac{N_{\\text{Cu}}(\\text{\u2018Other\u2019})}{N_{\\text{all}}(\\text{\u2018Other\u2019})}$."
-      },
-      {
-        "id": "fig-8",
-        "sheetIndex": 8,
-        "type": "image",
-        "badge": "FIGURE 08",
-        "title": "Number of vacancies in Nb away from the interface",
-        "src": "assets/papers/nb-cu-hipims-2026/Fig. 8.jpg",
-        "caption": "Fig. 8. Number of vacancies that appeared during the thin film growth in Nb away from the interface for all $E_i$ and $f_i$ studied in this work."
-      },
-      {
-        "id": "video-1",
-        "sheetIndex": 9,
-        "type": "video",
-        "badge": "VIDEO 01",
-        "title": "Time-resolved visualization of BCC formation ($f_i = 33\\%$, $E_i = 200\\text{ eV}$)",
-        "src": "assets/papers/nb-cu-hipims-2026/Video 1.mp4",
-        "caption": "Video 1. Time-resolved visualization of BCC formation during deposition at $f_i = 33\\%$ and $E_i = 200\\text{ eV}$. The animation shows an anisotropic amorphous-to-BCC transformation initiated at the critical thickness $\\Theta \\approx 8\\text{ ML}$. Crystallization propagates along the growth direction while lateral spreading remains limited, producing columnar BCC domains and pronounced out-of-plane displacement."
-      },
-      {
-        "id": "video-2",
-        "sheetIndex": 10,
-        "type": "video",
-        "badge": "VIDEO 02",
-        "title": "Time-resolved visualization of BCC formation ($f_i = 33\\%$, $E_i = 50\\text{ eV}$)",
-        "src": "assets/papers/nb-cu-hipims-2026/Video 2.mp4",
-        "caption": "Video 2. Time-resolved visualization of BCC formation during deposition at $f_i = 33\\%$ and $E_i = 50\\text{ eV}$. Early BCC nuclei appear at $\\Theta \\approx 2\\text{--}3\\text{ ML}$ and grow steadily throughout deposition, in contrast to the delayed, anisotropic crystallization observed at $E_i = 200\\text{ eV}$."
-      },
-      {
-        "id": "video-3",
-        "sheetIndex": 11,
-        "type": "video",
-        "badge": "VIDEO 03",
-        "title": "Time-resolved evolution of surface roughening ($f_i = 33\\%$, $E_i = 200\\text{ eV}$)",
-        "src": "assets/papers/nb-cu-hipims-2026/Video 3.mp4",
-        "caption": "Video 3. Time-resolved evolution of surface roughening during deposition at $f_i = 33\\%$ and $E_i = 200\\text{ eV}$. The surface remains smooth ($\\sigma \\approx 1\\text{ \\AA}$) up to $\\Theta \\approx 8\\text{ ML}$ due to atomic peening which suppresses BCC nucleation and maintains a dense amorphous layer. Once the critical thickness is reached, a rapid amorphous-to-BCC transformation produces a sharp roughness increase ($\\Theta \\approx 9\\text{--}14\\text{ ML}$) and localized height variations up to $11\\text{--}12\\text{ \\AA}$ by $\\Theta \\approx 22\\text{ ML}$, consistent with stress-relief-driven hillock formation."
-      },
-      {
-        "id": "video-4",
-        "sheetIndex": 12,
-        "type": "video",
-        "badge": "VIDEO 04",
-        "title": "Time-resolved evolution of surface roughening ($f_i = 33\\%$, $E_i = 50\\text{ eV}$)",
-        "src": "assets/papers/nb-cu-hipims-2026/Video 4.mp4",
-        "caption": "Video 4. Time-resolved evolution of surface roughening during deposition at $f_i = 33\\%$ and $E_i = 50\\text{ eV}$. Gradual surface-feature development and continuous roughness accumulation occur throughout growth. Early BCC nucleation ($\\Theta \\approx 1\\text{ ML}$) and steady statistical roughening indicate morphology evolution governed by adatom mobility under moderate ion energies."
-      }
-    ]
-  }
-};
+    "nb-cu-2026": {
+      "id": "nb-cu-2026",
+      "badge": "2026 \u00b7 Materials Today Communications",
+      "journal": "Materials Today Communications 54 (2026) 115373",
+      "doiUrl": "https://doi.org/10.1016/j.mtcomm.2026.115373",
+      "title": "Crystallization dynamics and interfacial structure during growth of thin Nb films on Cu by high-power impulse magnetron sputtering: A molecular dynamics study",
+      "authors": "Milad Ghaemi, Kostas Sarakinos, Flyura Djurabekova, Alvaro Lopez-Cazalilla, Guillaume Jonathan Rosaz, Sergio Calatroni",
+      "pdfUrl": "assets/papers/nb-cu-hipims-2026/Crystallization dynamics and interfacial structure during growth of thin Nb films on Cu by high-power impulse magnetron sputtering A molecular dynamics study.pdf",
+      "coverImage": "assets/papers/nb-cu-hipims-2026/cover_image.png",
+      "graphicalAbstract": "assets/papers/nb-cu-hipims-2026/Graphical Abstract.jpg",
+      "highlights": [
+        "Optimal HiPIMS conditions are found at intermediate ion energy (70\u2013100 eV).",
+        "Interfacial vacancy concentration exhibits unexpected non-monotonic composition dependence.",
+        "Atomic peening, ballistic mixing, and gas implantation compete during deposition.",
+        "Crystallization is delayed at high energies, then triggers rapid surface roughening."
+      ],
+      "keywords": "Nb thin film; Copper; Molecular dynamics; Magnetron sputtering deposition; Superconducting cavities of particle accelerators",
+      "abstract": "Improving the performance of niobium (Nb)-coated copper (Cu) Superconducting Radio Frequency (SRF) cavities is crucial for next-generation particle accelerators. Yet, performance is often limited by the reduction of the cavities\u2019 superconducting properties at high accelerating fields, a behavior linked to Nb thin-film growth defects. Using large-scale molecular dynamics (MD) simulations, we systematically investigate the influence of high-power impulse magnetron sputtering (HiPIMS) deposition parameters, specifically ion energy and fraction of ionized species in the deposition flux, on the growth of Nb films on Cu(1 1 1) substrates. We find that high ion energies and ionization fractions induce significant surface roughening during growth, which is in agreement with the available experimental data. Moreover, our simulations reveal that this behavior is driven by the formation and rapid crystallization of a metastable amorphous Nb-Cu phase at the interface. Critically, we discover a nonmonotonic relationship between the composition of the amorphous layer and the concentration of residual vacancy defects. The defect density is minimized at an optimal composition of approximately 45% Cu, increasing for the interfaces with a lesser or greater amount of Cu compared to Nb. This reveals that the optimization of SRF cavities requires not only an increase in ion energy but also an accurate and careful tuning of deposition parameters to engineer the ideal interfacial composition, thereby minimizing the number density of performance-degrading defects.",
+      "conclusion": [
+        "In this work, we have employed comprehensive MD simulations to unravel the complex mechanisms governing the energetic deposition of Nb thin films on Cu substrates, to provide an atomistic roadmap for improving the SRF cavity performance. Our simulations demonstrate that high ion energy and ionization fraction lead to transient surface roughening. This is driven by the rapid crystallization of a metastable amorphous interface, whose composition is controlled by the deposition parameters.",
+        "Crucially, this atomistic finding provides a direct physical rationale for recent experimental observations in Nb-coated SRF cavities. Independent studies by Wang et al. [25] and Carlos et al. [26] demonstrated that cavity performance and critical current density reach a distinct optimum at an intermediate substrate bias of approximately $-75\\text{ V}$, degrading at both higher and lower biases. Our simulation results are consistent with this empirical trend: the intermediate energy range of $70\\text{--}100\\text{ eV}$ (at $f_i \\approx 33\\%$) produces an interfacial composition near $\\text{Cu}_{45}\\text{Nb}_{55}$ that minimizes the retention of performance-degrading vacancy defects, while both lower and higher energies drive the composition away from this optimum and increase the defect density.",
+        "The main conclusion of this study is the identification of an optimal processing window for defect minimization. We revealed a nonmonotonic, U-shaped relationship between the Cu concentration in the amorphous interface and the final density of vacancy defects. The minimum number of defects occurs at an optimal composition of $\\sim 45\\%\\text{ Cu}$. This insight fundamentally shifts the optimization paradigm from simply maximizing interfacial mixing to precisely controlling the deposition parameters to achieve this ideal composition. Conditions that require too low-energy deposition fail to create sufficient mixing, while those conditions consisting of too high-energy surpass the optimum point, creating a Cu-rich interface that is also prone to higher defect formation.",
+        "These localized vacancy clusters represent the atomistic nucleation stage of nanoscale void formation and can degrade both interfacial adhesion and SRF cavity performance. While our parametric variation of $f_i$ captures the fundamental atomistic effects of different flux compositions, explicitly modeling the macroscopic temporal structure of the HiPIMS pulse, including duty cycle and dynamic ion-flux evolution, represents an important direction for future multiscale simulation efforts."
+      ],
+      "plates": [
+        {
+          "id": "fig-1",
+          "sheetIndex": 1,
+          "type": "image",
+          "badge": "FIGURE 01",
+          "title": "Multi-scale modeling of Nb thin film growth for SRF applications",
+          "src": "assets/papers/nb-cu-hipims-2026/Fig. 1.jpg",
+          "caption": "Fig. 1. Multi-scale modeling of Nb thin film growth for SRF applications. (a) Quarter cut of an SRF cavity, showing the support rod, the niobium (cathode), the copper cavity wall, and the plasma sheath region where deposition occurs. The red circle indicates the localized surface area modeled by MD. (b) atomistic simulation setup corresponding to the area marked in (a). The box dimensions are approximately $10.3 \\times 10.3 \\times 5.5\\text{ nm}^3$, with two fixed bottom layers and NVT thermal bath zones to stabilize the system. The remaining atoms evolve under an NVE ensemble. Ionized particles ($\\text{Nb}^+$, $\\text{Ar}^+$, $\\text{Nb}^{++}$) are introduced normal to the surface ($\\theta = 0^\\circ$), while neutral Nb atoms are deposited at random angles between $0^\\circ$ and $75^\\circ$ to mimic realistic deposition conditions in RF cavity geometries."
+        },
+        {
+          "id": "fig-2",
+          "sheetIndex": 2,
+          "type": "image",
+          "badge": "FIGURE 02",
+          "title": "Evolution of surface roughness and BCC atomic fraction",
+          "src": "assets/papers/nb-cu-hipims-2026/Fig. 2.jpg",
+          "caption": "Fig. 2. Evolution of surface roughness parameter $\\sigma$, Eq. (1)(a, c and e) and the BCC atomic fraction $f_{\\text{BCC}} = \\frac{N_{\\text{Nb}}(\\text{BCC})}{N_{\\text{Nb}}}$ (b, d and f) during the deposition simulations of $\\Theta = 22\\text{ ML}$ of Nb on a Cu substrate under different deposition conditions. The panels are organized according to different ionization fractions $f_i$, while the ion energies $E_i$ are color-coded in the legends. The shaded regions represent the standard deviation."
+        },
+        {
+          "id": "fig-3",
+          "sheetIndex": 3,
+          "type": "image",
+          "badge": "FIGURE 03",
+          "title": "Partial Radial Distribution Functions (PRDFs)",
+          "src": "assets/papers/nb-cu-hipims-2026/Fig. 3.jpg",
+          "caption": "Fig. 3. Partial Radial Distribution Functions (PRDFs) characterizing the atomic-scale structure as a function of $f_i$ and $E_i$. (a\u2013c) Nb\u2013Nb correlations reveal that higher $f_i$ and $E_i$ lead to increased film ordering and densification. (d\u2013f) Nb\u2013Cu correlations show that intermixing at the interface is enhanced by both higher $f_i$ and $E_i$. (g\u2013i) Ar\u2013Cu correlations provide direct evidence of $\\text{Ar}^+$ implantation, which increases significantly with higher $f_i$ and $E_i$."
+        },
+        {
+          "id": "fig-4",
+          "sheetIndex": 4,
+          "type": "image",
+          "badge": "FIGURE 04",
+          "title": "Mean coordination number (CN) of niobium atoms",
+          "src": "assets/papers/nb-cu-hipims-2026/Fig. 4.jpg",
+          "caption": "Fig. 4. Mean coordination number (CN) of niobium atoms as a function of depth ($Z$ coordinate) for the three simulated flux compositions: (a) 66%, (b) 33%, and (c) 10% ionized particles. Different colors represent different incident ion energies, as indicated in the legend. The gray dashed line shows the initial top surface position of the pristine Cu substrate."
+        },
+        {
+          "id": "fig-5",
+          "sheetIndex": 5,
+          "type": "image",
+          "badge": "FIGURE 05",
+          "title": "Compositional gradient and Cu/Nb concentration profiles",
+          "src": "assets/papers/nb-cu-hipims-2026/Fig. 5.jpg",
+          "caption": "Fig. 5. Analysis of compositional gradient plotted as the logarithmic Cu/Nb concentration profiles at $\\Theta \\approx 22\\text{ ML}$ for $f_i$ equal to (a) 10%, (b) 33%, and (c) 66%, respectively. Within each panel, different colored lines denote simulation runs for different $E_i$ values for singly ionized species from $50\\text{ eV}$ to $200\\text{ eV}$, as indicated in the legend."
+        },
+        {
+          "id": "fig-6",
+          "sheetIndex": 6,
+          "type": "image",
+          "badge": "FIGURE 06",
+          "title": "Interface structure and Voronoi polyhedra distributions",
+          "src": "assets/papers/nb-cu-hipims-2026/Fig. 6.jpg",
+          "caption": "Fig. 6. Structure of the interface obtained during the thin film deposition with $E_i = 50\\text{ eV}$ and $f_i = 10\\%$ in (a) and (c), and with $E_i = 200\\text{ eV}$ and $f_i = 66\\%$ in (b) and (d). (a) and (b) show the atomic structure of the interface with the atoms colored according to CNA in OVITO. (c) and (d) show the Voronoi polyhedra distributions of the same interfaces shown in (a) and (b). The Voronoi polyhedra emphasize the level of disorder in the interface, although the film under the conditions shown in (b) and (d) is overall much denser."
+        },
+        {
+          "id": "fig-7",
+          "sheetIndex": 7,
+          "type": "image",
+          "badge": "FIGURE 07",
+          "title": "Atomic Cu fraction in the disordered interface region",
+          "src": "assets/papers/nb-cu-hipims-2026/Fig. 7.jpg",
+          "caption": "Fig. 7. Atomic Cu fraction in the disordered interface region as a function of deposition energy $E_i$ and ionization fraction $f_i$ of the deposition flux calculated as $\\frac{N_{\\text{Cu}}(\\text{\u2018Other\u2019})}{N_{\\text{all}}(\\text{\u2018Other\u2019})}$."
+        },
+        {
+          "id": "fig-8",
+          "sheetIndex": 8,
+          "type": "image",
+          "badge": "FIGURE 08",
+          "title": "Number of vacancies in Nb away from the interface",
+          "src": "assets/papers/nb-cu-hipims-2026/Fig. 8.jpg",
+          "caption": "Fig. 8. Number of vacancies that appeared during the thin film growth in Nb away from the interface for all $E_i$ and $f_i$ studied in this work."
+        },
+        {
+          "id": "video-1",
+          "sheetIndex": 9,
+          "type": "video",
+          "badge": "VIDEO 01",
+          "title": "Time-resolved visualization of BCC formation ($f_i = 33\\%$, $E_i = 200\\text{ eV}$)",
+          "src": "assets/papers/nb-cu-hipims-2026/Video 1.mp4",
+          "caption": "Video 1. Time-resolved visualization of BCC formation during deposition at $f_i = 33\\%$ and $E_i = 200\\text{ eV}$. The animation shows an anisotropic amorphous-to-BCC transformation initiated at the critical thickness $\\Theta \\approx 8\\text{ ML}$. Crystallization propagates along the growth direction while lateral spreading remains limited, producing columnar BCC domains and pronounced out-of-plane displacement."
+        },
+        {
+          "id": "video-2",
+          "sheetIndex": 10,
+          "type": "video",
+          "badge": "VIDEO 02",
+          "title": "Time-resolved visualization of BCC formation ($f_i = 33\\%$, $E_i = 50\\text{ eV}$)",
+          "src": "assets/papers/nb-cu-hipims-2026/Video 2.mp4",
+          "caption": "Video 2. Time-resolved visualization of BCC formation during deposition at $f_i = 33\\%$ and $E_i = 50\\text{ eV}$. Early BCC nuclei appear at $\\Theta \\approx 2\\text{--}3\\text{ ML}$ and grow steadily throughout deposition, in contrast to the delayed, anisotropic crystallization observed at $E_i = 200\\text{ eV}$."
+        },
+        {
+          "id": "video-3",
+          "sheetIndex": 11,
+          "type": "video",
+          "badge": "VIDEO 03",
+          "title": "Time-resolved evolution of surface roughening ($f_i = 33\\%$, $E_i = 200\\text{ eV}$)",
+          "src": "assets/papers/nb-cu-hipims-2026/Video 3.mp4",
+          "caption": "Video 3. Time-resolved evolution of surface roughening during deposition at $f_i = 33\\%$ and $E_i = 200\\text{ eV}$. The surface remains smooth ($\\sigma \\approx 1\\text{ \\AA}$) up to $\\Theta \\approx 8\\text{ ML}$ due to atomic peening which suppresses BCC nucleation and maintains a dense amorphous layer. Once the critical thickness is reached, a rapid amorphous-to-BCC transformation produces a sharp roughness increase ($\\Theta \\approx 9\\text{--}14\\text{ ML}$) and localized height variations up to $11\\text{--}12\\text{ \\AA}$ by $\\Theta \\approx 22\\text{ ML}$, consistent with stress-relief-driven hillock formation."
+        },
+        {
+          "id": "video-4",
+          "sheetIndex": 12,
+          "type": "video",
+          "badge": "VIDEO 04",
+          "title": "Time-resolved evolution of surface roughening ($f_i = 33\\%$, $E_i = 50\\text{ eV}$)",
+          "src": "assets/papers/nb-cu-hipims-2026/Video 4.mp4",
+          "caption": "Video 4. Time-resolved evolution of surface roughening during deposition at $f_i = 33\\%$ and $E_i = 50\\text{ eV}$. Gradual surface-feature development and continuous roughness accumulation occur throughout growth. Early BCC nucleation ($\\Theta \\approx 1\\text{ ML}$) and steady statistical roughening indicate morphology evolution governed by adatom mobility under moderate ion energies."
+        }
+      ]
+    }
+  };
 
   function initPaperFolio() {
     const dialog = document.querySelector("#paper-folio-dialog");
@@ -2352,7 +2353,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         handleNext.setPointerCapture(e.pointerId);
-      } catch (err) {}
+      } catch (err) { }
 
       handleNext.classList.add("is-grabbing");
       if (handlePrev) handlePrev.style.visibility = "hidden";
@@ -2412,7 +2413,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         handleNext.releasePointerCapture(e.pointerId);
-      } catch (err) {}
+      } catch (err) { }
 
       handleNext.classList.remove("is-grabbing");
       if (handlePrev) handlePrev.style.visibility = "";
@@ -2469,7 +2470,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         handlePrev.setPointerCapture(e.pointerId);
-      } catch (err) {}
+      } catch (err) { }
 
       handlePrev.classList.add("is-grabbing");
       if (handleNext) handleNext.style.visibility = "hidden";
@@ -2523,7 +2524,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         handlePrev.releasePointerCapture(e.pointerId);
-      } catch (err) {}
+      } catch (err) { }
 
       handlePrev.classList.remove("is-grabbing");
       if (handleNext) handleNext.style.visibility = "";
@@ -2716,7 +2717,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Build Pagination Dots with Tooltips (16 states: 0 to 15)
       if (stripEl) {
         const dotsHtml = [];
-        
+
         // 0: Cover
         dotsHtml.push(`
           <button class="folio-dot-item ${initialSpread === 0 ? 'active' : ''}" type="button" data-spread-index="0" role="tab" aria-selected="${initialSpread === 0}" aria-label="Front Cover">
@@ -2840,6 +2841,377 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   initPaperFolio();
+
+  /* ==========================================================================
+     LLM-RAG Technical Assistant Chatbot Module
+     Configurable Cloudflare Worker Backend + Local Verified Fallback
+     ========================================================================== */
+  // Cloudflare Worker RAG Backend URL (Paste your deployed worker URL here)
+  // e.g. "https://milad-portfolio-rag.<your-subdomain>.workers.dev"
+  const RAG_WORKER_URL = "https://milad-portfolio-rag.miladghaemi68.workers.dev";
+
+  function initRagChatbot() {
+    const launcher = document.querySelector("#rag-chat-launcher");
+    const panel = document.querySelector("#rag-chat-panel");
+    const closeBtn = document.querySelector("#rag-panel-close");
+    const contextName = document.querySelector("#rag-context-name");
+    const messagesContainer = document.querySelector("#rag-messages");
+    const chipsContainer = document.querySelector("#rag-quick-chips");
+    const inputForm = document.querySelector("#rag-input-form");
+    const textarea = document.querySelector("#rag-input");
+    const sendBtn = document.querySelector("#rag-send-btn");
+    const charCount = document.querySelector("#rag-char-count");
+
+    if (!launcher || !panel || !messagesContainer || !textarea) return;
+
+    let isRagOpen = false;
+    let isThinking = false;
+    const ragHistory = [];
+
+    const QUICK_CHIPS = {
+      "Industrial Energy SQL Pipeline": [
+        "How does declarative partitioning work?",
+        "Explain the two-layer idempotency mechanism",
+        "How was Fingrid TSO data ingested?",
+        "What are the latency benchmarks for the REST API?"
+      ],
+      "Amorphous Phase ML": [
+        "What physical descriptors were used in ml_rdf?",
+        "Which 3 amorphous phases were classified?",
+        "How was SHAP explainability applied?",
+        "What was the Voronoi tessellation cutoff?"
+      ],
+      "Aether Climate Engine": [
+        "How does Aether process planetary NetCDF grids?",
+        "Explain the chunked Dask memory optimization",
+        "How are geospatial raster anomalies detected?"
+      ],
+      "Airflow Academy": [
+        "How are custom Airflow operators tested?",
+        "What data quality validation rules run on DAGs?",
+        "How does the interactive evaluation harness work?"
+      ],
+      "Smileprint": [
+        "How is STL dental mesh slicing implemented?",
+        "How are regulatory audit logs handled?",
+        "Explain the circular economy resin recycling"
+      ],
+      "Verified FEM Workbench": [
+        "Which multi-solver FEA engines are supported?",
+        "How are stress tensor invariants computed?",
+        "Explain the verification against analytical solutions"
+      ],
+      "Quantum ESPRESSO Advisor": [
+        "Explain the SCF curvature theory optimization",
+        "How are k-point grids and cutoffs recommended?",
+        "What Fortran algorithmic patches were developed?"
+      ],
+      "Tessera": [
+        "What is the spatial state machine architecture?",
+        "How does the discrete Voronoi grid algorithm work?",
+        "What are the frame rate and memory benchmarks?"
+      ],
+      "General Profile": [
+        "Summarize Milad's PhD research & publications",
+        "What HPC supercomputers has Milad used?",
+        "Explain the CERN collaboration on Nb/Cu films",
+        "What are Milad's primary data engineering skills?"
+      ]
+    };
+
+    // Verified local fallback knowledge for zero-setup demo & local inspection
+    const VERIFIED_LOCAL_KNOWLEDGE = {
+      "How does declarative partitioning work?": {
+        answer: "The **Industrial Energy SQL Pipeline** utilizes PostgreSQL 15 declarative range partitioning on the core `readings` table, partitioned monthly by `recorded_at` (`readings_2023_01` through `readings_2023_12`). Queries filtering by timestamp leverage automated partition pruning, reducing disk I/O and query latency from 850 ms down to 42 ms on 500,000+ row scans.",
+        sources: [{ title: "Industrial Energy SQL Pipeline: Architecture & Schema", project: "energy" }]
+      },
+      "Explain the two-layer idempotency mechanism": {
+        answer: "The data ingestion pipeline implements a **two-layer idempotency strategy**:\n1. **High-Watermark Filtering:** `SELECT MAX(recorded_at) FROM readings` skips already ingested batches at stream extraction.\n2. **Database Deduplication:** On collision, unique constraints on `(sensor_id, recorded_at)` prevent duplicate entry, ensuring crash-resilient re-runs without data corruption.",
+        sources: [{ title: "Industrial Energy SQL Pipeline: Data Ingestion & Quality", project: "energy" }]
+      },
+      "How was Fingrid TSO data ingested?": {
+        answer: "Real Finnish national electricity transmission metrics were fetched from the **Fingrid Open Data API** (datasets 75 for wind generation and 124 for electricity consumption) for 2023. The ingestion worker implements exponential backoff, rate limiting, linear gap interpolation, and zero-clamping, storing 17,520 verified hourly records.",
+        sources: [{ title: "Industrial Energy SQL Pipeline: Fingrid TSO Integration", project: "energy" }]
+      },
+      "What physical descriptors were used in ml_rdf?": {
+        answer: "In **Amorphous Phase ML (`ml_rdf`)**, atomistic structures are encoded using:\n- **Radial Distribution Functions (RDF):** Captures pairwise atomic pair probabilities up to a 6.0 Å radial cutoff.\n- **Voronoi Polyhedral Indices `<n3, n4, n5, n6>`:** Characterizes local coordination polyhedra (e.g., `<0, 0, 12, 0>` for icosahedral short-range order, `<0, 3, 6, 4>` for BCC-like, and `<0, 4, 4, 4>` for FCC-like packing).",
+        sources: [{ title: "Amorphous Phase ML: Descriptors & Machine Learning", project: "amorphous" }]
+      },
+      "Which 3 amorphous phases were classified?": {
+        answer: "The framework classifies 3 distinct local amorphous topological packings in Cu-Zr metallic glasses:\n1. **Icosahedral Short-Range Order (ISRO):** Voronoi signature `<0, 0, 12, 0>`, typical of stable glassy backbones.\n2. **BCC-like Disordered Regions:** Voronoi coordination `<0, 3, 6, 4>`.\n3. **FCC-like Disordered Packing:** Voronoi coordination `<0, 4, 4, 4>`.\nModels trained (RandomForest and XGBoost) achieved >94% classification accuracy.",
+        sources: [{ title: "Amorphous Phase ML: Phase Classification", project: "amorphous" }]
+      },
+      "How was SHAP explainability applied?": {
+        answer: "**SHAP (SHapley Additive exPlanations)** TreeExplainer was applied to the trained phase classification models. It revealed that 5-fold coordination rings (`n5 = 12`) and the first RDF split-peak intensity provide over 68% of the model's predictive importance for identifying stable glassy matrices versus shear-transformation-prone regions.",
+        sources: [{ title: "Amorphous Phase ML: Explainable AI & SHAP", project: "amorphous" }]
+      },
+      "Summarize Milad's PhD research & publications": {
+        answer: "Milad Ghaemi completed his PhD in **Materials Research & Nanosciences** at the **University of Helsinki** (Department of Physics / Computational Materials Physics, 2021-2026).\n- Author of **7 peer-reviewed papers** (including *Materials Today Communications*, *Materials & Design*, *Computational Materials Science*, and *Physical Review Materials*).\n- Research focused on atomistic molecular dynamics simulations (LAMMPS) and first-principles calculations (VASP) for thin-film energetic deposition, defect mechanics, and metallic glasses.\n- Collaborated with international partners including **CERN** on superconducting thin-film RF cavities for the Future Circular Collider (FCC).",
+        sources: [{ title: "Milad Ghaemi, PhD: Academic Profile & Publications", project: "profile" }]
+      },
+      "What HPC supercomputers has Milad used?": {
+        answer: "Milad has extensive high-performance computing (HPC) experience on **CSC - IT Center for Science** national clusters in Finland:\n- **Puhti:** Intel Xeon Cascade Lake / Gold nodes for high-throughput MD trajectories.\n- **Mahti:** AMD EPYC 7H12 128-core nodes for large-scale parallel simulations.\n- **Ukko & Kale:** University of Helsinki physics clusters.\n*Note:* Milad's supercomputing experience is strictly on Finnish national CSC clusters (Puhti, Mahti, Ukko, Kale); he has no experience on LUMI.",
+        sources: [{ title: "Milad Ghaemi: HPC Supercomputing Infrastructure", project: "profile" }]
+      },
+      "Explain the CERN collaboration on Nb/Cu films": {
+        answer: "In collaboration with experimentalists at **CERN**, Milad modeled the energetic deposition of thin niobium (Nb) films on copper (Cu) substrates via HiPIMS and DCMS for superconducting radiofrequency (SRF) cavities.\n- Analyzed experimental **SEM** and **XPS** characterization data provided by CERN to benchmark atomistic simulations.\n- Discovered that an ion energy fraction of ~33% (-70 to -100 eV) produces a metastable amorphous Cu45Nb55 interlayer that optimizes interfacial adhesion and minimizes defect formation.",
+        sources: [{ title: "CERN Collaboration: Nb/Cu Superconducting Thin Films", project: "profile" }]
+      }
+    };
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function renderMarkdown(text) {
+      if (!text) return "";
+      let raw = escapeHtml(text);
+
+      // Code blocks ```...```
+      raw = raw.replace(/```([a-z0-9_-]*)\n([\s\S]*?)```/gi, (match, lang, code) => {
+        return `<pre><code>${code.trim()}</code></pre>`;
+      });
+
+      // Inline code `...`
+      raw = raw.replace(/`([^`]+)`/g, "<code>$1</code>");
+
+      // Bold **...**
+      raw = raw.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+
+      // Bullet lists
+      const lines = raw.split("\n");
+      let inList = false;
+      const htmlLines = [];
+
+      for (const line of lines) {
+        const bulletMatch = line.match(/^(\s*)[-*]\s+(.+)$/);
+        if (bulletMatch) {
+          if (!inList) {
+            htmlLines.push("<ul>");
+            inList = true;
+          }
+          htmlLines.push(`<li>${bulletMatch[2]}</li>`);
+        } else {
+          if (inList) {
+            htmlLines.push("</ul>");
+            inList = false;
+          }
+          if (line.trim().length > 0) {
+            htmlLines.push(`<p>${line}</p>`);
+          }
+        }
+      }
+      if (inList) htmlLines.push("</ul>");
+
+      return htmlLines.join("\n");
+    }
+
+    function syncContext(projectName) {
+      currentRagContext = projectName || "General Profile";
+      if (contextName) {
+        contextName.textContent = currentRagContext;
+      }
+      renderQuickChips(currentRagContext);
+    }
+    syncRagProjectContext = syncContext;
+
+    function renderQuickChips(contextKey) {
+      chipsContainer.replaceChildren();
+      const chips = QUICK_CHIPS[contextKey] || QUICK_CHIPS["General Profile"] || [];
+
+      chips.forEach(question => {
+        const btn = document.createElement("button");
+        btn.className = "rag-chip-btn";
+        btn.type = "button";
+        btn.textContent = question;
+        btn.addEventListener("click", () => {
+          handleUserSend(question);
+        });
+        chipsContainer.appendChild(btn);
+      });
+    }
+
+    function appendMessage(role, text, sources = []) {
+      const msgDiv = document.createElement("div");
+      msgDiv.className = `rag-msg msg-${role}`;
+
+      const bubbleDiv = document.createElement("div");
+      bubbleDiv.className = "rag-msg-bubble";
+
+      if (role === "assistant") {
+        bubbleDiv.innerHTML = renderMarkdown(text);
+        if (sources && sources.length) {
+          const sourcesRow = document.createElement("div");
+          sourcesRow.className = "rag-sources-row";
+          sourcesRow.innerHTML = "<span>Verified Sources:</span> " + sources.map(s => `<span class="rag-source-pill">${escapeHtml(s.title || s.projectName || s.project)}</span>`).join(" ");
+          bubbleDiv.appendChild(sourcesRow);
+        }
+      } else {
+        bubbleDiv.textContent = text;
+      }
+
+      msgDiv.appendChild(bubbleDiv);
+      messagesContainer.appendChild(msgDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+      ragHistory.push({ role, content: text });
+      if (ragHistory.length > 6) {
+        ragHistory.shift();
+      }
+    }
+
+    function showThinkingIndicator() {
+      const msgDiv = document.createElement("div");
+      msgDiv.className = "rag-msg msg-assistant rag-thinking-msg";
+      msgDiv.id = "rag-thinking-indicator";
+
+      const bubble = document.createElement("div");
+      bubble.className = "rag-msg-bubble rag-typing-bubble";
+      bubble.innerHTML = "<span></span><span></span><span></span>";
+
+      msgDiv.appendChild(bubble);
+      messagesContainer.appendChild(msgDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function removeThinkingIndicator() {
+      const indicator = document.querySelector("#rag-thinking-indicator");
+      if (indicator) indicator.remove();
+    }
+
+    async function queryAssistant(userQuery) {
+      if (RAG_WORKER_URL) {
+        const response = await fetch(RAG_WORKER_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: userQuery,
+            activeProject: currentRagContext,
+            history: ragHistory.slice(-6)
+          })
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.error || `Server returned status ${response.status}`);
+        }
+
+        const data = await response.json();
+        return {
+          answer: data.answer || "No response received from model.",
+          sources: data.sources || []
+        };
+      }
+
+      // Local fallback mode when RAG_WORKER_URL is not set yet
+      await new Promise(r => setTimeout(r, 450)); // simulate brief processing
+
+      if (VERIFIED_LOCAL_KNOWLEDGE[userQuery]) {
+        return VERIFIED_LOCAL_KNOWLEDGE[userQuery];
+      }
+
+      // Keyword match in verified local knowledge
+      const lower = userQuery.toLowerCase();
+      for (const [qKey, data] of Object.entries(VERIFIED_LOCAL_KNOWLEDGE)) {
+        const qWords = qKey.toLowerCase().split(/\s+/).filter(w => w.length > 4);
+        const match = qWords.some(w => lower.includes(w));
+        if (match) {
+          return data;
+        }
+      }
+
+      return {
+        answer: `I am currently operating in **verified local cache mode** on the frontend.\n\nTo enable open-ended reasoning powered by **Google Gemini 2.5 Flash** across all 86KB of project specifications, connect your Cloudflare Worker:\n1. Deploy the worker from \`rag-worker/\` via Cloudflare Dashboard or \`npx wrangler deploy\`.\n2. Set \`GEMINI_API_KEY\` in your Cloudflare Worker.\n3. Paste the worker URL into \`const RAG_WORKER_URL\` at the top of the RAG module in \`script.js\`.\n\nIn the meantime, click any of the quick-prompt chips above to inspect verified technical details!`,
+        sources: [{ title: "RAG Worker Setup Guide", project: "rag-worker" }]
+      };
+    }
+
+    async function handleUserSend(text) {
+      const query = (text || textarea.value || "").trim();
+      if (!query || isThinking) return;
+
+      textarea.value = "";
+      textarea.style.height = "auto";
+      charCount.textContent = "0 / 500";
+      sendBtn.disabled = true;
+
+      appendMessage("user", query);
+      isThinking = true;
+      showThinkingIndicator();
+
+      try {
+        const result = await queryAssistant(query);
+        removeThinkingIndicator();
+        appendMessage("assistant", result.answer, result.sources);
+      } catch (err) {
+        removeThinkingIndicator();
+        appendMessage("assistant", `**Connection Error:** Unable to reach the RAG backend (${escapeHtml(err.message)}).\n\nIf running locally, ensure your Cloudflare Worker is deployed or check \`rag-worker/README.md\` for setup instructions.`);
+      } finally {
+        isThinking = false;
+        sendBtn.disabled = textarea.value.trim().length === 0;
+      }
+    }
+
+    // Event Listeners
+    launcher.addEventListener("click", () => {
+      isRagOpen = !isRagOpen;
+      panel.classList.toggle("is-open", isRagOpen);
+      panel.setAttribute("aria-hidden", String(!isRagOpen));
+      launcher.setAttribute("aria-expanded", String(isRagOpen));
+      if (isRagOpen) {
+        setTimeout(() => textarea.focus(), 150);
+      }
+    });
+
+    closeBtn.addEventListener("click", () => {
+      isRagOpen = false;
+      panel.classList.remove("is-open");
+      panel.setAttribute("aria-hidden", "true");
+      launcher.setAttribute("aria-expanded", "false");
+    });
+
+    window.addEventListener("keydown", e => {
+      if (e.key === "Escape" && isRagOpen) {
+        isRagOpen = false;
+        panel.classList.remove("is-open");
+        panel.setAttribute("aria-hidden", "true");
+        launcher.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    textarea.addEventListener("input", () => {
+      const len = textarea.value.length;
+      charCount.textContent = `${len} / 500`;
+      sendBtn.disabled = len === 0 || isThinking;
+
+      textarea.style.height = "auto";
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 84)}px`;
+    });
+
+    textarea.addEventListener("keydown", e => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        inputForm.dispatchEvent(new Event("submit"));
+      }
+    });
+
+    inputForm.addEventListener("submit", e => {
+      e.preventDefault();
+      handleUserSend();
+    });
+
+    // Initial greeting
+    appendMessage("assistant", "Hello! I am Milad Ghaemi's AI Technical Assistant. Ask me about system architectures, data pipelines, physics modeling, or research publications. Select any project in the portfolio to focus our context!");
+
+    // Initialize chips for initial context
+    syncContext("General Profile");
+  }
+
+  initRagChatbot();
 
   updateScrollMetrics();
   updateHeroParallax();
