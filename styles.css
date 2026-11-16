@@ -1242,8 +1242,6 @@ button {
 .visual-banner.compliance svg rect { stroke-dasharray: 390; stroke-dashoffset: 390; animation: compliance-draw 4.8s ease-in-out infinite; }
 .visual-banner.compliance svg path { stroke-dasharray: 80; stroke-dashoffset: 80; animation: compliance-link 4.8s ease-in-out infinite; }
 .visual-banner.fem svg path:first-child { stroke-dasharray: 520; stroke-dashoffset: 520; animation: fem-mesh 5.2s ease-in-out infinite; }
-.visual-banner.qe svg path { stroke-dasharray: 520; stroke-dashoffset: 520; animation: qe-wave 5s ease-in-out infinite; }
-.visual-banner.qe svg circle { transform-box: fill-box; transform-origin: center; animation: qe-probe 2.6s ease-in-out infinite; }
 .visual-banner.tessera svg path { stroke-dasharray: 520; stroke-dashoffset: 520; animation: tessera-build 5s ease-in-out infinite; }
 
 @keyframes energy-trace { 0%, 12% { stroke-dashoffset: 720; } 68%, 100% { stroke-dashoffset: 0; } }
@@ -1256,8 +1254,6 @@ button {
 @keyframes compliance-draw { 0%, 12% { stroke-dashoffset: 390; opacity: 0.25; } 72%, 100% { stroke-dashoffset: 0; opacity: 1; } }
 @keyframes compliance-link { 0%, 28% { stroke-dashoffset: 80; opacity: 0.2; } 70%, 100% { stroke-dashoffset: 0; opacity: 1; } }
 @keyframes fem-mesh { 0%, 12% { stroke-dashoffset: 520; opacity: 0.25; } 72%, 100% { stroke-dashoffset: 0; opacity: 1; } }
-@keyframes qe-wave { 0%, 12% { stroke-dashoffset: 520; opacity: 0.25; } 72%, 100% { stroke-dashoffset: 0; opacity: 1; } }
-@keyframes qe-probe { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 @keyframes tessera-build { 0%, 12% { stroke-dashoffset: 520; opacity: 0.25; } 72%, 100% { stroke-dashoffset: 0; opacity: 1; } }
 
 .status {

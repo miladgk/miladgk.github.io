@@ -280,19 +280,6 @@ document.addEventListener("DOMContentLoaded", () => {
       verification: "71-rule physical validation engine, 11 benchmark verification suites, and 810 automated tests.",
       mermaid: "flowchart LR\nA[Model] --> B[Review gate] --> C[Gmsh mesh]\nC --> D[Code_Aster] & E[CalculiX] & G[FEniCSx] --> F[Physics checks]"
     },
-    "Quantum ESPRESSO Advisor": {
-      category: "Electronic structure · Private R&D",
-      summary: "Evidence-backed input/log advisor for reproducible Quantum ESPRESSO correctness and performance analysis.",
-      breakdown: [
-        "Parses Quantum ESPRESSO namelists and logs into structured diagnostic analysis records.",
-        "Delivers verified Fortran patch (update_pot.f90) for charge density extrapolation bug with multiple k-point pools.",
-        "Runs sub-second dynamic k-point probing and Amdahl exact-exchange runtime projections.",
-        "Grounds all recommendations in mathematical evidence ledger verifying 47 empirical claims across 5 material families."
-      ],
-      stack: ["Fortran", "Python", "Quantum ESPRESSO", "HPC", "Docker"],
-      verification: "47/47 verified mathematical claims in ledger.json, Fortran reproduction package, and empirical cluster benchmarks.",
-      mermaid: "flowchart LR\nA[QE input / log] --> B[Parser] --> C[Ledger rules]\nC --> D[Advisor report]\nE[Benchmark sweeps] --> C"
-    },
     "Tessera": {
       category: "Mobile product engineering · Private R&D",
       summary: "Kotlin Android application combining Voronoi geometry gameplay with cloud services, local persistence, and privacy controls.",
@@ -3229,11 +3216,6 @@ document.addEventListener("DOMContentLoaded", () => {
         { q: "What does the non-bypassable review gate check?", local: "architecture" },
         { q: "How are Code_Aster, CalculiX, and FEniCSx results compared?", local: "verification" },
         { q: "Which analytical benchmarks verify the solvers?", local: "verification" }
-      ],
-      "Quantum ESPRESSO Advisor": [
-        { q: "What bug does the update_pot.f90 patch fix?", local: "architecture" },
-        { q: "How are k-point probing and Amdahl projections done?", local: "architecture" },
-        { q: "How does the evidence ledger verify its 47 claims?", local: "verification" }
       ],
       "Tessera": [
         { q: "How does the discrete Voronoi engine break ties?", local: "architecture" },
