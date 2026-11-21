@@ -19,3 +19,14 @@ PROJECT_BRIEF_*.md
 
 # Local helper scripts (e.g. cover rendering); not part of the site
 scratchpad/
+
+# Security audit prompt and local audit docs
+audit_prompt.md
+audit_report.md
+
+# Temporary verification and cleanup reports
+cleanup_verification_report.md
+temp_*.md
+
+
+

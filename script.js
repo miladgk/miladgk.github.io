@@ -194,13 +194,13 @@ document.addEventListener("DOMContentLoaded", () => {
       category: "Data engineering · Public repository",
       summary: "End-to-end data engineering and analytics solution for industrial telemetry from 20 energy facilities and Fingrid national grid metrics.",
       breakdown: [
-        "Generates and processes 5-minute interval time-series telemetry across 20 facilities in Scandinavia with Fingrid TSO grid synchronization.",
+        "Generates and processes 5-minute interval synthetic time-series telemetry across 20 facilities with Fingrid TSO grid synchronization.",
         "Loads data in chunks into PostgreSQL 15 running in Docker with range partitioning and conflict-safe inserts.",
         "Runs automated data quality gates and SQL analytics reporting with z-score anomaly scoring.",
         "Serves REST API endpoints on Render cloud and orchestrates local Metabase business intelligence."
       ],
       stack: ["Python 3.11", "PostgreSQL 15", "Docker", "FastAPI", "Metabase", "pytest"],
-      verification: "pytest data-quality assertions, 13 range partitions, and automated post-ingest validation gates.",
+      verification: "58.3x speedup from composite index, 132 automated tests, and real Fingrid TSO grid synchronization.",
       mermaid: "flowchart LR\nA[Telemetry] --> B[CSV lake] --> C[Ingestion] --> D[(PostgreSQL)]\nD --> E[Quality] & F[SQL analytics] --> G[Anomaly detection]\nF --> H[Metabase]",
       links: {
         github: "https://github.com/miladgk/industrial-energy-sql-pipeline",
@@ -212,12 +212,12 @@ document.addEventListener("DOMContentLoaded", () => {
       summary: "Per-atom machine-learning workflow for distinguishing three amorphous Cu-Zr phases from atomistic simulation data.",
       breakdown: [
         "Processes raw LAMMPS molecular-dynamics trajectories through a post-processing pipeline.",
-        "Extracts 18 structural descriptors per atom, including RDF, Voronoi, bond-order, stress, and energy features.",
+        "Computes 17 time-averaged, unit-free physical descriptors per atom (Voronoi, Steinhardt q4/q6, RDF peaks, virial stress, and local enthalpy) with a 7 Å spatial holdout.",
         "Uses group-aware validation and HistGradientBoosting to produce per-atom phase labels.",
         "Applies explainability and physical post-processing to interpret phase predictions and interface behavior."
       ],
-      stack: ["LAMMPS", "Python 3.10", "RDF / Voronoi", "HistGradientBoosting", "SHAP"],
-      verification: "Spatial holdout macro F1 of 0.733 (Cu64Zr36 F1 0.970), group-aware splits, calibration, and explainability analysis.",
+      stack: ["LAMMPS", "Python 3.10", "RDF / Voronoi", "HistGradientBoosting", "Permutation Importance"],
+      verification: "17 features, 67.8% accuracy (16,227 test atoms), CV macro F1 0.670, permutation importance, and SOAP rejected due to box confound.",
       mermaid: "flowchart LR\nA[LAMMPS] --> B[Descriptors] --> C[Validation] --> D[Group split]\nD --> E[Classifier] --> F[3 phase predictions]\nE --> G[Explainability]",
       links: {
         github: "https://github.com/miladgk/amorphous-phase-ml",
@@ -272,12 +272,12 @@ document.addEventListener("DOMContentLoaded", () => {
       summary: "Solver-neutral finite-element workflow centered on review gates, analytical references, and cross-solver comparison.",
       breakdown: [
         "Unifies solid CAD geometry, Gmsh meshing, and boundary conditions into a single solver-neutral JSON model.",
-        "Enforces non-bypassable review gate and 71-rule physical validation engine before execution.",
+        "Enforces non-bypassable review gate and 77-rule physical validation engine before execution.",
         "Solves identical tetrahedral meshes across Code_Aster, CalculiX, and FEniCSx backends.",
         "Performs node-by-node field comparison with consistent nodal load integration verified to 10^-10 N."
       ],
       stack: ["Gmsh", "Code_Aster", "CalculiX", "FEniCSx", "Physics checks"],
-      verification: "71-rule physical validation engine, 11 benchmark verification suites, and 810 automated tests.",
+      verification: "77 validation rules, 14 analytical/published benchmarks, 1,600+ automated tests, Richardson/GCI mesh convergence, and verified SLURM execution with CalculiX.",
       mermaid: "flowchart LR\nA[Model] --> B[Review gate] --> C[Gmsh mesh]\nC --> D[Code_Aster] & E[CalculiX] & G[FEniCSx] --> F[Physics checks]"
     },
     "Tessera": {
@@ -3193,9 +3193,9 @@ document.addEventListener("DOMContentLoaded", () => {
         { q: "How are data quality and z-score anomalies verified?", local: "verification" }
       ],
       "Amorphous Phase ML": [
-        { q: "Which 18 descriptors does the phase classifier use?", local: "architecture" },
+        { q: "Which 17 descriptors does the phase classifier use?", local: "architecture" },
         { q: "How does spatial holdout validation prevent leakage?", local: "verification" },
-        { q: "What does SHAP reveal about the three Cu-Zr phases?", local: "architecture" }
+        { q: "What does permutation importance reveal about the three Cu-Zr phases?", local: "architecture" }
       ],
       "Aether Climate Engine": [
         { q: "How does the dead-letter queue handle anomalous telemetry?", local: "architecture" },
