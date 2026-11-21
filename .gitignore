@@ -5,6 +5,8 @@ projects_files/
 # Private RAG documentation and worker bundles (NEVER commit to public repo)
 _private_rag_docs/
 rag-worker/
+PROJECT_BRIEF_MLIP_NbO.md
+PROJECT_BRIEF_*.md
 
 # Environment secrets and credentials
 .env
