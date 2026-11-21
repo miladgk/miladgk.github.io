@@ -225,7 +225,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     },
     "Nb–O MLIP": {
-      category: "Scientific ML · Active Research (Independent)",
+      category: "Scientific ML · ML Potential R&D",
       summary: "Machine-learning interatomic potential (MLIP) for the niobium–oxygen system to simulate amorphous native oxides and identify two-level-system (TLS) defect losses in superconducting quantum hardware.",
       breakdown: [
         "Establishes a unified, standardized Quantum ESPRESSO DFT protocol (PBE-PAW) across 687 reference configurations (bulk, surfaces, defects, and liquids).",
