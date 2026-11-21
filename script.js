@@ -191,17 +191,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const architectureData = {
     "Industrial Energy SQL Pipeline": {
-      category: "Data engineering · Public repository",
-      summary: "End-to-end data engineering and analytics solution for industrial telemetry from 20 energy facilities and Fingrid national grid metrics.",
+      category: "Data engineering · Public repository (Independent Portfolio Project)",
+      summary: "Independent portfolio data engineering solution analyzing 518,400 synthetic sensor readings (seed 42) across 20 facilities synchronized with real Fingrid national grid metrics.",
       breakdown: [
-        "Generates and processes 5-minute interval synthetic time-series telemetry across 20 facilities with Fingrid TSO grid synchronization.",
+        "Generates and processes 5-minute interval synthetic time-series telemetry (seed 42) across 20 facilities with Fingrid TSO grid synchronization.",
         "Loads data in chunks into PostgreSQL 15 running in Docker with range partitioning and conflict-safe inserts.",
-        "Runs automated data quality gates and SQL analytics reporting with z-score anomaly scoring.",
+        "Runs automated data quality gates and SQL analytics reporting with z-score anomaly scoring (catches 100% of synthetic spikes; 14.9% of zero dropouts).",
         "Serves REST API endpoints on Render cloud and orchestrates local Metabase business intelligence."
       ],
       stack: ["Python 3.11", "PostgreSQL 15", "Docker", "FastAPI", "Metabase", "pytest"],
-      verification: "58.3x speedup from composite index, 132 automated tests, and real Fingrid TSO grid synchronization.",
-      mermaid: "flowchart LR\nA[Telemetry] --> B[CSV lake] --> C[Ingestion] --> D[(PostgreSQL)]\nD --> E[Quality] & F[SQL analytics] --> G[Anomaly detection]\nF --> H[Metabase]",
+      verification: "58.3x speedup from composite index (not partitioning), 132 automated tests, 518,400 synthetic readings (seed 42), and real Fingrid TSO grid synchronization.",
+      mermaid: "flowchart LR\nA[Telemetry (Seed 42)] --> B[CSV Lake] --> C[Chunk Ingestion] --> D[(PostgreSQL 15)]\nD --> E[Data Quality] & F[SQL Analytics] --> G[Z-Score Anomaly]\nF --> H[Metabase BI]",
       links: {
         github: "https://github.com/miladgk/industrial-energy-sql-pipeline",
         live: "https://miladgk.github.io/industrial-energy-sql-pipeline/"
@@ -209,89 +209,102 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     "Amorphous Phase ML": {
       category: "Scientific ML · Public repository",
-      summary: "Per-atom machine-learning workflow for distinguishing three amorphous Cu-Zr phases from atomistic simulation data.",
+      summary: "Per-atom machine-learning workflow for classifying three constituent amorphous Cu–Zr phases from atomistic simulation data.",
       breakdown: [
         "Processes raw LAMMPS molecular-dynamics trajectories through a post-processing pipeline.",
         "Computes 17 time-averaged, unit-free physical descriptors per atom (Voronoi, Steinhardt q4/q6, RDF peaks, virial stress, and local enthalpy) with a 7 Å spatial holdout.",
-        "Uses group-aware validation and HistGradientBoosting to produce per-atom phase labels.",
-        "Applies explainability and physical post-processing to interpret phase predictions and interface behavior."
+        "Uses group-aware validation and HistGradientBoosting to produce per-atom phase labels across three amorphous Cu-Zr phases (Cu50Zr50, Cu46Zr54, Cu64Zr36).",
+        "Applies Permutation Importance feature attribution and physical post-processing to interpret phase predictions (SOAP evaluated and rejected due to box-identity confound)."
       ],
       stack: ["LAMMPS", "Python 3.10", "RDF / Voronoi", "HistGradientBoosting", "Permutation Importance"],
-      verification: "17 features, 67.8% accuracy (16,227 test atoms), CV macro F1 0.670, permutation importance, and SOAP rejected due to box confound.",
-      mermaid: "flowchart LR\nA[LAMMPS] --> B[Descriptors] --> C[Validation] --> D[Group split]\nD --> E[Classifier] --> F[3 phase predictions]\nE --> G[Explainability]",
+      verification: "17 unit-free descriptors, 67.8% spatial holdout accuracy (16,227 test atoms), CV macro F1 0.670, Cu64Zr36 F1 0.900, permutation importance, and SOAP rejected due to box confound.",
+      mermaid: "flowchart LR\nA[LAMMPS Trajectory] --> B[17 Descriptors] --> C[7 Å Spatial Holdout] --> D[HistGradientBoosting]\nD --> E[3 Amorphous Phases (Cu-Zr)]\nD --> F[Permutation Importance]",
       links: {
         github: "https://github.com/miladgk/amorphous-phase-ml",
         live: "https://miladgk.github.io/amorphous-phase-ml/"
       }
     },
+    "Nb–O MLIP": {
+      category: "Scientific ML · Active Research (Independent)",
+      summary: "Machine-learning interatomic potential (MLIP) for the niobium–oxygen system to simulate amorphous native oxides and identify two-level-system (TLS) defect losses in superconducting quantum hardware.",
+      breakdown: [
+        "Establishes a unified, standardized Quantum ESPRESSO DFT protocol (PBE-PAW) across 687 reference configurations (bulk, surfaces, defects, and liquids).",
+        "Trains a 3-model equivariant MACE committee (mace-torch, PyTorch) with checkpoint-restart management and isolated-atom reference energy subtractions.",
+        "Executes DP-GEN-style active learning (query by committee) in iteration 2 driven by committee force uncertainty in MD exploration (3 training rounds completed).",
+        "Evaluates EOS, defect formation energies, and short-range dimer repulsion against pre-registered acceptance criteria ($E_f \\le 0.2$ eV; amorphous MD and TLS/NEB validation scheduled for next phase)."
+      ],
+      stack: ["Quantum ESPRESSO", "MACE", "PyTorch", "ASE", "Active Learning", "SLURM", "Python 3.11"],
+      verification: "687 DFT frames, 3-model MACE committee (AL iteration 2; 3 training rounds completed), 5.8–8.1 meV/atom validation RMSE, pre-registered defect criteria (E_f <= 0.2 eV); amorphous MD and TLS/NEB scheduled for next phase.",
+      mermaid: "flowchart LR\nA[Unified DFT Protocol] --> B[Quantum ESPRESSO] --> C[(Versioned Datasets)]\nC --> D[MACE Committee] --> E[Pre-registered Benchmarks]\nD --> F[AL Exploration MD] --> G[Uncertainty Sampling] --> B"
+    },
     "Aether Climate Engine": {
       category: "Data engineering · Public repository",
-      summary: "Real-time meteorological telemetry platform combining anomaly detection, multi-model forecasting, warehouse modeling, and a field dashboard.",
+      summary: "Meteorological telemetry platform combining Open-Meteo data, local Theil–Sen spike filtering, multi-model forecasting, warehouse modeling, and a static dashboard snapshot.",
       breakdown: [
-        "Ingests atmospheric telemetry across 5 global stations from Open-Meteo APIs.",
-        "Routes clean and anomalous data through validation contracts, a ±2σ detector, and a dead-letter queue (DLQ).",
-        "Builds PostgreSQL raw, dbt staging/fact/mart, and Airflow-orchestrated warehouse layers.",
-        "Delivers linear, SMA, and EMA forecasts with 365-day year-over-year comparisons in the field dashboard."
+        "Ingests atmospheric telemetry across 5 global stations from Open-Meteo reanalysis APIs.",
+        "Applies a local slope-aware Theil–Sen spike filter (±3h, MAD) and routes anomalous data through validation contracts and a dead-letter queue (DLQ).",
+        "Builds PostgreSQL raw and dbt staging/fact/mart warehouse models (AWS S3, Terraform, and Apache Airflow DAGs serve as reference architecture / scaffolding).",
+        "Delivers linear, SMA, and EMA forecasts with 365-day YoY comparisons hosted as a static dashboard on GitHub Pages."
       ],
-      stack: ["Airflow 2.8.1", "dbt Core", "PostgreSQL 15", "AWS S3", "Terraform", "Forecasting"],
-      verification: "pytest mocks, Bandit AST security scanning, dbt tests, and an explicit GitHub Actions CI workflow.",
-      mermaid: "flowchart LR\nA[Open-Meteo / S3] --> B[Ingestion] --> C[(PostgreSQL)] --> D[dbt marts]\nD --> E[Anomaly] & F[Forecasting] --> G[Dashboard]\nH[Airflow] --> B",
+      stack: ["Python 3.10", "Open-Meteo", "PostgreSQL 15", "dbt Core", "Chart.js", "Scaffolding (AWS S3 / Terraform / Airflow 2.8)"],
+      verification: "43 automated tests (pytest, Playwright E2E), Theil–Sen slope filter (±3h, MAD), dbt schema tests, and reference cloud scaffolding.",
+      mermaid: "flowchart LR\nA[Open-Meteo API] --> B[Theil-Sen Filter] --> C[(PostgreSQL 15)] --> D[dbt Marts]\nD --> E[Dead-Letter Queue] & F[3 Forecast Models] --> G[Static Dashboard]\nH[Airflow / IaC Scaffolding] -.-> B",
       links: {
         github: "https://github.com/miladgk/aether-climate-engine",
         live: "https://miladgk.github.io/aether-climate-engine/"
       }
     },
     "Airflow Academy": {
-      category: "Product engineering · Private R&D",
-      summary: "Browser-based DAG learning and execution platform with validation, isolated runtimes, and streamed logs.",
+      category: "Full-Stack Prototype · Architecture Demo",
+      summary: "Browser-based DAG learning and execution platform with custom 8,903-line AST validation, ephemeral Docker sandboxes running Apache Airflow 2.8, and real-time SSE execution logs.",
       breakdown: [
-        "Provides an in-browser Monaco code editor for authoring Apache Airflow DAGs.",
-        "Runs real-time Abstract Syntax Tree (AST) validation against 127 validators across 16 curriculum chapters with 189 lessons.",
-        "Executes student DAGs in ephemeral Docker sandbox containers with concurrency throttling.",
-        "Streams stdout/stderr execution output back to the interface in real time via Server-Sent Events (SSE)."
+        "Provides an in-browser Monaco code editor for authoring Apache Airflow DAGs across 16 curriculum chapters + 2 reference appendices (189 lessons/tasks, 208 total activities).",
+        "Runs real-time Abstract Syntax Tree (AST) validation via a custom 8,903-line evaluator with 127 validation functions before container invocation.",
+        "Executes student DAGs in ephemeral Docker sandboxes running Apache Airflow 2.8 with ~2–4 s execution latency, network isolation, and concurrency throttling.",
+        "Detects code structural plagiarism using FingerprintTransformer AST analysis and streams execution logs over HTTP POST via Server-Sent Events (SSE) with JWT authentication."
       ],
-      stack: ["Next.js", "FastAPI", "Docker", "Airflow 2.8.1", "AST validation", "SSE"],
-      verification: "270 automated unit tests passing, AST pre-flight code grading, and isolated container boundaries.",
-      mermaid: "flowchart LR\nA[Monaco] --> B[FastAPI] --> C[AST validation] --> D[Docker sandbox]\nD --> E[Airflow 2.8.1] --> F[SSE logs]"
+      stack: ["Next.js", "FastAPI", "Docker", "Apache Airflow 2.8", "Python AST", "Supabase / PostgreSQL", "SSE"],
+      verification: "270 automated unit tests passing (100%), 8,903-line AST grading engine, FingerprintTransformer plagiarism detector, and network-isolated Docker execution.",
+      mermaid: "flowchart LR\nA[Monaco Editor] --> B[FastAPI Backend] --> C[AST Engine (8.9k LOC)] --> D[Docker Sandbox (Airflow 2.8)]\nD --> E[SSE Stream (HTTP POST)] --> F[Terminal Console]\nC --> G[FingerprintTransformer]"
     },
     "Smileprint": {
-      category: "Compliance platform · Private R&D",
-      summary: "Compliance and sustainability platform for structured clinic data, audit history, insights, ESG calculations, and PDF reporting.",
+      category: "Compliance platform · Private Pilot",
+      summary: "Compliance and waste-tracking platform for dental clinics operating with demo data and placeholder carbon factors, enforcing statutory Finnish Waste Act (Jätelaki 646/2011) and EU Mercury Regulation standards.",
       breakdown: [
         "Provides specialized hazardous and clinical waste documentation under Finnish Waste Act (Jätelaki 646/2011) and EU Mercury Regulation.",
-        "Enforces append-only revision ledger via PostgreSQL immutability triggers rejecting UPDATE, DELETE, and TRUNCATE.",
-        "Runs automated compliance insight engine flagging z-score waste anomalies and separator service events.",
-        "Generates monthly ESG and compliance PDF reports with SHA-256 cryptographic integrity hashes."
+        "Enforces append-only revision ledger via PostgreSQL PL/pgSQL immutability triggers rejecting UPDATE, DELETE, and TRUNCATE (with demo-reset exception).",
+        "Validates cross-tenant boundaries through an automated multi-tenant authorization matrix across clinic accounts.",
+        "Operates private pilot with demo data and placeholder carbon factors, with carrier / SIIRTO API integrations on the development roadmap."
       ],
-      stack: ["FastAPI", "PostgreSQL", "React", "Docker", "Audit ledger"],
-      verification: "38 schema migrations, append-only immutability triggers, and SHA-256 hashed audit records.",
-      mermaid: "flowchart LR\nA[Clinic data] --> B[FastAPI] --> C[(PostgreSQL)]\nC --> D[Audit ledger] & E[Insights] & F[ESG / PDF]\nB --> G[React frontend]"
+      stack: ["FastAPI", "PostgreSQL 15", "React", "Docker", "PL/pgSQL Triggers", "TailwindCSS"],
+      verification: "1,350+ automated backend tests, multi-tenant authorization matrix, PL/pgSQL append-only immutability triggers, and SHA-256 hashed audit records.",
+      mermaid: "flowchart LR\nA[Clinic Portal] --> B[FastAPI Backend] --> C[(PostgreSQL 15)]\nC --> D[PL/pgSQL Ledger Triggers] & E[Tenant Auth Matrix] & F[Compliance Reports]\nB --> G[React UI]"
     },
     "Verified FEM Workbench": {
-      category: "Computational mechanics · Private R&D",
-      summary: "Solver-neutral finite-element workflow centered on review gates, analytical references, and cross-solver comparison.",
+      category: "Computational mechanics · Private R&D (Pre-release)",
+      summary: "Solver-neutral finite-element verification workbench featuring multi-tier validation gates, mesh convergence studies, and multi-solver benchmarking.",
       breakdown: [
-        "Unifies solid CAD geometry, Gmsh meshing, and boundary conditions into a single solver-neutral JSON model.",
-        "Enforces non-bypassable review gate and 77-rule physical validation engine before execution.",
-        "Solves identical tetrahedral meshes across Code_Aster, CalculiX, and FEniCSx backends.",
-        "Performs node-by-node field comparison with consistent nodal load integration verified to 10^-10 N."
+        "Unifies solid CAD geometry, Gmsh meshing (tet10 quadratic tetrahedral elements only), and boundary conditions into a solver-neutral JSON specification.",
+        "Enforces a 77-rule physical validation engine across three tiers: fast (physical limits), deep (topology/mesh), and after_run (convergence/equilibrium).",
+        "Compares identical tet10 meshes across Code_Aster, CalculiX, and FEniCSx (linear elastic, single-material) with node-by-node field comparison verified to 10^-10 N.",
+        "Integrates Richardson extrapolation and Grid Convergence Index (GCI) mesh studies; SLURM execution verified via job bundles with CalculiX."
       ],
-      stack: ["Gmsh", "Code_Aster", "CalculiX", "FEniCSx", "Physics checks"],
-      verification: "77 validation rules, 14 analytical/published benchmarks, 1,600+ automated tests, Richardson/GCI mesh convergence, and verified SLURM execution with CalculiX.",
-      mermaid: "flowchart LR\nA[Model] --> B[Review gate] --> C[Gmsh mesh]\nC --> D[Code_Aster] & E[CalculiX] & G[FEniCSx] --> F[Physics checks]"
+      stack: ["Python 3.11", "Gmsh (tet10)", "CalculiX", "Code_Aster", "FEniCSx (dolfinx)", "NumPy / SciPy", "pytest"],
+      verification: "77 validation rules (fast/deep/after_run), 14 analytical/published benchmarks, 1,600+ automated tests, Richardson/GCI mesh convergence, and SLURM bundle verification with CalculiX.",
+      mermaid: "flowchart LR\nA[Geometry / Spec] --> B[Gmsh (tet10)] --> C[77-Rule Validation Engine]\nC --> D[Review Gate] --> E[CalculiX / Code_Aster / FEniCSx]\nE --> F[Cross-Solver & GCI Convergence]"
     },
     "Tessera": {
-      category: "Mobile product engineering · Private R&D",
-      summary: "Kotlin Android application combining Voronoi geometry gameplay with cloud services, local persistence, and privacy controls.",
+      category: "Mobile product engineering · Pre-release (RC v1.0.0)",
+      summary: "Native Android puzzle game in Kotlin and Jetpack Compose (Material 3) built on discrete 2D Voronoi spatial partitioning and interactive geometry tutorials (not live on Google Play).",
       breakdown: [
-        "Native Android puzzle game in Kotlin and Jetpack Compose built on discrete Voronoi spatial partitioning.",
-        "Calculates territorial grid regions under Manhattan and Euclidean distance metrics with deterministic tie-breaking.",
-        "Includes 400 precomputed puzzle levels across 4 difficulty tiers persisted in Room database.",
-        "Generates deterministic daily puzzles from SHA-256 date seeds with optional Gemini 1.5 Flash critiques."
+        "Engineers discrete Voronoi spatial partitioning under Manhattan and Euclidean metrics with deterministic tie-breaking across 78 Kotlin files (~10,000 LOC).",
+        "Includes 400 precomputed puzzle levels across 4 difficulty tiers persisted in Room DB, with 9 interactive geometry tutorial steps.",
+        "Manages 11 navigation screens within a Compose NavHost graph, featuring real-time ghost previews and daily challenges seeded by SHA-256 dates.",
+        "Provides AI post-game critiques via Google Gemini 1.5 Flash with offline fallback; server-side anti-cheat validation planned on the Pre-Release Roadmap."
       ],
-      stack: ["Kotlin", "Firebase", "Room", "Voronoi", "Privacy controls"],
-      verification: "400 precomputed levels in Room DB, deterministic SHA-256 generator, and discrete Voronoi engine.",
-      mermaid: "flowchart LR\nA[Android UI] --> B[Voronoi engine] --> C[Room]\nB --> D[Firestore] --> E[Firebase services]\nF[Auth / consent] --> A"
+      stack: ["Kotlin", "Jetpack Compose (Material 3)", "AndroidX Room", "Firebase Auth / Firestore", "Gemini 1.5 Flash"],
+      verification: "Release Candidate v1.0.0 (not live on Google Play), 78 Kotlin files (~10k LOC), 400 precomputed levels, 9 tutorial modules, 11 navigation screens, and R8 obfuscation mapping.",
+      mermaid: "flowchart LR\nA[Compose UI (11 screens)] --> B[Voronoi Engine (78 files)] --> C[Room DB (400 levels)]\nB --> D[Firestore / Auth] --> E[Gemini 1.5 Flash (with fallback)]\nB --> F[Tutorials (9 steps)]"
     }
   };
 
@@ -576,8 +589,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (stageIndex) stageIndex.textContent = index;
       if (stageBadge) {
-        stageBadge.textContent = isPublic ? "PUBLIC REPO" : "PRIVATE R&D";
-        stageBadge.className = `stage-badge status ${isPublic ? "public" : "private"}`;
+        if (statusEl) {
+          stageBadge.textContent = statusEl.textContent.trim();
+          const badgeClass = statusEl.classList.contains("public")
+            ? "public"
+            : statusEl.classList.contains("research")
+            ? "research"
+            : "private";
+          stageBadge.className = `stage-badge status ${badgeClass}`;
+        } else {
+          stageBadge.textContent = isPublic ? "PUBLIC REPO" : "PRIVATE R&D";
+          stageBadge.className = `stage-badge status ${isPublic ? "public" : "private"}`;
+        }
       }
       if (stageCategory) {
         const catNames = {
@@ -3197,6 +3220,11 @@ document.addEventListener("DOMContentLoaded", () => {
         { q: "How does spatial holdout validation prevent leakage?", local: "verification" },
         { q: "What does permutation importance reveal about the three Cu-Zr phases?", local: "architecture" }
       ],
+      "Nb–O MLIP": [
+        { q: "How does the 3-model MACE committee active learning cycle work?", local: "nbo_al" },
+        { q: "What dataset scope and validation RMSE does the Nb–O potential achieve?", local: "nbo_metrics" },
+        { q: "What is the roadmap for amorphous oxide MD and TLS defect validation?", local: "nbo_roadmap" }
+      ],
       "Aether Climate Engine": [
         { q: "How does the dead-letter queue handle anomalous telemetry?", local: "architecture" },
         { q: "How are the dbt staging, fact, and mart layers organized?", local: "architecture" },
@@ -3232,6 +3260,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Offline answers for the profile chips. Only facts already published on this page.
     const PROFILE_LOCAL_ANSWERS = {
+      nbo_al: () => ({
+        answer: "The **Nb–O MLIP** active-learning cycle uses a **3-model MACE equivariant committee** (PyTorch). During MD exploration across stoichiometry and defect configurations, committee force variance measures model uncertainty. Highly uncertain configurations are selected, validated against electronic convergence criteria with Quantum ESPRESSO, and added to the versioned reference dataset (iteration 1 added 108 frames; iteration 2 exploration is underway).",
+        sources: [{ title: "Nb–O MLIP: Research Brief" }]
+      }),
+      nbo_metrics: () => ({
+        answer: "The **Nb–O MLIP** dataset contains **687 DFT-labelled configurations** spanning metallic Nb, NbO, NbO2, Nb2O5, surfaces, defects, and disordered/liquid states. Current 3-model MACE committee models achieve a **validation energy RMSE of 5.8–8.1 meV/atom**, evaluated against pre-registered criteria (EOS V0 <= 2%, B0 <= 10%, E_f <= 0.2 eV).",
+        sources: [{ title: "Nb–O MLIP: Research Brief" }]
+      }),
+      nbo_roadmap: () => ({
+        answer: "The Nb–O MLIP project is currently in **active research (AL iteration 2)**. Once potential training converges across all oxidation states and defect configurations, the next phase will perform **large-scale melt-quench amorphous oxide MD simulations** in LAMMPS and **nudged elastic band (NEB) double-well barrier calculations** to identify the atomic defects responsible for two-level-system (TLS) losses in superconducting qubits and SRF cavities.",
+        sources: [{ title: "Nb–O MLIP: Research Brief" }]
+      }),
       publications: () => {
         const items = Array.from(document.querySelectorAll(".publication")).map(card => {
           const year = card.querySelector(".year")?.textContent.trim() || "";
@@ -3240,7 +3280,7 @@ document.addEventListener("DOMContentLoaded", () => {
           return `- **${journal} (${year}):** ${title}`;
         });
         return {
-          answer: `Milad completed a PhD in Materials Research & Nanosciences at the **University of Helsinki** (2021 to 2026), focused on atomistic modeling of thin-film growth, irradiation, and metallic glasses.\n\nPeer-reviewed publications (${items.length}):\n${items.join("\n")}`,
+          answer: `Milad completed a PhD in Materials Research & Nanosciences at the **University of Helsinki** (defended October 2026), focused on atomistic modeling of thin-film growth, irradiation, and metallic glasses.\n\nPeer-reviewed publications (${items.length}):\n${items.join("\n")}`,
           sources: [{ title: "Portfolio: Publications section" }]
         };
       },

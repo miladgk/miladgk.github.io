@@ -23,9 +23,11 @@ scratchpad/
 # Security audit prompt and local audit docs
 audit_prompt.md
 audit_report.md
+*audit_report*.md
 
 # Temporary verification and cleanup reports
 cleanup_verification_report.md
+*verification_report*.md
 temp_*.md
 
 

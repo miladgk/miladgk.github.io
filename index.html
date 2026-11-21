@@ -133,9 +133,9 @@
             scientific ML, and computational systems.</p>
           <div class="kpi-grid spotlight-surface">
             <div class="kpi" data-perspectives="engineering physics">
-              <strong>07</strong>
+              <strong>08</strong>
               <span>Verified Systems</span>
-              <small class="kpi-meta">3 open source · 4 private R&amp;D</small>
+              <small class="kpi-meta">3 open source · 5 private &amp; research</small>
             </div>
             <div class="kpi" data-perspectives="physics">
               <strong>07</strong>
@@ -215,11 +215,9 @@
                         path="M0 75C35 70 40 28 75 55s35 25 65 0 35 18 70-12 44 31 73 4 41-13 68 3 43-34 74-8 39 15 75-20" />
                     </circle>
                   </svg></div>
-                <p>End-to-end engineering project using synthetic facility telemetry for ingestion, PostgreSQL
-                  analytics, anomaly detection, and Metabase reporting.</p>
-                <div class="metrics"><b>518K <small>rows</small></b><b>5 min <small>resolution</small></b></div>
-                <div class="tags"><span>Python 3.11</span><span>PostgreSQL
-                    15</span><span>Docker</span><span>FastAPI</span><span>pytest</span></div>
+                <p>Independent portfolio data engineering project analyzing 518,400 synthetic sensor readings (seed 42) across 20 facilities synchronized with real Fingrid national grid data (58.3x speedup via composite index).</p>
+                <div class="metrics"><b>518K <small>synthetic rows</small></b><b>58.3x <small>index speedup</small></b></div>
+                <div class="tags"><span>Python 3.11</span><span>PostgreSQL 15</span><span>Docker</span><span>FastAPI</span><span>132 Tests</span></div>
                 <div class="card-links">
                   <a class="card-link" href="https://github.com/miladgk/industrial-energy-sql-pipeline" target="_blank"
                     rel="noopener noreferrer">View repository ↗</a>
@@ -255,12 +253,10 @@
                     <circle cx="330" cy="70" r="24" />
                     <path d="M120 48l60-18 30 43 60-33 60 30" fill="none" />
                   </svg></div>
-                <p>Atomistic trajectory processing and classification of <strong>3 amorphous Cu-Zr phases</strong> at
-                  the per-atom level.</p>
+                <p>Per-atom machine-learning classification of <strong>3 amorphous Cu–Zr phases</strong> from 17 time-averaged physical descriptors with 7 Å spatial holdout (67.8% accuracy on 16,227 test atoms, Cu64 F1 0.900).</p>
                 <div class="metrics"><b>17 <small>descriptors / atom</small></b><b>0.670 <small>CV macro F1</small></b>
                 </div>
-                <div class="tags"><span>LAMMPS</span><span>Python 3.10</span><span>HistGradientBoosting</span><span>RDF
-                    / Voronoi</span><span>Permutation Importance</span></div>
+                <div class="tags"><span>LAMMPS</span><span>Python 3.10</span><span>HistGradientBoosting</span><span>17 Descriptors</span><span>Permutation Importance</span></div>
                 <div class="card-links">
                   <a class="card-link" href="https://github.com/miladgk/amorphous-phase-ml" target="_blank"
                     rel="noopener noreferrer">View repository ↗</a>
@@ -274,9 +270,43 @@
             </div>
           </article>
 
-          <article class="project-card" data-category="data" data-project="Aether Climate Engine" data-index="03">
+          <article class="project-card" data-category="ml" data-project="Nb–O MLIP" data-index="03">
             <div class="card-header" role="button" tabindex="0" aria-expanded="false">
-              <div class="card-meta"><span class="project-num">03</span><b class="status public">PUBLIC REPO</b></div>
+              <div class="card-meta"><span class="project-num">03</span><b class="status research">Active Research (Independent)</b></div>
+              <h3>Nb–O MLIP</h3>
+              <span class="card-chevron" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2.5">
+                  <path d="M6 9l6 6 6-6" />
+                </svg></span>
+            </div>
+            <div class="card-expandable">
+              <div class="card-expandable-content">
+                <div class="card-schematic visual-banner mlip"
+                  aria-label="Active-learning potential training and defect evaluation flow"><svg viewBox="0 0 500 110"
+                    aria-hidden="true">
+                    <path d="M40 85 C90 85 110 30 160 30 S210 85 260 85 S310 40 360 40 S410 85 460 85" fill="none" stroke="currentColor" stroke-width="2" />
+                    <path d="M40 85 C90 85 110 45 160 45 S210 85 260 85 S310 55 360 55 S410 85 460 85" fill="none" stroke="currentColor" opacity=".4" />
+                    <circle cx="160" cy="30" r="7" fill="currentColor" />
+                    <circle cx="260" cy="85" r="5" fill="currentColor" />
+                    <circle cx="360" cy="40" r="6" fill="currentColor" />
+                    <circle cx="110" cy="55" r="4" fill="currentColor" />
+                    <circle cx="310" cy="62" r="4" fill="currentColor" />
+                  </svg></div>
+                <p>Machine-learning interatomic potential (MACE) for the Nb–O system with active learning (AL iteration 2) across 687 DFT reference configurations to identify two-level-system (TLS) defect losses in superconducting quantum hardware.</p>
+                <div class="metrics"><b>687 <small>DFT frames</small></b><b>5.8–8.1 <small>meV/atom RMSE</small></b>
+                </div>
+                <div class="tags"><span>MACE</span><span>Quantum ESPRESSO</span><span>Active Learning</span><span>PyTorch</span><span>SLURM</span><span>Python</span></div>
+                <div class="card-links">
+                  <button class="inspect-architecture" type="button" data-project="Nb–O MLIP"
+                    aria-haspopup="dialog">Inspect Architecture &amp; Specs →</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="project-card" data-category="data" data-project="Aether Climate Engine" data-index="04">
+            <div class="card-header" role="button" tabindex="0" aria-expanded="false">
+              <div class="card-meta"><span class="project-num">04</span><b class="status public">PUBLIC REPO</b></div>
               <h3>Aether Climate Engine</h3>
               <span class="card-chevron" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2.5">
@@ -291,12 +321,10 @@
                     <path d="M0 75C55 20 85 100 140 52s90 35 140-13 75 28 110-5 72-20 110-5" fill="none" />
                     <path d="M0 82C60 45 95 73 145 65s85 8 135-3 80 13 115-8 75 0 105-10" fill="none" opacity=".4" />
                   </svg></div>
-                <p>Global station telemetry, statistical monitoring, forecasting, dbt dimensional models, and a field
-                  dashboard.</p>
+                <p>Meteorological telemetry pipeline using Open-Meteo reanalysis data, local slope-aware Theil–Sen spike filter (±3h, MAD), multi-model forecasting, and a static dashboard snapshot (AWS S3, Terraform, and Airflow as reference scaffolding).</p>
                 <div class="metrics"><b>5 <small>global stations</small></b><b>03 <small>forecast models</small></b>
                 </div>
-                <div class="tags"><span>Airflow 2.8.1</span><span>dbt Core</span><span>PostgreSQL 15</span><span>AWS
-                    S3</span><span>Terraform</span></div>
+                <div class="tags"><span>Python 3.10</span><span>Open-Meteo</span><span>PostgreSQL 15</span><span>dbt Core</span><span>Reference Scaffolding (S3/Airflow)</span></div>
                 <div class="card-links">
                   <a class="card-link" href="https://github.com/miladgk/aether-climate-engine" target="_blank"
                     rel="noopener noreferrer">View repository ↗</a>
@@ -310,9 +338,9 @@
             </div>
           </article>
 
-          <article class="project-card" data-category="product" data-project="Airflow Academy" data-index="04">
+          <article class="project-card" data-category="product" data-project="Airflow Academy" data-index="05">
             <div class="card-header" role="button" tabindex="0" aria-expanded="false">
-              <div class="card-meta"><span class="project-num">04</span><b class="status private">PRIVATE R&D</b></div>
+              <div class="card-meta"><span class="project-num">05</span><b class="status private">Full-Stack Prototype</b></div>
               <h3>Airflow Academy</h3>
               <span class="card-chevron" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2.5">
@@ -332,11 +360,9 @@
                       <circle cx="400" cy="55" r="9" />
                     </g>
                   </svg></div>
-                <p>Browser DAG learning platform with AST validation, isolated Docker sandboxes, and streamed execution
-                  logs.</p>
-                <div class="metrics"><b>189 <small>lessons</small></b><b>16 <small>chapters</small></b></div>
-                <div class="tags"><span>Next.js</span><span>FastAPI</span><span>Docker</span><span>Airflow
-                    2.8.1</span><span>AST validation</span></div>
+                <p>Browser DAG learning platform with 8,903-line custom AST evaluator (127 validators, 270 tests), ephemeral Docker sandboxes running Apache Airflow 2.8 (~2–4 s execution), and streamed logs via SSE.</p>
+                <div class="metrics"><b>189 <small>lessons / tasks</small></b><b>16 <small>chapters</small></b></div>
+                <div class="tags"><span>Next.js</span><span>FastAPI</span><span>Docker</span><span>Apache Airflow 2.8</span><span>AST Validation (8.9k LOC)</span></div>
                 <div class="card-links">
                   <button class="inspect-architecture" type="button" data-project="Airflow Academy"
                     aria-haspopup="dialog">Inspect Architecture &amp; Specs →</button>
@@ -345,9 +371,9 @@
             </div>
           </article>
 
-          <article class="project-card" data-category="product" data-project="Smileprint" data-index="05">
+          <article class="project-card" data-category="product" data-project="Smileprint" data-index="06">
             <div class="card-header" role="button" tabindex="0" aria-expanded="false">
-              <div class="card-meta"><span class="project-num">05</span><b class="status private">PRIVATE R&D</b></div>
+              <div class="card-meta"><span class="project-num">06</span><b class="status private">Private Pilot</b></div>
               <h3>Smileprint</h3>
               <span class="card-chevron" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2.5">
@@ -364,12 +390,10 @@
                     <rect x="350" y="20" width="80" height="70" rx="8" />
                     <path d="M195 55h35m75 0h45" fill="none" />
                   </svg></div>
-                <p>Compliance and sustainability platform with audit history, insight rules, ESG calculations, and PDF
-                  reports.</p>
+                <p>Compliance and waste platform (private pilot with demo data and placeholder factors) with PL/pgSQL append-only triggers, multi-tenant auth matrix, and statutory Jätelaki 646/2011 compliance.</p>
                 <div class="metrics"><b>38 <small>migrations</small></b><b>Jätelaki <small>646/2011</small></b></div>
                 <div class="tags">
-                  <span>FastAPI</span><span>PostgreSQL</span><span>React</span><span>Docker</span><span>Audit
-                    ledger</span></div>
+                  <span>FastAPI</span><span>PostgreSQL 15</span><span>React</span><span>PL/pgSQL Triggers</span><span>Multi-Tenant Matrix</span></div>
                 <div class="card-links">
                   <button class="inspect-architecture" type="button" data-project="Smileprint"
                     aria-haspopup="dialog">Inspect Architecture &amp; Specs →</button>
@@ -378,11 +402,11 @@
             </div>
           </article>
 
-          <article class="project-card" data-category="science" data-project="Verified FEM Workbench" data-index="06">
+          <article class="project-card" data-category="science" data-project="Verified FEM Workbench" data-index="07">
             <div class="card-header" role="button" tabindex="0" aria-expanded="false">
-              <div class="card-meta"><span class="project-num">06</span><b class="status private">PRIVATE R&D</b></div>
+              <div class="card-meta"><span class="project-num">07</span><b class="status private">Pre-Release R&amp;D</b></div>
               <h3>Verified FEM Workbench</h3>
-              <span class="card-chevron" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+              <span class="card-chevron" aria-hidden="true"><svg width="14" height="24" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2.5">
                   <path d="M6 9l6 6 6-6" />
                 </svg></span>
@@ -395,12 +419,10 @@
                     <path d="M70 80L150 25l95 20 95-30 90 55z" fill="none" />
                     <path d="M70 80l80-55 95 75 95-85 90 65M150 25l95 20m0 0l95 30" fill="none" />
                   </svg></div>
-                <p>Solver-neutral finite-element workflow with review gates, analytical references, and cross-solver
-                  comparison.</p>
-                <div class="metrics"><b>77 <small>validation rules</small></b><b>03 <small>solvers</small></b></div>
+                <p>Solver-neutral FEA workbench with 77-tier validation gates, tet10 solid meshes, GCI convergence, and cross-solver verification across CalculiX, Code_Aster, and FEniCSx (SLURM bundle verified).</p>
+                <div class="metrics"><b>77 <small>validation rules</small></b><b>14 <small>benchmarks</small></b></div>
                 <div class="tags">
-                  <span>Gmsh</span><span>Code_Aster</span><span>CalculiX</span><span>FEniCSx</span><span>Physics
-                    checks</span></div>
+                  <span>CalculiX</span><span>Code_Aster</span><span>FEniCSx</span><span>Gmsh (tet10)</span><span>1,600+ Tests</span></div>
                 <div class="card-links">
                   <button class="inspect-architecture" type="button" data-project="Verified FEM Workbench"
                     aria-haspopup="dialog">Inspect Architecture &amp; Specs →</button>
@@ -409,9 +431,9 @@
             </div>
           </article>
 
-          <article class="project-card" data-category="product" data-project="Tessera" data-index="07">
+          <article class="project-card" data-category="product" data-project="Tessera" data-index="08">
             <div class="card-header" role="button" tabindex="0" aria-expanded="false">
-              <div class="card-meta"><span class="project-num">07</span><b class="status private">PRIVATE R&D</b></div>
+              <div class="card-meta"><span class="project-num">08</span><b class="status private">Pre-Release RC v1.0.0</b></div>
               <h3>Tessera</h3>
               <span class="card-chevron" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2.5">
@@ -425,12 +447,10 @@
                     aria-hidden="true">
                     <path d="M70 20h100l-50 70zm100 0h100l-50 70zm100 0h100l-50 70zm100 0h60l-30 70z" fill="none" />
                   </svg></div>
-                <p>Kotlin Android application combining Voronoi geometry gameplay, Firebase services, local persistence,
-                  and privacy controls.</p>
-                <div class="metrics"><b>400 <small>levels</small></b><b>02 <small>distance metrics</small></b></div>
+                <p>Native Android puzzle game in Kotlin and Jetpack Compose (Material 3) with discrete 2D Voronoi partitioning, 78 Kotlin files (~10k LOC), 400 levels in Room DB, and Gemini 1.5 Flash critiques (pre-release build, not live on Google Play).</p>
+                <div class="metrics"><b>400 <small>levels</small></b><b>78 <small>Kotlin files</small></b></div>
                 <div class="tags">
-                  <span>Kotlin</span><span>Firebase</span><span>Room</span><span>Voronoi</span><span>Privacy
-                    controls</span></div>
+                  <span>Kotlin</span><span>Jetpack Compose</span><span>Room DB</span><span>Discrete Voronoi</span><span>Gemini 1.5 Flash</span></div>
                 <div class="card-links">
                   <button class="inspect-architecture" type="button" data-project="Tessera"
                     aria-haspopup="dialog">Inspect Architecture &amp; Specs →</button>
@@ -550,28 +570,34 @@
       </div>
       <div class="timeline">
         <div class="timeline-progress-bar" id="timeline-progress-bar"></div>
+        <div class="timeline-item"><span class="timeline-year">March 2026 to present</span>
+          <div>
+            <h3>Data Engineer (Volunteer)</h3>
+            <p>Data engineering and analytics</p>
+          </div>
+        </div>
         <div class="timeline-item"><span class="timeline-year">2021 to 2026</span>
           <div>
-            <h3>Doctoral Researcher</h3>
-            <p>PhD in Materials Research & Nanosciences<br><strong>University of Helsinki, Finland</strong></p>
+            <h3>Doctoral Researcher, Computational Materials Physics</h3>
+            <p>PhD in Materials Research &amp; Nanosciences (defended October 2026)<br><strong>University of Helsinki, Finland (CERN collaboration)</strong></p>
           </div>
         </div>
         <div class="timeline-item"><span class="timeline-year">2019 to 2021</span>
           <div>
-            <h3>Computational Research</h3>
+            <h3>Research Analyst</h3>
             <p><strong>A*STAR Collaboration, Tehran, Iran</strong></p>
           </div>
         </div>
         <div class="timeline-item"><span class="timeline-year">2016 to 2019</span>
           <div>
-            <h3>Independent Computational Researcher</h3>
-            <p>Metallic glasses & atomistic modeling</p>
+            <h3>Independent Computational Researcher / Project Lead</h3>
+            <p>Metallic glasses &amp; atomistic modeling of disordered matter, Tehran, Iran</p>
           </div>
         </div>
         <div class="timeline-item"><span class="timeline-year">2012 to 2015</span>
           <div>
-            <h3>Engineering Role</h3>
-            <p><strong>IOOC</strong></p>
+            <h3>Junior Design Engineer</h3>
+            <p><strong>Iranian Offshore Oil Company (IOOC), Tehran, Iran</strong></p>
           </div>
         </div>
         <a href="#top" class="back-to-top section-top">Top ↑</a>

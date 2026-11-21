@@ -1243,6 +1243,15 @@ button {
 .visual-banner.compliance svg path { stroke-dasharray: 80; stroke-dashoffset: 80; animation: compliance-link 4.8s ease-in-out infinite; }
 .visual-banner.fem svg path:first-child { stroke-dasharray: 520; stroke-dashoffset: 520; animation: fem-mesh 5.2s ease-in-out infinite; }
 .visual-banner.tessera svg path { stroke-dasharray: 520; stroke-dashoffset: 520; animation: tessera-build 5s ease-in-out infinite; }
+.visual-banner.mlip svg path:first-child { stroke-dasharray: 520; stroke-dashoffset: 520; animation: mlip-curve 5.2s ease-in-out infinite; }
+.visual-banner.mlip svg path:nth-child(2) { animation-delay: 1s; opacity: 0.35; }
+.visual-banner.mlip svg circle { transform-box: fill-box; transform-origin: center; animation: atom-pulse 3.2s ease-in-out infinite; }
+.visual-banner.mlip svg circle:nth-child(4) { animation-delay: 0.5s; }
+.visual-banner.mlip svg circle:nth-child(5) { animation-delay: 1.1s; }
+.visual-banner.mlip svg circle:nth-child(6) { animation-delay: 1.6s; }
+.visual-banner.mlip svg circle:nth-child(7) { animation-delay: 2.1s; }
+
+@keyframes mlip-curve { 0%, 14% { stroke-dashoffset: 520; opacity: 0.25; } 68%, 100% { stroke-dashoffset: 0; opacity: 0.95; } }
 
 @keyframes energy-trace { 0%, 12% { stroke-dashoffset: 720; } 68%, 100% { stroke-dashoffset: 0; } }
 @keyframes energy-beacon { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
@@ -1273,6 +1282,12 @@ button {
   color: var(--accent-alt);
   background: rgba(128, 128, 128, 0.1);
   border: 1px solid var(--accent-alt);
+}
+
+.status.research {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.45);
 }
 
 .metrics {
