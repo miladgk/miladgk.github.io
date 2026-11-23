@@ -192,16 +192,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const architectureData = {
     "Industrial Energy SQL Pipeline": {
       category: "Data engineering · Public repository (Independent Portfolio Project)",
-      summary: "Independent portfolio data engineering solution analyzing 518,400 synthetic sensor readings (seed 42) across 20 facilities synchronized with real Fingrid national grid metrics.",
+      summary: "Production-grade time-series data warehouse, econometric modeling engine, and interactive observatory built on 100% real, multi-source open energy data from Fingrid (36 datasets), FMI, Open-Meteo, SYKE, NVE, ENTSO-E, Ember, Statistics Finland, and Traficom.",
       breakdown: [
-        "Generates and processes 5-minute interval synthetic time-series telemetry (seed 42) across 20 facilities with Fingrid TSO grid synchronization.",
-        "Loads data in chunks into PostgreSQL 15 running in Docker with range partitioning and conflict-safe inserts.",
-        "Runs automated data quality gates and SQL analytics reporting with z-score anomaly scoring (catches 100% of synthetic spikes; 14.9% of zero dropouts).",
-        "Serves REST API endpoints on Render cloud and orchestrates local Metabase business intelligence."
+        "Ingests 36 live datasets from Fingrid, numerical weather predictions (FMI/Open-Meteo), hydrological reservoirs (SYKE/NVE), power prices (ENTSO-E), and pan-European benchmarks (Ember).",
+        "Stores 8.9M+ observations across 40+ monthly range partitions in PostgreSQL 15 with composite primary key (dataset_id, start_time) and conflict-safe ingestion.",
+        "Executes 19 analytical SQL modules and econometric models: day-ahead wind forecast error analysis, linear regression charging windows, Newey-West panel regressions, and strike counterfactuals.",
+        "Presents insights through an interactive React 19 + TypeScript + Vite cockpit on GitHub Pages with automated daily CI/CD data refresh."
       ],
-      stack: ["Python 3.11", "PostgreSQL 15", "Docker", "FastAPI", "Metabase", "pytest"],
-      verification: "58.3x speedup from composite index (not partitioning), 132 automated tests, 518,400 synthetic readings (seed 42), and real Fingrid TSO grid synchronization.",
-      mermaid: "flowchart LR\nA[Telemetry (Seed 42)] --> B[CSV Lake] --> C[Chunk Ingestion] --> D[(PostgreSQL 15)]\nD --> E[Data Quality] & F[SQL Analytics] --> G[Z-Score Anomaly]\nF --> H[Metabase BI]",
+      stack: ["Python 3.11", "PostgreSQL 15", "React 19", "TypeScript", "FastAPI", "Fingrid Open Data (36)", "222 Tests"],
+      verification: "222 automated tests across 8 layers (smoke, API, integration, regression, performance, security, data contract, Playwright E2E), 26.1x query speedup with partitions + PK index, and daily automated CI/CD refresh.",
+      mermaid: "flowchart LR\nA[\"36 Live Datasets\"] --> B[\"Ingestion & Quality Gate\"] --> C[(\"PostgreSQL 15 Warehouse\")]\nC --> D[\"19 SQL Modules & Econometric Models\"] --> E[\"React 19 Cockpit\"]\nC --> F[\"Daily Snapshot CSV.gz\"]",
       links: {
         github: "https://github.com/miladgk/industrial-energy-sql-pipeline",
         live: "https://miladgk.github.io/industrial-energy-sql-pipeline/"
@@ -218,7 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ],
       stack: ["LAMMPS", "Python 3.10", "RDF / Voronoi", "HistGradientBoosting", "Permutation Importance"],
       verification: "17 unit-free descriptors, 67.8% spatial holdout accuracy (16,227 test atoms), CV macro F1 0.670, Cu64Zr36 F1 0.900, permutation importance, and SOAP rejected due to box confound.",
-      mermaid: "flowchart LR\nA[LAMMPS Trajectory] --> B[17 Descriptors] --> C[7 Å Spatial Holdout] --> D[HistGradientBoosting]\nD --> E[3 Amorphous Phases (Cu-Zr)]\nD --> F[Permutation Importance]",
+      mermaid: "flowchart LR\nA[\"LAMMPS Trajectory\"] --> B[\"17 Descriptors\"] --> C[\"7 Å Spatial Holdout\"] --> D[\"HistGradientBoosting\"]\nD --> E[\"3 Amorphous Phases (Cu-Zr)\"]\nD --> F[\"Permutation Importance\"]",
       links: {
         github: "https://github.com/miladgk/amorphous-phase-ml",
         live: "https://miladgk.github.io/amorphous-phase-ml/"
@@ -231,24 +231,24 @@ document.addEventListener("DOMContentLoaded", () => {
         "Establishes a unified, standardized Quantum ESPRESSO DFT protocol (PBE-PAW) across 687 reference configurations (bulk, surfaces, defects, and liquids).",
         "Trains a 3-model equivariant MACE committee (mace-torch, PyTorch) with checkpoint-restart management and isolated-atom reference energy subtractions.",
         "Executes DP-GEN-style active learning (query by committee) in iteration 2 driven by committee force uncertainty in MD exploration (3 training rounds completed).",
-        "Evaluates EOS, defect formation energies, and short-range dimer repulsion against pre-registered acceptance criteria ($E_f \\le 0.2$ eV; amorphous MD and TLS/NEB validation scheduled for next phase)."
+        "Evaluates EOS, defect formation energies, and short-range dimer repulsion against pre-registered acceptance criteria ($E_f \\le 0.2$ eV; amorphous MD and TLS/NEB validation scheduled for next phase).",
       ],
       stack: ["Quantum ESPRESSO", "MACE", "PyTorch", "ASE", "Active Learning", "SLURM", "Python 3.11"],
       verification: "687 DFT frames, 3-model MACE committee (AL iteration 2; 3 training rounds completed), 5.8–8.1 meV/atom validation RMSE, pre-registered defect criteria (E_f <= 0.2 eV); amorphous MD and TLS/NEB scheduled for next phase.",
-      mermaid: "flowchart LR\nA[Unified DFT Protocol] --> B[Quantum ESPRESSO] --> C[(Versioned Datasets)]\nC --> D[MACE Committee] --> E[Pre-registered Benchmarks]\nD --> F[AL Exploration MD] --> G[Uncertainty Sampling] --> B"
+      mermaid: "flowchart LR\nA[\"Unified DFT Protocol\"] --> B[\"Quantum ESPRESSO\"] --> C[(\"Versioned Datasets\")]\nC --> D[\"MACE Committee\"] --> E[\"Pre-registered Benchmarks\"]\nD --> F[\"AL Exploration MD\"] --> G[\"Uncertainty Sampling\"] --> B"
     },
     "Aether Climate Engine": {
       category: "Data engineering · Public repository",
-      summary: "Meteorological telemetry platform combining Open-Meteo data, local Theil–Sen spike filtering, multi-model forecasting, warehouse modeling, and a static dashboard snapshot.",
+      summary: "End-to-end meteorological telemetry pipeline and interactive React 19 dashboard operating on 100% live atmospheric observations from Open-Meteo across 5 global stations.",
       breakdown: [
-        "Ingests atmospheric telemetry across 5 global stations from Open-Meteo reanalysis APIs.",
-        "Applies a local slope-aware Theil–Sen spike filter (±3h, MAD) and routes anomalous data through validation contracts and a dead-letter queue (DLQ).",
-        "Builds PostgreSQL raw and dbt staging/fact/mart warehouse models (AWS S3, Terraform, and Apache Airflow DAGs serve as reference architecture / scaffolding).",
-        "Delivers linear, SMA, and EMA forecasts with 365-day YoY comparisons hosted as a static dashboard on GitHub Pages."
+        "Ingests hourly live atmospheric observations and historical archives from Open-Meteo REST APIs across 5 global stations in station-local time.",
+        "Enforces strict data contracts and applies slope-aware Theil–Sen robust spike filtering (±3h window, MAD) with isolation to a Dead Letter Queue (DLQ).",
+        "Generates 48-hour predictions using three algorithms (Linear Trend OLS, SMA, EMA) with 24-hour diurnal harmonic cycles and C0 boundary continuity.",
+        "Executes automated 24-hour holdout backtesting (MAE) to dynamically select the best model, exporting to a React 19 + TypeScript + Chart.js dashboard on GitHub Pages."
       ],
-      stack: ["Python 3.10", "Open-Meteo", "PostgreSQL 15", "dbt Core", "Chart.js", "Scaffolding (AWS S3 / Terraform / Airflow 2.8)"],
-      verification: "43 automated tests (pytest, Playwright E2E), Theil–Sen slope filter (±3h, MAD), dbt schema tests, and reference cloud scaffolding.",
-      mermaid: "flowchart LR\nA[Open-Meteo API] --> B[Theil-Sen Filter] --> C[(PostgreSQL 15)] --> D[dbt Marts]\nD --> E[Dead-Letter Queue] & F[3 Forecast Models] --> G[Static Dashboard]\nH[Airflow / IaC Scaffolding] -.-> B",
+      stack: ["Python 3.10", "React 19", "Chart.js", "Open-Meteo", "PostgreSQL 15", "dbt Core", "Reference Scaffolding (S3/Airflow)"],
+      verification: "43 automated tests (pytest, Playwright E2E), Theil–Sen DLQ spike filter, 24-hour holdout MAE backtesting, and reference cloud scaffolding (AWS S3, Terraform, Airflow).",
+      mermaid: "flowchart LR\nA[\"Open-Meteo Live API\"] --> B[\"Data Contract & Theil–Sen Filter\"] --> C[\"Dead Letter Queue\"]\nB --> D[\"Clean 96h Observed Window\"] --> E[\"3 Forecast Models + 24h Backtest\"]\nE --> F[\"React 19 Dashboard\"]\nG[\"PostgreSQL & dbt Scaffolding\"] -.-> D",
       links: {
         github: "https://github.com/miladgk/aether-climate-engine",
         live: "https://miladgk.github.io/aether-climate-engine/"
@@ -265,7 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ],
       stack: ["Next.js", "FastAPI", "Docker", "Apache Airflow 2.8", "Python AST", "Supabase / PostgreSQL", "SSE"],
       verification: "270 automated unit tests passing (100%), 8,903-line AST grading engine, FingerprintTransformer plagiarism detector, and network-isolated Docker execution.",
-      mermaid: "flowchart LR\nA[Monaco Editor] --> B[FastAPI Backend] --> C[AST Engine (8.9k LOC)] --> D[Docker Sandbox (Airflow 2.8)]\nD --> E[SSE Stream (HTTP POST)] --> F[Terminal Console]\nC --> G[FingerprintTransformer]"
+      mermaid: "flowchart LR\nA[\"Monaco Editor\"] --> B[\"FastAPI Backend\"] --> C[\"AST Engine (8.9k LOC)\"] --> D[\"Docker Sandbox (Airflow 2.8)\"]\nD --> E[\"SSE Stream (HTTP POST)\"] --> F[\"Terminal Console\"]\nC --> G[\"FingerprintTransformer\"]"
     },
     "Smileprint": {
       category: "Compliance platform · Private Pilot",
@@ -278,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ],
       stack: ["FastAPI", "PostgreSQL 15", "React", "Docker", "PL/pgSQL Triggers", "TailwindCSS"],
       verification: "1,350+ automated backend tests, multi-tenant authorization matrix, PL/pgSQL append-only immutability triggers, and SHA-256 hashed audit records.",
-      mermaid: "flowchart LR\nA[Clinic Portal] --> B[FastAPI Backend] --> C[(PostgreSQL 15)]\nC --> D[PL/pgSQL Ledger Triggers] & E[Tenant Auth Matrix] & F[Compliance Reports]\nB --> G[React UI]"
+      mermaid: "flowchart LR\nA[\"Clinic Portal\"] --> B[\"FastAPI Backend\"] --> C[(\"PostgreSQL 15\")]\nC --> D[\"PL/pgSQL Ledger Triggers\"]\nC --> E[\"Tenant Auth Matrix\"]\nC --> F[\"Compliance Reports\"]\nB --> G[\"React UI\"]"
     },
     "Verified FEM Workbench": {
       category: "Computational mechanics · Private R&D (Pre-release)",
@@ -291,7 +291,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ],
       stack: ["Python 3.11", "Gmsh (tet10)", "CalculiX", "Code_Aster", "FEniCSx (dolfinx)", "NumPy / SciPy", "pytest"],
       verification: "77 validation rules (fast/deep/after_run), 14 analytical/published benchmarks, 1,600+ automated tests, Richardson/GCI mesh convergence, and SLURM bundle verification with CalculiX.",
-      mermaid: "flowchart LR\nA[Geometry / Spec] --> B[Gmsh (tet10)] --> C[77-Rule Validation Engine]\nC --> D[Review Gate] --> E[CalculiX / Code_Aster / FEniCSx]\nE --> F[Cross-Solver & GCI Convergence]"
+      mermaid: "flowchart LR\nA[\"Geometry / Spec\"] --> B[\"Gmsh (tet10)\"] --> C[\"77-Rule Validation Engine\"]\nC --> D[\"Review Gate\"] --> E[\"CalculiX / Code_Aster / FEniCSx\"]\nE --> F[\"Cross-Solver & GCI Convergence\"]"
     },
     "Tessera": {
       category: "Mobile product engineering · Pre-release (RC v1.0.0)",
@@ -304,7 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ],
       stack: ["Kotlin", "Jetpack Compose (Material 3)", "AndroidX Room", "Firebase Auth / Firestore", "Gemini 1.5 Flash"],
       verification: "Release Candidate v1.0.0 (not live on Google Play), 78 Kotlin files (~10k LOC), 400 precomputed levels, 9 tutorial modules, 11 navigation screens, and R8 obfuscation mapping.",
-      mermaid: "flowchart LR\nA[Compose UI (11 screens)] --> B[Voronoi Engine (78 files)] --> C[Room DB (400 levels)]\nB --> D[Firestore / Auth] --> E[Gemini 1.5 Flash (with fallback)]\nB --> F[Tutorials (9 steps)]"
+      mermaid: "flowchart LR\nA[\"Compose UI (11 screens)\"] --> B[\"Voronoi Engine (78 files)\"] --> C[(\"Room DB (400 levels)\")]\nB --> D[\"Firestore / Auth\"] --> E[\"Gemini 1.5 Flash (with fallback)\"]\nB --> F[\"Tutorials (9 steps)\"]"
     }
   };
 
@@ -556,11 +556,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       configureMermaid(currentTheme);
+      const oldTemp = document.querySelector('[id^="dstage-mermaid-svg-"]');
+      if (oldTemp) oldTemp.remove();
       const { svg } = await mermaid.render(`stage-mermaid-svg-${token}`, mermaidCode);
       if (token !== stageRenderToken) return;
       stageMermaid.innerHTML = svg;
     } catch (e) {
       console.warn("Mermaid stage render failed", e);
+      const errEl = document.getElementById(`dstage-mermaid-svg-${token}`) || document.getElementById(`stage-mermaid-svg-${token}`);
+      if (errEl) errEl.remove();
       if (token === stageRenderToken) setStageMermaidStatus("Diagram could not be rendered.");
     }
   }
@@ -3218,8 +3222,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const QUICK_CHIPS = {
       "Industrial Energy SQL Pipeline": [
         { q: "How are PostgreSQL partitioning and idempotent ingestion designed?", local: "architecture" },
-        { q: "How is real Fingrid grid data combined with the synthetic telemetry?", local: "architecture" },
-        { q: "How are data quality and z-score anomalies verified?", local: "verification" }
+        { q: "How are the 36 Fingrid and multi-source energy datasets partitioned in PostgreSQL?", local: "architecture" },
+        { q: "How are data quality and econometric models verified across 222 tests?", local: "verification" }
       ],
       "Amorphous Phase ML": [
         { q: "Which 17 descriptors does the phase classifier use?", local: "architecture" },

@@ -203,7 +203,7 @@
             <div class="card-expandable">
               <div class="card-expandable-content">
                 <div class="card-schematic visual-banner energy"
-                  aria-label="Synthetic telemetry ingestion and PostgreSQL analytics flow"><svg viewBox="0 0 500 110"
+                  aria-label="Multi-source energy telemetry ingestion and PostgreSQL analytics flow"><svg viewBox="0 0 500 110"
                     aria-hidden="true">
                     <path
                       d="M0 75C35 70 40 28 75 55s35 25 65 0 35 18 70-12 44 31 73 4 41-13 68 3 43-34 74-8 39 15 75-20"
@@ -215,9 +215,9 @@
                         path="M0 75C35 70 40 28 75 55s35 25 65 0 35 18 70-12 44 31 73 4 41-13 68 3 43-34 74-8 39 15 75-20" />
                     </circle>
                   </svg></div>
-                <p>Independent portfolio data engineering project analyzing 518,400 synthetic sensor readings (seed 42) across 20 facilities synchronized with real Fingrid national grid data (58.3x speedup via composite index).</p>
-                <div class="metrics"><b>518K <small>synthetic rows</small></b><b>58.3x <small>index speedup</small></b></div>
-                <div class="tags"><span>Python 3.11</span><span>PostgreSQL 15</span><span>Docker</span><span>FastAPI</span><span>132 Tests</span></div>
+                <p>Production-grade time-series data warehouse and econometric observatory ingesting 36 live datasets (Fingrid, ENTSO-E, FMI, SYKE) across 8.9M+ observations with declarative monthly partitioning (26.1x speedup).</p>
+                <div class="metrics"><b>8.9M+ <small>live observations</small></b><b>26.1x <small>query speedup</small></b></div>
+                <div class="tags"><span>Python 3.11</span><span>PostgreSQL 15</span><span>React 19</span><span>Fingrid API (36)</span><span>222 Tests</span></div>
                 <div class="card-links">
                   <a class="card-link" href="https://github.com/miladgk/industrial-energy-sql-pipeline" target="_blank"
                     rel="noopener noreferrer">View repository ↗</a>
@@ -287,10 +287,9 @@
                     <path d="M0 75C55 20 85 100 140 52s90 35 140-13 75 28 110-5 72-20 110-5" fill="none" />
                     <path d="M0 82C60 45 95 73 145 65s85 8 135-3 80 13 115-8 75 0 105-10" fill="none" opacity=".4" />
                   </svg></div>
-                <p>Meteorological telemetry pipeline using Open-Meteo reanalysis data, local slope-aware Theil–Sen spike filter (±3h, MAD), multi-model forecasting, and a static dashboard snapshot (AWS S3, Terraform, and Airflow as reference scaffolding).</p>
-                <div class="metrics"><b>5 <small>global stations</small></b><b>03 <small>forecast models</small></b>
-                </div>
-                <div class="tags"><span>Python 3.10</span><span>Open-Meteo</span><span>PostgreSQL 15</span><span>dbt Core</span><span>Reference Scaffolding (S3/Airflow)</span></div>
+                <p>End-to-end weather telemetry pipeline and React 19 dashboard operating on 100% live Open-Meteo observations across 5 global stations with slope-aware Theil–Sen spike filtering (DLQ), 48h multi-model forecasting, and 24h empirical backtesting.</p>
+                <div class="metrics"><b>5 <small>global stations</small></b><b>48h <small>forecast horizon</small></b></div>
+                <div class="tags"><span>Python 3.10</span><span>React 19</span><span>Chart.js</span><span>Open-Meteo</span><span>Theil–Sen DLQ</span><span>Reference Scaffolding</span></div>
                 <div class="card-links">
                   <a class="card-link" href="https://github.com/miladgk/aether-climate-engine" target="_blank"
                     rel="noopener noreferrer">View repository ↗</a>
@@ -481,7 +480,7 @@
                 aria-labelledby="stage-tab-schematic">
                 <div class="stage-schematic-mount" id="stage-schematic-mount">
                   <div class="card-schematic visual-banner energy"
-                    aria-label="Synthetic telemetry ingestion and PostgreSQL analytics flow"><svg viewBox="0 0 500 110"
+                    aria-label="Multi-source energy telemetry ingestion and PostgreSQL analytics flow"><svg viewBox="0 0 500 110"
                       aria-hidden="true">
                       <path
                         d="M0 75C35 70 40 28 75 55s35 25 65 0 35 18 70-12 44 31 73 4 41-13 68 3 43-34 74-8 39 15 75-20"
@@ -505,7 +504,7 @@
               <div class="stage-summary">
                 <h3 class="stage-title" id="stage-title">Industrial Energy SQL Pipeline</h3>
                 <div class="stage-metrics" id="stage-metrics">
-                  <b>518K <small>rows</small></b><b>5 min <small>resolution</small></b>
+                  <b>8.9M+ <small>live rows</small></b><b>26.1x <small>query speedup</small></b>
                 </div>
               </div>
               <div class="stage-actions" id="stage-actions">
