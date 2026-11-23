@@ -19,9 +19,15 @@ html[data-theme="lab"],
   --muted: #92969C;
   --line: #292D32;
   --accent: #B6F36A;
-  --accent-alt: #85E22B;
+  --accent-alt: #F59E0B;
   --accent-ink: #0B0C0E;
   --glow: rgba(182, 243, 106, 0.18);
+  --status-public: #B6F36A;
+  --status-public-glow: rgba(182, 243, 106, 0.22);
+  --status-public-bg: rgba(182, 243, 106, 0.08);
+  --status-private: #F59E0B;
+  --status-private-glow: rgba(245, 158, 11, 0.25);
+  --status-private-bg: rgba(245, 158, 11, 0.08);
   --banner-bg: #121417;
   --font-heading: "Space Grotesk", sans-serif;
   --font-body: "Inter", sans-serif;
@@ -59,6 +65,12 @@ html[data-theme="midnight"] {
   --accent-alt: #38bdf8;
   --accent-ink: #0a0e17;
   --glow: rgba(129, 140, 248, 0.16);
+  --status-public: #818cf8;
+  --status-public-glow: rgba(129, 140, 248, 0.22);
+  --status-public-bg: rgba(129, 140, 248, 0.08);
+  --status-private: #38bdf8;
+  --status-private-glow: rgba(56, 189, 248, 0.25);
+  --status-private-bg: rgba(56, 189, 248, 0.08);
   --banner-bg: linear-gradient(135deg, rgba(129, 140, 248, 0.08), rgba(56, 189, 248, 0.05));
   --font-heading: "Playfair Display", Georgia, serif;
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -802,6 +814,24 @@ button {
   z-index: 0;
 }
 
+.project-card.is-public:before {
+  background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), var(--status-public-glow), transparent 45%);
+}
+
+.project-card.is-private:before {
+  background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), var(--status-private-glow), transparent 45%);
+}
+
+.project-card.is-public:hover:not(.is-active) {
+  border-color: var(--status-public);
+  box-shadow: 0 0 14px var(--status-public-glow);
+}
+
+.project-card.is-private:hover:not(.is-active) {
+  border-color: var(--status-private);
+  box-shadow: 0 0 14px var(--status-private-glow);
+}
+
 .project-card > * {
   position: relative;
   z-index: 1;
@@ -845,7 +875,11 @@ button {
 }
 
 .project-card.is-active .project-num {
-  color: var(--accent);
+  color: var(--status-public);
+}
+
+.project-card.is-private.is-active .project-num {
+  color: var(--status-private);
 }
 
 .project-card h3 {
@@ -874,13 +908,39 @@ button {
 
 .project-card.is-active .card-chevron {
   transform: rotate(180deg);
-  color: var(--accent);
+  color: var(--status-public);
+}
+
+.project-card.is-private.is-active .card-chevron {
+  color: var(--status-private);
 }
 
 .project-card.is-active {
-  border-color: var(--accent);
+  border-color: var(--status-public);
   background: var(--surface2);
-  box-shadow: 0 0 24px var(--glow), 0 8px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 24px var(--status-public-glow), 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+.project-card.is-private.is-active {
+  border-color: var(--status-private);
+  box-shadow: 0 0 24px var(--status-private-glow), 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+.project-card.is-private .metrics b {
+  color: var(--status-private);
+}
+
+.project-card.is-private .inspect-architecture {
+  color: var(--status-private);
+  border-color: var(--status-private);
+  background: var(--status-private-bg);
+}
+
+.project-card.is-private .inspect-architecture:hover,
+.project-card.is-private .inspect-architecture:focus-visible {
+  background: var(--status-private);
+  color: var(--accent-ink);
+  box-shadow: 0 0 18px var(--status-private-glow);
 }
 
 .card-expandable {
@@ -996,10 +1056,15 @@ button {
   }
 
   .stage-index {
-    color: var(--accent);
+    color: var(--status-public);
     font-weight: 700;
     font-size: 0.95rem;
     letter-spacing: -0.02em;
+    transition: color var(--motion-speed);
+  }
+
+  .stage-sticky.is-private .stage-index {
+    color: var(--status-private);
   }
 
   .stage-category {
@@ -1143,12 +1208,17 @@ button {
     align-items: baseline;
     gap: 5px;
     font: 600 0.82rem var(--font-mono);
-    color: var(--accent);
+    color: var(--status-public);
     padding: 4px 8px;
     background: var(--surface2);
     border: var(--border-width) var(--border-style) var(--line);
     border-radius: var(--radius-sm);
     white-space: nowrap;
+    transition: color var(--motion-speed);
+  }
+
+  .stage-sticky.is-private .stage-metrics b {
+    color: var(--status-private);
   }
 
   .stage-metrics small {
@@ -1181,19 +1251,38 @@ button {
   }
 
   .stage-actions a:hover {
-    color: var(--accent);
-    border-color: var(--accent);
+    color: var(--status-public);
+    border-color: var(--status-public);
+  }
+
+  .stage-sticky.is-private .stage-actions a:hover {
+    color: var(--status-private);
+    border-color: var(--status-private);
   }
 
   .stage-actions .inspect-architecture {
     color: var(--accent-ink);
-    background: var(--accent);
-    border-color: var(--accent);
+    background: var(--status-public);
+    border-color: var(--status-public);
     font-weight: 600;
   }
 
   .stage-actions .inspect-architecture:hover {
-    box-shadow: 0 0 16px var(--glow);
+    box-shadow: 0 0 16px var(--status-public-glow);
+  }
+
+  .stage-sticky.is-private .stage-actions .inspect-architecture {
+    background: var(--status-private);
+    border-color: var(--status-private);
+  }
+
+  .stage-sticky.is-private .stage-actions .inspect-architecture:hover {
+    box-shadow: 0 0 16px var(--status-private-glow);
+  }
+
+  .project-stage.is-private {
+    border-color: var(--status-private);
+    box-shadow: 0 0 20px var(--status-private-glow), var(--shadow-card);
   }
 }
 
@@ -1270,24 +1359,25 @@ button {
   letter-spacing: 0.08em;
   padding: 4px 8px;
   border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--motion-speed);
 }
 
 .status.public {
-  color: var(--accent);
-  background: var(--glow);
-  border: 1px solid var(--accent);
+  color: var(--status-public);
+  background: var(--status-public-bg);
+  border: 1px solid var(--status-public);
+  box-shadow: 0 0 8px var(--status-public-glow);
 }
 
-.status.private {
-  color: var(--accent-alt);
-  background: rgba(128, 128, 128, 0.1);
-  border: 1px solid var(--accent-alt);
-}
-
+.status.private,
 .status.research {
-  color: var(--accent);
-  background: var(--glow);
-  border: 1px solid var(--accent);
+  color: var(--status-private);
+  background: var(--status-private-bg);
+  border: 1px solid var(--status-private);
+  box-shadow: 0 0 8px var(--status-private-glow);
 }
 
 .metrics {

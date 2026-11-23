@@ -190,8 +190,8 @@
       <!-- Split-Screen Scrollytelling Showcase -->
       <div class="showcase-scrolly">
         <div class="project-grid" id="project-list" role="region" aria-label="Project showcase list">
-          <article class="project-card is-active" data-category="data" data-project="Industrial Energy SQL Pipeline"
-            data-index="01">
+          <article class="project-card is-public is-active" data-category="data" data-project="Industrial Energy SQL Pipeline"
+            data-visibility="public" data-index="01">
             <div class="card-header" role="button" tabindex="0" aria-expanded="true">
               <div class="card-meta"><span class="project-num">01</span><b class="status public">PUBLIC REPO</b></div>
               <h3>Industrial Energy SQL Pipeline</h3>
@@ -232,7 +232,7 @@
             </div>
           </article>
 
-          <article class="project-card" data-category="ml" data-project="Amorphous Phase ML" data-index="02">
+          <article class="project-card is-public" data-category="ml" data-project="Amorphous Phase ML" data-visibility="public" data-index="02">
             <div class="card-header" role="button" tabindex="0" aria-expanded="false">
               <div class="card-meta"><span class="project-num">02</span><b class="status public">PUBLIC REPO</b></div>
               <h3>Amorphous Phase ML</h3>
@@ -270,43 +270,9 @@
             </div>
           </article>
 
-          <article class="project-card" data-category="ml" data-project="Nb–O MLIP" data-index="03">
+          <article class="project-card is-public" data-category="data" data-project="Aether Climate Engine" data-visibility="public" data-index="03">
             <div class="card-header" role="button" tabindex="0" aria-expanded="false">
-              <div class="card-meta"><span class="project-num">03</span><b class="status research">Scientific ML R&amp;D</b></div>
-              <h3>Nb–O MLIP</h3>
-              <span class="card-chevron" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2.5">
-                  <path d="M6 9l6 6 6-6" />
-                </svg></span>
-            </div>
-            <div class="card-expandable">
-              <div class="card-expandable-content">
-                <div class="card-schematic visual-banner mlip"
-                  aria-label="Active-learning potential training and defect evaluation flow"><svg viewBox="0 0 500 110"
-                    aria-hidden="true">
-                    <path d="M40 85 C90 85 110 30 160 30 S210 85 260 85 S310 40 360 40 S410 85 460 85" fill="none" stroke="currentColor" stroke-width="2" />
-                    <path d="M40 85 C90 85 110 45 160 45 S210 85 260 85 S310 55 360 55 S410 85 460 85" fill="none" stroke="currentColor" opacity=".4" />
-                    <circle cx="160" cy="30" r="7" fill="currentColor" />
-                    <circle cx="260" cy="85" r="5" fill="currentColor" />
-                    <circle cx="360" cy="40" r="6" fill="currentColor" />
-                    <circle cx="110" cy="55" r="4" fill="currentColor" />
-                    <circle cx="310" cy="62" r="4" fill="currentColor" />
-                  </svg></div>
-                <p>Machine-learning interatomic potential (MACE) for the Nb–O system with active learning (AL iteration 2) across 687 DFT reference configurations to identify two-level-system (TLS) defect losses in superconducting quantum hardware.</p>
-                <div class="metrics"><b>687 <small>DFT frames</small></b><b>5.8–8.1 <small>meV/atom RMSE</small></b>
-                </div>
-                <div class="tags"><span>MACE</span><span>Quantum ESPRESSO</span><span>Active Learning</span><span>PyTorch</span><span>SLURM</span><span>Python</span></div>
-                <div class="card-links">
-                  <button class="inspect-architecture" type="button" data-project="Nb–O MLIP"
-                    aria-haspopup="dialog">Inspect Architecture &amp; Specs →</button>
-                </div>
-              </div>
-            </div>
-          </article>
-
-          <article class="project-card" data-category="data" data-project="Aether Climate Engine" data-index="04">
-            <div class="card-header" role="button" tabindex="0" aria-expanded="false">
-              <div class="card-meta"><span class="project-num">04</span><b class="status public">PUBLIC REPO</b></div>
+              <div class="card-meta"><span class="project-num">03</span><b class="status public">PUBLIC REPO</b></div>
               <h3>Aether Climate Engine</h3>
               <span class="card-chevron" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2.5">
@@ -338,7 +304,41 @@
             </div>
           </article>
 
-          <article class="project-card" data-category="product" data-project="Airflow Academy" data-index="05">
+          <article class="project-card is-private" data-category="ml" data-project="Nb–O MLIP" data-visibility="private" data-index="04">
+            <div class="card-header" role="button" tabindex="0" aria-expanded="false">
+              <div class="card-meta"><span class="project-num">04</span><b class="status private">Scientific ML R&amp;D</b></div>
+              <h3>Nb–O MLIP</h3>
+              <span class="card-chevron" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2.5">
+                  <path d="M6 9l6 6 6-6" />
+                </svg></span>
+            </div>
+            <div class="card-expandable">
+              <div class="card-expandable-content">
+                <div class="card-schematic visual-banner mlip"
+                  aria-label="Active-learning potential training and defect evaluation flow"><svg viewBox="0 0 500 110"
+                    aria-hidden="true">
+                    <path d="M40 85 C90 85 110 30 160 30 S210 85 260 85 S310 40 360 40 S410 85 460 85" fill="none" stroke="currentColor" stroke-width="2" />
+                    <path d="M40 85 C90 85 110 45 160 45 S210 85 260 85 S310 55 360 55 S410 85 460 85" fill="none" stroke="currentColor" opacity=".4" />
+                    <circle cx="160" cy="30" r="7" fill="currentColor" />
+                    <circle cx="260" cy="85" r="5" fill="currentColor" />
+                    <circle cx="360" cy="40" r="6" fill="currentColor" />
+                    <circle cx="110" cy="55" r="4" fill="currentColor" />
+                    <circle cx="310" cy="62" r="4" fill="currentColor" />
+                  </svg></div>
+                <p>Machine-learning interatomic potential (MACE) for the Nb–O system with active learning (AL iteration 2) across 687 DFT reference configurations to identify two-level-system (TLS) defect losses in superconducting quantum hardware.</p>
+                <div class="metrics"><b>687 <small>DFT frames</small></b><b>5.8–8.1 <small>meV/atom RMSE</small></b>
+                </div>
+                <div class="tags"><span>MACE</span><span>Quantum ESPRESSO</span><span>Active Learning</span><span>PyTorch</span><span>SLURM</span><span>Python</span></div>
+                <div class="card-links">
+                  <button class="inspect-architecture" type="button" data-project="Nb–O MLIP"
+                    aria-haspopup="dialog">Inspect Architecture &amp; Specs →</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="project-card is-private" data-category="product" data-project="Airflow Academy" data-visibility="private" data-index="05">
             <div class="card-header" role="button" tabindex="0" aria-expanded="false">
               <div class="card-meta"><span class="project-num">05</span><b class="status private">Full-Stack Prototype</b></div>
               <h3>Airflow Academy</h3>
@@ -371,7 +371,7 @@
             </div>
           </article>
 
-          <article class="project-card" data-category="product" data-project="Smileprint" data-index="06">
+          <article class="project-card is-private" data-category="product" data-project="Smileprint" data-visibility="private" data-index="06">
             <div class="card-header" role="button" tabindex="0" aria-expanded="false">
               <div class="card-meta"><span class="project-num">06</span><b class="status private">Private Pilot</b></div>
               <h3>Smileprint</h3>
@@ -402,7 +402,7 @@
             </div>
           </article>
 
-          <article class="project-card" data-category="science" data-project="Verified FEM Workbench" data-index="07">
+          <article class="project-card is-private" data-category="science" data-project="Verified FEM Workbench" data-visibility="private" data-index="07">
             <div class="card-header" role="button" tabindex="0" aria-expanded="false">
               <div class="card-meta"><span class="project-num">07</span><b class="status private">Pre-Release R&amp;D</b></div>
               <h3>Verified FEM Workbench</h3>
@@ -431,7 +431,7 @@
             </div>
           </article>
 
-          <article class="project-card" data-category="product" data-project="Tessera" data-index="08">
+          <article class="project-card is-private" data-category="product" data-project="Tessera" data-visibility="private" data-index="08">
             <div class="card-header" role="button" tabindex="0" aria-expanded="false">
               <div class="card-meta"><span class="project-num">08</span><b class="status private">Pre-Release RC v1.0.0</b></div>
               <h3>Tessera</h3>

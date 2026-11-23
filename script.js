@@ -585,18 +585,24 @@ document.addEventListener("DOMContentLoaded", () => {
       const index = card.dataset.index || "01";
       const category = card.dataset.category || "data";
       const statusEl = card.querySelector(".status");
-      const isPublic = statusEl?.classList.contains("public");
+      const isPublic = card.classList.contains("is-public") || statusEl?.classList.contains("public");
+      const isPrivate = !isPublic;
+
+      if (stageSticky) {
+        stageSticky.classList.toggle("is-private", isPrivate);
+        stageSticky.classList.toggle("is-public", isPublic);
+      }
+      const projectStageEl = document.querySelector(".project-stage");
+      if (projectStageEl) {
+        projectStageEl.classList.toggle("is-private", isPrivate);
+        projectStageEl.classList.toggle("is-public", isPublic);
+      }
 
       if (stageIndex) stageIndex.textContent = index;
       if (stageBadge) {
         if (statusEl) {
           stageBadge.textContent = statusEl.textContent.trim();
-          const badgeClass = statusEl.classList.contains("public")
-            ? "public"
-            : statusEl.classList.contains("research")
-            ? "research"
-            : "private";
-          stageBadge.className = `stage-badge status ${badgeClass}`;
+          stageBadge.className = `stage-badge status ${isPublic ? "public" : "private"}`;
         } else {
           stageBadge.textContent = isPublic ? "PUBLIC REPO" : "PRIVATE R&D";
           stageBadge.className = `stage-badge status ${isPublic ? "public" : "private"}`;
